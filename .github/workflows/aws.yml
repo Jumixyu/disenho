@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to EC2 Node.js
 
 on:
   push:
@@ -15,11 +15,15 @@ jobs:
 
       - name: Update code on EC2
         run: |
-          cd ~/my-server/disenho
+          cd ~/disenho
           git pull origin main
-          pm2 restart all
+          npm install
 
-          
+      - name: Restart Node.js server
+        run: |
+          cd ~/disenho
+          pm2 restart all || node server.js &
+
   deploy_andrea:
     runs-on: andrea
 
@@ -29,6 +33,12 @@ jobs:
 
       - name: Update code on EC2
         run: |
-          cd ~/my-server/disenho
+          cd ~/disenho
           git pull origin main
-          pm2 restart all        
+          npm install
+
+      - name: Restart Node.js server
+        run: |
+          cd ~/disenho
+          pm2 restart all || node server.js &
+    
