@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa en Vivo de Coordenadas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map { height: 500px; width: 100%; margin: 20px auto; border-radius: 10px; }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        h2 { color: #333; }
+    </style>
+</head>
+<body>
+    <h2>Mapa en Vivo de Coordenadas</h2>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let map = L.map('map').setView([0, 0], 2); // Vista inicial
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker = null;
+
+        function actualizarMapa() {
+            console.log("📡 Solicitando última coordenada...");
+            fetch('http://3.148.111.156/ultima-coordenada') // Usa la IP pública de tu EC2
+
+                .then(response => response.json())
+                .then(data => {
+                    console.log("📡 Respuesta recibida:", data);
+
+                    if (!data || data.error) {
+                        console.warn('⚠ No hay coordenadas disponibles aún.');
+                        return;
+                    }
+
+                    let lat = parseFloat(data.latitud);
+                    let lon = parseFloat(data.longitud);
+
+                    if (isNaN(lat) || isNaN(lon)) {
+                        console.error('❌ Error: Coordenadas no válidas');
+                        return;
+                    }
+
+                    if (!marker) {
+                        marker = L.marker([lat, lon]).addTo(map)
+                            .bindPopup(📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora})
+                            .openPopup();
+                    } else {
+                        marker.setLatLng([lat, lon]).setPopupContent(
+                            📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora}
+                        ).openPopup();
+                    }
+
+                    map.setView([lat, lon], 15);
+                })
+                .catch(error => console.error('❌ Error al obtener coordenadas:', error));
+        }
+
+        setInterval(actualizarMapa, 5000); // Actualiza cada 5 segundos
+        actualizarMapa(); // Cargar de inmediato al abrir la página
+    </script>
+</body>
+</html>
