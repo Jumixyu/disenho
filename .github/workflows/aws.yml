@@ -1,4 +1,4 @@
-name: Deploy to EC2
+vname: Deploy
 
 on:
   push:
@@ -15,10 +15,10 @@ jobs:
 
       - name: Update code on EC2
         run: |
-          cd ~/
+          cd ~/my-server/disenho
           git pull origin main
-          sudo cp -r ~/repo_backup/* /var/www/html/
-          sudo systemctl restart apache2
+          pm2 restart all
+
           
   deploy_andrea:
     runs-on: andrea
@@ -29,7 +29,6 @@ jobs:
 
       - name: Update code on EC2
         run: |
-          cd ~/repo_backup
+          cd ~/my-server/disenho
           git pull origin main
-          sudo cp -r ~/repo_backup/* /var/www/html/
-          sudo systemctl restart apache2          
+          pm2 restart all        
