@@ -1,0 +1,50 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deployjuan:
+    runs-on: disenho-juan
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          sudo pm2 restart server.js
+
+
+  deployandrea:
+    runs-on: disenho-andrea
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          sudo pm2 restart server.js
+
+  deploybrayan:
+    runs-on: disenho-brayan
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          sudo pm2 restart server.js
+
+  deploysteeven:
+    runs-on: disenho-steeven
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          sudo pm2 restart server.js
+
+
+
