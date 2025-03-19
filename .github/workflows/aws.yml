@@ -1,0 +1,34 @@
+vname: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_juan:
+    runs-on: juan
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update code on EC2
+        run: |
+          cd ~/my-server/disenho
+          git pull origin main
+          pm2 restart all
+
+          
+  deploy_andrea:
+    runs-on: andrea
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update code on EC2
+        run: |
+          cd ~/my-server/disenho
+          git pull origin main
+          pm2 restart all        

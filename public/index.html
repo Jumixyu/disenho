@@ -17,33 +17,23 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Inicialización del mapa en una vista general
-        let map = L.map('map').setView([0, 0], 2);
-
-        // Capa de mapa base de OpenStreetMap
+        let map = L.map('map').setView([0, 0], 2); // Vista inicial
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        let marker = null; // Marcador inicial vacío
+        let marker = null;
 
-        // Función para obtener y actualizar las coordenadas en el mapa
         function actualizarMapa() {
-            console.log("Solicitando última coordenada...");
+            console.log("📡 Solicitando última coordenada...");
 
-            fetch('http://3.148.111.156/ultima-coordenada') // Asegúrate de que este endpoint esté accesible
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Error en la respuesta del servidor: ${response.status}`);
-                    }
-                    return response.json();
-                })
+            fetch('/ultima-coordenada') // Usa ruta relativa para evitar problemas CORS
+                .then(response => response.json())
                 .then(data => {
-                    console.log("Respuesta recibida:", data);
+                    console.log("📡 Respuesta recibida:", data);
 
-                    // Validación de datos
-                    if (!data || data.error || !data.latitud || !data.longitud) {
-                        console.warn('No hay coordenadas disponibles aún.');
+                    if (!data || data.error) {
+                        console.warn('⚠ No hay coordenadas disponibles aún.');
                         return;
                     }
 
@@ -51,11 +41,10 @@
                     let lon = parseFloat(data.longitud);
 
                     if (isNaN(lat) || isNaN(lon)) {
-                        console.error('Error: Coordenadas no válidas.');
+                        console.error('❌ Error: Coordenadas no válidas');
                         return;
                     }
 
-                    // Si es el primer marcador, crearlo; si no, actualizarlo
                     if (!marker) {
                         marker = L.marker([lat, lon]).addTo(map)
                             .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora}`)
@@ -66,15 +55,13 @@
                         ).openPopup();
                     }
 
-                    // Centrar el mapa en la nueva coordenada con zoom adecuado
                     map.setView([lat, lon], 15);
                 })
-                .catch(error => console.error('Error al obtener coordenadas:', error));
+                .catch(error => console.error('❌ Error al obtener coordenadas:', error));
         }
 
-        // Ejecutar la función de inmediato y luego actualizar cada 5 segundos
-        actualizarMapa();
-        setInterval(actualizarMapa, 5000);
+        setInterval(actualizarMapa, 5000); // Actualiza cada 5 segundos
+        actualizarMapa(); // Cargar de inmediato al abrir la página
     </script>
 </body>
 </html>
