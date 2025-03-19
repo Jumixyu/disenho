@@ -1,44 +1,30 @@
-name: Deploy to EC2 Node.js
+name: Deploy to Server
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  deploy_juan:
-    runs-on: juan
-
+  deployjuan:
+    runs-on: disenho-juan
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - name: Update code on EC2
+      - name: run server
         run: |
-          cd ~/disenho
-          git pull origin main
           npm install
+          sudo pm2 restart server.js
 
-      - name: Restart Node.js server
-        run: |
-          cd ~/disenho
-          pm2 restart all || node server.js &
 
-  deploy_andrea:
-    runs-on: andrea
-
+  deployandrea:
+    runs-on: disenho-andrea
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - name: Update code on EC2
+      - name: run server
         run: |
-          cd ~/disenho
-          git pull origin main
           npm install
+          sudo pm2 restart server.js
 
-      - name: Restart Node.js server
-        run: |
-          cd ~/disenho
-          pm2 restart all || node server.js &
-    
+
+
