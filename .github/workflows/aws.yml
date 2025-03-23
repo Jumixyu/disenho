@@ -8,44 +8,20 @@ jobs:
   deployjuan:
     runs-on: juan
     steps:
-      - name: Checkout latest code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v2
 
-      - name: Ensure we are on main branch
+      - name: run server
         run: |
-          cd /home/ubuntu/my-server/disenho
-          git checkout main
-          git reset --hard
-          git clean -fd
-          git pull origin main --ff-only
-
-      - name: Install dependencies and restart server
-        run: |
-          cd /home/ubuntu/my-server/disenho
           npm install
           pm2 restart server
 
   deployandrea:
     runs-on: andrea
     steps:
-      - name: Checkout latest code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v2
 
-      - name: Ensure we are on main branch
+      - name: run server
         run: |
-          cd /home/ubuntu/my-server/disenho
-          git checkout main
-          git reset --hard
-          git clean -fd
-          git pull origin main --ff-only
-
-      - name: Install dependencies and restart server
-        run: |
-          cd /home/ubuntu/my-server/disenho
           npm install
           pm2 restart server
 
