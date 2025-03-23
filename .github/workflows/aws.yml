@@ -8,12 +8,19 @@ jobs:
   deployjuan:
     runs-on: juan
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout latest code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Asegura que tenga el historial completo
 
-      - name: Update code from GitHub
-        run: git pull origin main
+      - name: Ensure we are on main branch
+        run: |
+          git checkout main
+          git reset --hard
+          git clean -fd
+          git pull origin main --ff-only
 
-      - name: run server
+      - name: Run server
         run: |
           npm install
           pm2 restart server
@@ -21,13 +28,21 @@ jobs:
   deployandrea:
     runs-on: andrea
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout latest code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Update code from GitHub
-        run: git pull origin main
+      - name: Ensure we are on main branch
+        run: |
+          git checkout main
+          git reset --hard
+          git clean -fd
+          git pull origin main --ff-only
 
-      - name: run server
+      - name: Run server
         run: |
           npm install
           pm2 restart server
+
 
