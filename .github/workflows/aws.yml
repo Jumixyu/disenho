@@ -11,7 +11,7 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Asegura que tenga el historial completo
+          fetch-depth: 0
 
       - name: Ensure we are on main branch
         run: |
@@ -20,11 +20,8 @@ jobs:
           git clean -fd
           git pull origin main --ff-only
 
-      - name: Navigate to the project directory
-        run: cd disenho  # 🛠 Moverse a la carpeta correcta antes de instalar
-
       - name: Install dependencies and restart server
-        working-directory: disenho  # 🔥 Define la carpeta donde correrán los comandos
+        working-directory: disenho  # 🔥 Ahora se ejecuta dentro de 'disenho'
         run: |
           npm install
           pm2 restart server
@@ -44,12 +41,10 @@ jobs:
           git clean -fd
           git pull origin main --ff-only
 
-      - name: Navigate to the project directory
-        run: cd disenho  # 🛠 Moverse a la carpeta correcta antes de instalar
-
       - name: Install dependencies and restart server
-        working-directory: disenho  # 🔥 Define la carpeta donde correrán los comandos
+        working-directory: disenho  # 🔥 Ahora se ejecuta dentro de 'disenho'
         run: |
           npm install
           pm2 restart server
+
 
