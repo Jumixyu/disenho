@@ -25,5 +25,25 @@ jobs:
           npm install
           pm2 restart server
 
+  deploybrayan:
+    runs-on: brayan
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          pm2 restart server
+
+  deploysteeven:
+    runs-on: steeven
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          pm2 restart server
+
 
 
