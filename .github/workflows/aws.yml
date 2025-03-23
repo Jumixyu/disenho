@@ -6,7 +6,7 @@ on:
 
 jobs:
   deployjuan:
-    runs-on: disenho-juan
+    runs-on: [self-hosted, disenho-juan]
     steps:
       - uses: actions/checkout@v2
 
@@ -17,7 +17,7 @@ jobs:
 
 
   deployandrea:
-    runs-on: disenho-andrea
+    runs-on: [self-hosted, disenho-andrea]
     steps:
       - uses: actions/checkout@v2
 
@@ -27,7 +27,7 @@ jobs:
           sudo pm2 restart server.js
 
   deploybrayan:
-    runs-on: disenho-brayan
+    runs-on: [self-hosted, disenho-brayan]
     steps:
       - uses: actions/checkout@v2
 
@@ -37,7 +37,7 @@ jobs:
           sudo pm2 restart server.js
 
   deploysteeven:
-    runs-on: disenho-steeven
+    runs-on: [self-hosted, disenho-steeven]
     steps:
       - uses: actions/checkout@v2
 
