@@ -13,7 +13,7 @@ jobs:
       - name: run server
         run: |
           npm install
-          sudo pm2 restart server.js
+          sudo pm2 restart my-server
 
 
   deployandrea:
@@ -24,24 +24,5 @@ jobs:
       - name: run server
         run: |
           npm install
-          sudo pm2 restart server.js
+          sudo pm2 restart my-server
 
-  deploybrayan:
-    runs-on: [self-hosted, brayan]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: run server
-        run: |
-          npm install
-          sudo pm2 restart server.js
-
-  deploysteeven:
-    runs-on: [self-hosted, steeven]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: run server
-        run: |
-          npm install
-          sudo pm2 restart server.js
