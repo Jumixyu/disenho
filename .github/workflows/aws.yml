@@ -5,6 +5,16 @@ on:
     branches: [main]
 
 jobs:
+  deployjuan:
+    runs-on: [self-hosted, juan]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: run server
+        run: |
+          npm install
+          pm2 restart server
+
   deployandrea:
     runs-on: [self-hosted, andrea]
     steps:
@@ -14,14 +24,4 @@ jobs:
         run: |
           npm install
           pm2 restart my-server
-
-  deployjuan:
-    runs-on: [self-hosted, juan]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: run server
-        run: |
-          npm install
-          sudo pm2 restart my-server
 
