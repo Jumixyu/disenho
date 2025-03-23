@@ -20,7 +20,11 @@ jobs:
           git clean -fd
           git pull origin main --ff-only
 
-      - name: Run server
+      - name: Navigate to the project directory
+        run: cd disenho  # 🛠 Moverse a la carpeta correcta antes de instalar
+
+      - name: Install dependencies and restart server
+        working-directory: disenho  # 🔥 Define la carpeta donde correrán los comandos
         run: |
           npm install
           pm2 restart server
@@ -40,9 +44,12 @@ jobs:
           git clean -fd
           git pull origin main --ff-only
 
-      - name: Run server
+      - name: Navigate to the project directory
+        run: cd disenho  # 🛠 Moverse a la carpeta correcta antes de instalar
+
+      - name: Install dependencies and restart server
+        working-directory: disenho  # 🔥 Define la carpeta donde correrán los comandos
         run: |
           npm install
           pm2 restart server
-
 
