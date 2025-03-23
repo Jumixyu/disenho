@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const port = 80; // Acceso sin :5000
+const port = process.env.PORT || 80; // Acceso sin :5000
 const udpPort = 5000; // Puerto UDP
 
 // Conexión a MySQL
