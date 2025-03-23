@@ -15,7 +15,7 @@ jobs:
 
       - name: Ensure we are on main branch
         run: |
-          cd /home/ubuntu/my-server
+          cd /home/ubuntu/my-server/disenho
           git checkout main
           git reset --hard
           git clean -fd
@@ -37,7 +37,7 @@ jobs:
 
       - name: Ensure we are on main branch
         run: |
-          cd /home/ubuntu/my-server
+          cd /home/ubuntu/my-server/disenho
           git checkout main
           git reset --hard
           git clean -fd
