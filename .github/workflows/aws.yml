@@ -23,5 +23,5 @@ jobs:
       - name: run server
         run: |
           npm install
-          pm2 restart my-server
+          pm2 restart server
 
