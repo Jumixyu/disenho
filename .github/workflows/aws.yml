@@ -24,7 +24,7 @@ jobs:
         run:  npm install 
 
       - name: env file
-        run:  cp .env _work/disenho/disenho/ 
+        run:  pwd
 
       - name: run server
         run: |
