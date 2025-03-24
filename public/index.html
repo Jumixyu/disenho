@@ -17,6 +17,14 @@
     <button onclick="reiniciarRecorrido()">📍 Reiniciar Recorrido</button>
     <div id="map"></div>
 
+    <div id="historico-controls">
+        <label for="inicio">Inicio:</label>
+        <input type="datetime-local" id="inicio">
+        <label for="fin">Fin:</label>
+        <input type="datetime-local" id="fin">
+        <button onclick="obtenerRecorridoHistorico()">📌 Ver Recorrido Histórico</button>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         let map = L.map('map').setView([0, 0], 2); // Vista inicial
@@ -97,6 +105,35 @@
                 })
                 .catch(error => console.error('❌ Error al solicitar la ruta:', error));
         }
+
+        // Función para obtener recorrido histórico
+        function obtenerRecorridoHistorico() {
+            let inicio = document.getElementById("inicio").value;
+            let fin = document.getElementById("fin").value;
+
+            if (!inicio || !fin) {
+                alert("Por favor, selecciona ambas fechas.");
+                return;
+            }
+
+            fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.length) {
+                        alert("No hay datos en este rango de tiempo.");
+                        return;
+                    }
+
+                    let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
+
+                    if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
+
+                    ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
+                    map.fitBounds(ruta.getBounds());
+                })
+                .catch(error => console.error('❌ Error al obtener recorrido histórico:', error));
+        }
+
 
         function reiniciarRecorrido() {
             console.log("🔄 Reiniciando recorrido...");

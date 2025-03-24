@@ -44,6 +44,27 @@ app.get('/ultima-coordenada', (req, res) => {
     });
 });
 
+// Endpoint para obtener recorrido histórico
+app.get('/recorrido-historico', (req, res) => {
+    const { inicio, fin } = req.query;
+
+    if (!inicio || !fin) {
+        return res.status(400).json({ error: 'Faltan parámetros inicio y fin' });
+    }
+
+    db.query(
+        'SELECT latitud, longitud FROM coordenadas WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? ORDER BY id ASC',
+        [inicio, fin],
+        (err, rows) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(rows);
+        }
+    );
+});
+
 // Servidor UDP para recibir coordenadas
 const udpServer = dgram.createSocket('udp4');
 
