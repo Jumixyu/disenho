@@ -20,13 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: copy .env file
-        run : cp ~/my-server/actions-runner/_work/disenho/disenho/.env .
-
       - name: install npm dependencies
-        run:  npm install --verbose
+        run:  npm install 
 
       - name: run server
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
         run: |
           npm install
           pm2 restart server
