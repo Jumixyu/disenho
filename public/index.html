@@ -19,9 +19,9 @@
 
     <div id="historico-controls">
         <label for="inicio">Inicio:</label>
-        <input type="datetime-local" id="inicio">
         <label for="fin">Fin:</label>
-        <input type="datetime-local" id="fin">
+        <input type="datetime-local" id="inicio" step="1">
+        <input type="datetime-local" id="fin" step="1">
         <button onclick="obtenerRecorridoHistorico()">📌 Ver Recorrido Histórico</button>
     </div>
 
@@ -108,31 +108,36 @@
 
         // Función para obtener recorrido histórico
         function obtenerRecorridoHistorico() {
-            let inicio = document.getElementById("inicio").value;
-            let fin = document.getElementById("fin").value;
+    let inicio = document.getElementById("inicio").value;
+    let fin = document.getElementById("fin").value;
 
-            if (!inicio || !fin) {
-                alert("Por favor, selecciona ambas fechas.");
+    if (!inicio || !fin) {
+        alert("Por favor, selecciona ambas fechas.");
+        return;
+    }
+
+    // Formatear fecha correctamente a "YYYY-MM-DD HH:MM:SS"
+    let inicioFormateado = inicio.replace("T", " ") + ":00";
+    let finFormateado = fin.replace("T", " ") + ":00";
+
+    fetch(`/recorrido-historico?inicio=${inicioFormateado}&fin=${finFormateado}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.length) {
+                alert("No hay datos en este rango de tiempo.");
                 return;
             }
 
-            fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.length) {
-                        alert("No hay datos en este rango de tiempo.");
-                        return;
-                    }
+            let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
 
-                    let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
+            if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
 
-                    if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
+            ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
+            map.fitBounds(ruta.getBounds());
+        })
+        .catch(error => console.error('❌ Error al obtener recorrido histórico:', error));
+}
 
-                    ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
-                    map.fitBounds(ruta.getBounds());
-                })
-                .catch(error => console.error('❌ Error al obtener recorrido histórico:', error));
-        }
 
 
         function reiniciarRecorrido() {
