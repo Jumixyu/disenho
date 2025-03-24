@@ -24,7 +24,7 @@ jobs:
         run:  npm install 
 
       - name: env file
-        run:  pwd
+        run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
 
       - name: run server
         run: |
