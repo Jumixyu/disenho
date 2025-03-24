@@ -20,10 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: copy .env file
+        run : cp ~/.env .
+
+      - name: install npm dependencies
+        run:  npm install --verbose
+
       - name: run server
         run: |
           npm install
           pm2 restart server
+
+      - name: verify all services are running
+        run: pm2 list
 
   deploybrayan:
     runs-on: brayan
@@ -44,6 +53,3 @@ jobs:
         run: |
           npm install
           pm2 restart server
-
-
-

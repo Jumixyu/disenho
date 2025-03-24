@@ -9,11 +9,12 @@ const port = process.env.PORT || 80; // Acceso sin :5000
 const udpPort = 5000; // Puerto UDP
 
 // Conexión a MySQL
+require('dotenv').config();
 const db = mysql.createConnection({
-    host: 'dbandrea2.cr00uqgym11o.us-east-2.rds.amazonaws.com',
-    user: 'dbandrea2',
-    password: 'diseno123',
-    database: 'dbandrea2'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
 });
 
 db.connect(err => {
@@ -23,6 +24,8 @@ db.connect(err => {
     }
     console.log('✅ Conexión exitosa a la base de datos.');
 });
+
+module.exports = db;
 
 // Middleware
 app.use(cors());
