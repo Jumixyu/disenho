@@ -23,8 +23,10 @@ jobs:
       - name: install npm dependencies
         run:  npm install 
 
+      - name: env file
+        run:  cp .env disenho/disenho .
+
       - name: run server
-        cp .env disenho/disenho/
         run: |
           npm install
           pm2 restart server
