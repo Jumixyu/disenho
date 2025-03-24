@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: copy .env file
-        run : cp ~/.env .
+        run : cp ~/my-server/actions-runner/_work/disenho/disenho/.env .
 
       - name: install npm dependencies
         run:  npm install --verbose
