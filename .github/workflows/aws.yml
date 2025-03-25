@@ -10,10 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: install npm dependencies
+        run:  npm install 
+
+      - name: env file
+        run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
+
       - name: run server
         run: |
           npm install
           pm2 restart server
+
+      - name: verify all services are running
+        run: pm2 list
 
   deployandrea:
     runs-on: andrea
@@ -39,17 +48,35 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: install npm dependencies
+        run:  npm install 
+
+      - name: env file
+        run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
+
       - name: run server
         run: |
           npm install
           pm2 restart server
+
+      - name: verify all services are running
+        run: pm2 list
 
   deploysteeven:
     runs-on: steeven
     steps:
       - uses: actions/checkout@v2
 
+      - name: install npm dependencies
+        run:  npm install 
+
+      - name: env file
+        run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
+
       - name: run server
         run: |
           npm install
           pm2 restart server
+
+      - name: verify all services are running
+        run: pm2 list
