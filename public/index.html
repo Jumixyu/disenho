@@ -148,7 +148,10 @@
 
       async function obtenerUltimaCoordenada() {
         try {
-          const response = await fetch('http://abquintero.ddns.net/ultima-coordenada');
+            const response = await fetch('http://abquintero.ddns.net/ultima-coordenada', {
+                mode: 'no-cors'
+            });
+
           const data = await response.json();
 
           if (!data || data.error) {
@@ -169,7 +172,10 @@
         }
 
         try {
-          const response = await fetch(`http://abquintero.ddns.net/recorrido-historico?inicio=${inicio}&fin=${fin}`);
+            const response = await fetch(`http://abquintero.ddns.net/recorrido-historico?inicio=${inicio}&fin=${fin}`, {
+                mode: 'no-cors'
+            });
+
           const data = await response.json();
 
           if (!data.length) {
