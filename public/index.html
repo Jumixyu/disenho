@@ -36,15 +36,42 @@
     
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        let map = L.map('map').setView([0, 0], 2); 
+
+        let map = null;
         let marker = null;
         let ruta = null;
         let coordenadas = [];
         let interval = null;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        function inicializarMapa() {
+            if (!map) { 
+                map = L.map('map').setView([0, 0], 2);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+            }
+
+            setTimeout(() => { map.invalidateSize(); }, 500); // Corrige problemas al mostrar mapa oculto
+        }
+
+        function mostrarHistorico() {
+            document.getElementById('historico-controls').style.display = 'block';
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('tiempo-real-controls').style.display = 'none';
+
+            clearInterval(interval); // Detiene la actualización en tiempo real
+            inicializarMapa();
+        }
+
+        function mostrarTiempoReal() {
+            document.getElementById('historico-controls').style.display = 'none';
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('tiempo-real-controls').style.display = 'block';
+
+            inicializarMapa();
+            interval = setInterval(actualizarMapa, 5000); // Reinicia actualización en tiempo real
+        }
 
         function actualizarMapa() {
             fetch('/ultima-coordenada')
@@ -58,7 +85,7 @@
                     coordenadas.push([lat, lon]);
 
                     if (!marker) {
-                        marker = L.marker([lat, lon]).addTo(map).bindPopup(`📍 Lat: ${lat}, Long: ${lon}`);
+                        marker = L.marker([lat, lon]).addTo(map).bindPopup(`📍 Lat: ${lat}, Long: ${lon}`).openPopup();
                     } else {
                         marker.setLatLng([lat, lon]).setPopupContent(`📍 Lat: ${lat}, Long: ${lon}`).openPopup();
                     }
@@ -68,6 +95,15 @@
                 })
                 .catch(error => console.error('❌ Error:', error));
         }
+
+        // Para detener actualización en tiempo real si cambia de vista
+        function detenerTiempoReal() {
+            clearInterval(interval);
+        }
+
+        // Llamar por defecto para tiempo real al cargar la página
+        document.addEventListener("DOMContentLoaded", mostrarTiempoReal);
+    
 
         function solicitarRuta(puntos) {
             if (puntos.length < 2) return;
@@ -107,28 +143,6 @@
         function reiniciarRecorrido() {
             if (ruta) map.removeLayer(ruta);
             coordenadas = [];
-        }
-
-        function verHistorico() {
-            document.getElementById("historico-controls").style.display = "block";
-            document.getElementById("real-time-controls").style.display = "none";
-            document.getElementById("map").style.display = "block";
-            if (interval) clearInterval(interval);
-        }
-
-        function verTiempoReal() {
-            document.getElementById("real-time-controls").style.display = "block";
-            document.getElementById("historico-controls").style.display = "none";
-            document.getElementById("map").style.display = "block";
-            interval = setInterval(actualizarMapa, 5000);
-            actualizarMapa();
-        }
-
-        function volver() {
-            document.getElementById("historico-controls").style.display = "none";
-            document.getElementById("real-time-controls").style.display = "none";
-            document.getElementById("map").style.display = "none";
-            if (interval) clearInterval(interval);
         }
     </script>
 </body>
