@@ -55,24 +55,6 @@
             setTimeout(() => { map.invalidateSize(); }, 500); // Corrige problemas al mostrar mapa oculto
         }
 
-        function mostrarHistorico() {
-            document.getElementById('historico-controls').style.display = 'block';
-            document.getElementById('map').style.display = 'block';
-            document.getElementById('tiempo-real-controls').style.display = 'none';
-
-            clearInterval(interval); // Detiene la actualización en tiempo real
-            inicializarMapa();
-        }
-
-        function mostrarTiempoReal() {
-            document.getElementById('historico-controls').style.display = 'none';
-            document.getElementById('map').style.display = 'block';
-            document.getElementById('tiempo-real-controls').style.display = 'block';
-
-            inicializarMapa();
-            interval = setInterval(actualizarMapa, 5000); // Reinicia actualización en tiempo real
-        }
-
         function actualizarMapa() {
             fetch('/ultima-coordenada')
                 .then(response => response.json())
@@ -95,14 +77,6 @@
                 })
                 .catch(error => console.error('❌ Error:', error));
         }
-
-        // Para detener actualización en tiempo real si cambia de vista
-        function detenerTiempoReal() {
-            clearInterval(interval);
-        }
-
-        // Llamar por defecto para tiempo real al cargar la página
-        document.addEventListener("DOMContentLoaded", mostrarTiempoReal);
     
 
         function solicitarRuta(puntos) {
@@ -144,6 +118,33 @@
             if (ruta) map.removeLayer(ruta);
             coordenadas = [];
         }
+
+        function mostrarHistorico() {
+            document.getElementById('historico-controls').style.display = 'block';
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('tiempo-real-controls').style.display = 'none';
+
+            clearInterval(interval); // Detiene la actualización en tiempo real
+            inicializarMapa();
+        }
+
+        function mostrarTiempoReal() {
+            document.getElementById('historico-controls').style.display = 'none';
+            document.getElementById('map').style.display = 'block';
+            document.getElementById('tiempo-real-controls').style.display = 'block';
+
+            inicializarMapa();
+            interval = setInterval(actualizarMapa, 5000); // Reinicia actualización en tiempo real
+        }
+
+        // Para detener actualización en tiempo real si cambia de vista
+        function detenerTiempoReal() {
+            clearInterval(interval);
+        }
+
+        // Llamar por defecto para tiempo real al cargar la página
+        document.addEventListener("DOMContentLoaded", mostrarTiempoReal);
+
     </script>
 </body>
 </html>
