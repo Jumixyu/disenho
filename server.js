@@ -93,4 +93,9 @@ udpServer.bind(udpPort, () => {
     console.log(`✅ Servidor UDP escuchando en el puerto ${udpPort}`);
 });
 
+// Iniciar servidor HTTP en el puerto 80
+app.listen(port, '0.0.0.0', () => {
+    console.log("🚀 Servidor corriendo en http://0.0.0.0");
+});
+
 
