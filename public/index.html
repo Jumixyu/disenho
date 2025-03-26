@@ -96,32 +96,35 @@
         }
 
 
-        function mostrarRecorridoHistorico() {
-            let inicio = document.getElementById('inicio').value;
-            let fin = document.getElementById('fin').value;
+        function obtenerRecorridoHistorico() {
+            let inicio = document.getElementById("inicio").value;
+            let fin = document.getElementById("fin").value;
 
             if (!inicio || !fin) {
-                alert("📅 Selecciona un rango de fechas válido");
+                alert("Por favor, selecciona ambas fechas.");
                 return;
             }
 
-            fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`)
+            // Formatear fecha correctamente a "YYYY-MM-DD HH:MM:SS"
+            let inicioFormateado = inicio.replace("T", " ") + ":00";
+            let finFormateado = fin.replace("T", " ") + ":00";
+
+            fetch(`/recorrido-historico?inicio=${inicioFormateado}&fin=${finFormateado}`)
                 .then(response => response.json())
                 .then(data => {
-                    if (!data || data.length === 0) {
-                        alert("⚠ No hay datos para este periodo.");
+                    if (!data.length) {
+                        alert("No hay datos en este rango de tiempo.");
                         return;
                     }
 
-                    // Eliminar línea anterior si existe
-                    if (rutaHistorica) map.removeLayer(rutaHistorica);
+                    let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
 
-                    let historial = data.map(p => [parseFloat(p.latitud), parseFloat(p.longitud)]);
+                    if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
 
-                    rutaHistorica = L.polyline(historial, { color: 'red', weight: 4 }).addTo(map);
-                    map.setView(historial[0], 14);
+                    ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
+                    map.fitBounds(ruta.getBounds());
                 })
-                .catch(error => console.error('❌ Error al cargar recorrido histórico:', error));
+                .catch(error => console.error('❌ Error al obtener recorrido histórico:', error));
         }
 
     </script>
