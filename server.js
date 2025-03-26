@@ -13,9 +13,9 @@ const udpPort = 5000; // Puerto UDP
 
 // Cargar certificados
 const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/abquintero.ddns.net/cert.pem"),
-  ca: fs.readFileSync("/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem"),
+  key: fs.readFileSync("/etc/letsencrypt/archive/abquintero.ddns.net/privkey1.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/archive/abquintero.ddns.net/cert1.pem"),
+  ca: fs.readFileSync("/etc/letsencrypt/archive/abquintero.ddns.net/fullchain1.pem"),
 };
 
 // Servidor HTTPS
