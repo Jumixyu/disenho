@@ -4,10 +4,28 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
+const https = require('https');
 
 const app = express();
-const port = process.env.PORT || 443; // Acceso sin :5000
+const port = process.env.PORT || 443; // Puerto HTTPS
 const udpPort = 5000; // Puerto UDP
+
+// Carga los certificados SSL de Let's Encrypt
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem')
+};
+
+// Ruta de prueba
+app.get('/', (req, res) => {
+    res.send('Servidor HTTPS con Node.js está funcionando.');
+});
+
+// Iniciar el servidor HTTPS
+https.createServer(options, app).listen(port, () => {
+    console.log(`Servidor HTTPS corriendo en https://abquintero.ddns.net:${port}`);
+});
 
 // Conexión a MySQL
 require('dotenv').config();
