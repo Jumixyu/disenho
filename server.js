@@ -6,23 +6,8 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 const app = express();
+const port = process.env.PORT || 80; // Acceso sin :5000
 const udpPort = 5000; // Puerto UDP
-
-const fs = require("fs");
-const https = require("https");
-
-
-// Cargar certificados
-const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/tudominio.com/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/tudominio.com/cert.pem"),
-  ca: fs.readFileSync("/etc/letsencrypt/live/tudominio.com/fullchain.pem"),
-};
-
-// Servidor HTTPS
-https.createServer(options, app).listen(443, () => {
-  console.log("Servidor HTTPS corriendo en el puerto 443");
-});
 
 // Conexión a MySQL
 require('dotenv').config();
