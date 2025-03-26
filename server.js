@@ -6,7 +6,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 const app = express();
-const port = process.env.PORT || 80; // Acceso sin :5000
+const port = process.env.PORT || 443; // Acceso sin :5000
 const udpPort = 5000; // Puerto UDP
 
 // Conexión a MySQL
