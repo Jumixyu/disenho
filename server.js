@@ -57,7 +57,7 @@ app.get('/recorrido-historico', (req, res) => {
     }
 
     db.query(
-        'SELECT latitud, longitud FROM coordenadas WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? ORDER BY id ASC',
+        'SELECT * FROM coordenadas WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? ORDER BY id ASC',
         [inicio, fin],
         (err, rows) => {
             if (err) {
