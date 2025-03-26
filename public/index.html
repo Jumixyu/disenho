@@ -1,151 +1,155 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyCoords</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        #map { height: 500px; width: 100%; margin: 20px auto; border-radius: 10px; display: none; }
-        body { font-family: Arial, sans-serif; text-align: center; }
-        h2 { color: #333; }
-        button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        #historico-controls, #real-time-controls { display: none; }
-    </style>
-</head>
-<body>
+ <html lang="es">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>MyCoords</title>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+     <style>
+         #map { height: 500px; width: 100%; margin: 20px auto; border-radius: 10px; }
+         body { font-family: Arial, sans-serif; text-align: center; }
+         h2 { color: #333; }
+         button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+     </style>
+ </head>
+ <body>
     <h2>Mapa MyCoords</h2>
-    <button onclick="verHistorico()">📌 Ver Recorrido Histórico</button>
-    <button onclick="verTiempoReal()">📡 Ver Tiempo Real</button>
-    
+    <button onclick="reiniciarRecorrido()">📍 Reiniciar Recorrido</button>
+    <div id="map"></div>
+
     <div id="historico-controls">
         <label for="inicio">Inicio:</label>
-        <input type="datetime-local" id="inicio" step="1">
         <label for="fin">Fin:</label>
+        <input type="datetime-local" id="inicio" step="1">
         <input type="datetime-local" id="fin" step="1">
-        <button onclick="obtenerRecorridoHistorico()">📌 Mostrar Recorrido</button>
-        <button onclick="volver()">🔙 Volver</button>
+        <button onclick="obtenerRecorridoHistorico()">📌 Ver Recorrido Histórico</button>
     </div>
-    
-    <div id="real-time-controls">
-        <button onclick="reiniciarRecorrido()">📍 Reiniciar Recorrido</button>
-        <button onclick="volver()">🔙 Volver</button>
-    </div>
-    
-    <div id="map"></div>
-    
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+        let map = L.map('map').setView([0, 0], 2); // Vista inicial
 
-        let map = null;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
         let marker = null;
-        let ruta = null;
-        let coordenadas = [];
-        let interval = null;
-
-        function inicializarMapa() {
-            if (!map) { 
-                map = L.map('map').setView([0, 0], 2);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-            }
-
-            setTimeout(() => { map.invalidateSize(); }, 500); // Corrige problemas al mostrar mapa oculto
-        }
+        let coordenadas = []; // Guarda el historial de coordenadas
+        let ruta = null; // Polilínea que representa el recorrido
 
         function actualizarMapa() {
+            console.log("📡 Solicitando última coordenada...");
+
             fetch('/ultima-coordenada')
                 .then(response => response.json())
                 .then(data => {
-                    if (!data || data.error) return;
+                    console.log("📡 Respuesta recibida:", data);
+
+                    if (!data || data.error) {
+                        console.warn('⚠ No hay coordenadas disponibles aún.');
+                        return;
+                    }
+
                     let lat = parseFloat(data.latitud);
                     let lon = parseFloat(data.longitud);
-                    if (isNaN(lat) || isNaN(lon)) return;
 
+                    if (isNaN(lat) || isNaN(lon)) {
+                        console.error('❌ Error: Coordenadas no válidas');
+                        return;
+                    }
+
+                    // Agregar la nueva coordenada al historial
                     coordenadas.push([lat, lon]);
 
                     if (!marker) {
-                        marker = L.marker([lat, lon]).addTo(map).bindPopup(`📍 Lat: ${lat}, Long: ${lon}`).openPopup();
+                        marker = L.marker([lat, lon]).addTo(map)
+                            .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora}`)
+                            .openPopup();
                     } else {
-                        marker.setLatLng([lat, lon]).setPopupContent(`📍 Lat: ${lat}, Long: ${lon}`).openPopup();
+                        marker.setLatLng([lat, lon]).setPopupContent(
+                            `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora}`
+                        ).openPopup();
                     }
 
                     map.setView([lat, lon], 15);
-                    if (coordenadas.length > 1) solicitarRuta(coordenadas);
+
+                    // Si hay más de 1 punto, solicitar la ruta desde el primer punto hasta el último
+                    if (coordenadas.length > 1) {
+                        solicitarRuta(coordenadas);
+                    }
                 })
-                .catch(error => console.error('❌ Error:', error));
+                .catch(error => console.error('❌ Error al obtener coordenadas:', error));
         }
-    
 
         function solicitarRuta(puntos) {
             if (puntos.length < 2) return;
+
             let coordenadasStr = puntos.map(coord => `${coord[1]},${coord[0]}`).join(';');
             let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if (!data.routes || data.routes.length === 0) return;
+                    if (!data.routes || data.routes.length === 0) {
+                        console.warn('⚠ No se encontró una ruta válida.');
+                        return;
+                    }
+
                     let coordenadasRuta = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-                    if (ruta) map.removeLayer(ruta);
+
+                    if (ruta) {
+                        map.removeLayer(ruta); // Eliminar la ruta anterior si existe
+                    }
+
                     ruta = L.polyline(coordenadasRuta, { color: 'blue', weight: 4 }).addTo(map);
                 })
-                .catch(error => console.error('❌ Error:', error));
+                .catch(error => console.error('❌ Error al solicitar la ruta:', error));
         }
 
+        // Función para obtener recorrido histórico
         function obtenerRecorridoHistorico() {
-            let inicio = document.getElementById("inicio").value;
-            let fin = document.getElementById("fin").value;
-            if (!inicio || !fin) return alert("Selecciona ambas fechas.");
-            let inicioFormateado = inicio.replace("T", " ") + ":00";
-            let finFormateado = fin.replace("T", " ") + ":00";
+    let inicio = document.getElementById("inicio").value;
+    let fin = document.getElementById("fin").value;
 
-            fetch(`/recorrido-historico?inicio=${inicioFormateado}&fin=${finFormateado}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.length) return alert("No hay datos en este rango de tiempo.");
-                    let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
-                    if (ruta) map.removeLayer(ruta);
-                    ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
-                    map.fitBounds(ruta.getBounds());
-                })
-                .catch(error => console.error('❌ Error:', error));
-        }
+    if (!inicio || !fin) {
+        alert("Por favor, selecciona ambas fechas.");
+        return;
+    }
+
+    // Formatear fecha correctamente a "YYYY-MM-DD HH:MM:SS"
+    let inicioFormateado = inicio.replace("T", " ") + ":00";
+    let finFormateado = fin.replace("T", " ") + ":00";
+
+    fetch(`/recorrido-historico?inicio=${inicioFormateado}&fin=${finFormateado}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.length) {
+                alert("No hay datos en este rango de tiempo.");
+                return;
+            }
+
+            let coordenadasRuta = data.map(coord => [coord.latitud, coord.longitud]);
+
+            if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
+
+            ruta = L.polyline(coordenadasRuta, { color: 'red', weight: 4 }).addTo(map);
+            map.fitBounds(ruta.getBounds());
+        })
+        .catch(error => console.error('❌ Error al obtener recorrido histórico:', error));
+}
+
+
 
         function reiniciarRecorrido() {
-            if (ruta) map.removeLayer(ruta);
-            coordenadas = [];
+            console.log("🔄 Reiniciando recorrido...");
+            if (ruta) {
+                map.removeLayer(ruta); // Eliminar la ruta del mapa
+            }
+            coordenadas = []; // Reiniciar historial de coordenadas
         }
 
-        function mostrarHistorico() {
-            document.getElementById('historico-controls').style.display = 'block';
-            document.getElementById('map').style.display = 'block';
-            document.getElementById('tiempo-real-controls').style.display = 'none';
-
-            clearInterval(interval); // Detiene la actualización en tiempo real
-            inicializarMapa();
-        }
-
-        function mostrarTiempoReal() {
-            document.getElementById('historico-controls').style.display = 'none';
-            document.getElementById('map').style.display = 'block';
-            document.getElementById('tiempo-real-controls').style.display = 'block';
-
-            inicializarMapa();
-            interval = setInterval(actualizarMapa, 5000); // Reinicia actualización en tiempo real
-        }
-
-        // Para detener actualización en tiempo real si cambia de vista
-        function detenerTiempoReal() {
-            clearInterval(interval);
-        }
-
-        // Llamar por defecto para tiempo real al cargar la página
-        document.addEventListener("DOMContentLoaded", mostrarTiempoReal);
-
+        setInterval(actualizarMapa, 5000);
+        actualizarMapa();
     </script>
 </body>
-</html>
 
