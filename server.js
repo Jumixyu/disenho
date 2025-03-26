@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+const https = require('https');
+const fs = require("fs");
 
 const app = express();
 const port = process.env.PORT || 443; // Acceso sin :5000
@@ -26,7 +28,7 @@ if (port === 443) {
         console.log(`HTTP server redirecting to HTTPS on port 80`);
     });
 } else {
-    
+
     //HTTP server configuration
     https.createServer({
         key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN_NAME}/privkey.pem`),
