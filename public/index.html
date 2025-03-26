@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyCoords</title>
+    <title>Mapa MyCoords</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         #map { height: 500px; width: 100%; margin: 20px auto; border-radius: 10px; }
         body { font-family: Arial, sans-serif; text-align: center; }
         h2 { color: #333; }
         button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        input { margin: 5px; padding: 5px; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <h2>Mapa MyCoords</h2>
-    <button onclick="reiniciarRecorrido()">📍 Reiniciar Recorrido</button>
+    <button onclick="verTiempoReal()">📡 Ver Tiempo Real</button>
+    <button onclick="verRecorridoHistorico()">📜 Ver Recorrido Histórico</button>
     <div id="map"></div>
+
+    <div id="historicoForm" style="display:none;">
+        <label>Inicio: <input type="datetime-local" id="inicio"></label>
+        <label>Fin: <input type="datetime-local" id="fin"></label>
+        <button onclick="mostrarRecorridoHistorico()">📍 Mostrar Recorrido</button>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
@@ -27,35 +35,40 @@
 
         let marker = null;
         let coordenadas = [];
-        let ruta = L.polyline([], { color: 'blue', weight: 4 }).addTo(map); // Línea del recorrido en tiempo real
+        let rutaTiempoReal = L.polyline([], { color: 'blue', weight: 4 }).addTo(map);
+        let rutaHistorica = null;
+        let intervaloTiempoReal = null;
 
-        function actualizarMapa() {
-            console.log("📡 Solicitando última coordenada...");
+        function verTiempoReal() {
+            document.getElementById('historicoForm').style.display = 'none';
+            coordenadas = [];
+            if (rutaHistorica) map.removeLayer(rutaHistorica);
+            rutaTiempoReal.setLatLngs([]);
+
+            if (intervaloTiempoReal) clearInterval(intervaloTiempoReal);
+            intervaloTiempoReal = setInterval(actualizarTiempoReal, 5000);
+            actualizarTiempoReal();
+        }
+
+        function actualizarTiempoReal() {
+            console.log("📡 Obteniendo última coordenada...");
 
             fetch('/ultima-coordenada')
                 .then(response => response.json())
                 .then(data => {
-                    console.log("📡 Respuesta recibida:", data);
+                    console.log("📡 Recibido:", data);
 
-                    if (!data || data.error) {
-                        console.warn('⚠ No hay coordenadas disponibles aún.');
-                        return;
-                    }
+                    if (!data || data.error) return;
 
                     let lat = parseFloat(data.latitud);
                     let lon = parseFloat(data.longitud);
                     let fecha = data.fecha;
                     let hora = data.hora;
 
-                    if (isNaN(lat) || isNaN(lon)) {
-                        console.error('❌ Error: Coordenadas no válidas');
-                        return;
-                    }
+                    if (isNaN(lat) || isNaN(lon)) return;
 
-                    // Agregar la nueva coordenada al historial
                     coordenadas.push([lat, lon]);
 
-                    // Actualizar el marcador
                     if (!marker) {
                         marker = L.marker([lat, lon]).addTo(map)
                             .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`)
@@ -66,27 +79,55 @@
                         ).openPopup();
                     }
 
-                    // Mover el mapa a la nueva ubicación
                     map.setView([lat, lon], 15);
-
-                    // Dibujar la línea del recorrido en tiempo real
-                    ruta.setLatLngs(coordenadas);
+                    rutaTiempoReal.setLatLngs(coordenadas);
                 })
-                .catch(error => console.error('❌ Error al obtener coordenadas:', error));
+                .catch(error => console.error('❌ Error al obtener datos:', error));
         }
 
-        function reiniciarRecorrido() {
-            console.log("🔄 Reiniciando recorrido...");
-            coordenadas = [];
-            ruta.setLatLngs([]); // Limpiar la línea del recorrido
+        function verRecorridoHistorico() {
+            document.getElementById('historicoForm').style.display = 'block';
+            if (intervaloTiempoReal) clearInterval(intervaloTiempoReal);
         }
 
-        setInterval(actualizarMapa, 5000);
-        actualizarMapa();
+        function mostrarRecorridoHistorico() {
+            let inicio = document.getElementById('inicio').value;
+            let fin = document.getElementById('fin').value;
+
+            if (!inicio || !fin) {
+                alert("📅 Selecciona un rango de fechas válido");
+                return;
+            }
+
+            fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        alert("⚠ No hay datos para este periodo.");
+                        return;
+                    }
+
+                    if (rutaHistorica) map.removeLayer(rutaHistorica);
+
+                    let historial = data.map(p => [parseFloat(p.latitud), parseFloat(p.longitud)]);
+                    let popupText = historial.map((p, index) => `📍 Punto ${index + 1}: Lat ${p[0]}, Lon ${p[1]}, Fecha ${data[index].fecha} ${data[index].hora}`).join("<br>");
+
+                    rutaHistorica = L.polyline(historial, { color: 'red', weight: 4 }).addTo(map);
+                    map.setView(historial[0], 14);
+
+                    if (!marker) {
+                        marker = L.marker(historial[0]).addTo(map).bindPopup(popupText).openPopup();
+                    } else {
+                        marker.setLatLng(historial[0]).setPopupContent(popupText).openPopup();
+                    }
+                })
+                .catch(error => console.error('❌ Error al cargar recorrido histórico:', error));
+        }
     </script>
 
 </body>
 </html>
+
 
 
 
