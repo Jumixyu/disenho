@@ -87,8 +87,14 @@
 
         function verRecorridoHistorico() {
             document.getElementById('historicoForm').style.display = 'block';
+            
+            // Detener el tiempo real
             if (intervaloTiempoReal) clearInterval(intervaloTiempoReal);
+
+            // Eliminar la línea azul del tiempo real
+            rutaTiempoReal.setLatLngs([]);
         }
+
 
         function mostrarRecorridoHistorico() {
             let inicio = document.getElementById('inicio').value;
@@ -107,22 +113,17 @@
                         return;
                     }
 
+                    // Eliminar línea anterior si existe
                     if (rutaHistorica) map.removeLayer(rutaHistorica);
 
                     let historial = data.map(p => [parseFloat(p.latitud), parseFloat(p.longitud)]);
-                    let popupText = historial.map((p, index) => `📍 Punto ${index + 1}: Lat ${p[0]}, Lon ${p[1]}, Fecha ${data[index].fecha} ${data[index].hora}`).join("<br>");
 
                     rutaHistorica = L.polyline(historial, { color: 'red', weight: 4 }).addTo(map);
                     map.setView(historial[0], 14);
-
-                    if (!marker) {
-                        marker = L.marker(historial[0]).addTo(map).bindPopup(popupText).openPopup();
-                    } else {
-                        marker.setLatLng(historial[0]).setPopupContent(popupText).openPopup();
-                    }
                 })
                 .catch(error => console.error('❌ Error al cargar recorrido histórico:', error));
         }
+
     </script>
 
 </body>

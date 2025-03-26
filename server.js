@@ -50,23 +50,19 @@ app.get('/ultima-coordenada', (req, res) => {
 
 // Endpoint para obtener recorrido histórico
 app.get('/recorrido-historico', (req, res) => {
-    const { inicio, fin } = req.query;
+    let { inicio, fin } = req.query;
 
-    if (!inicio || !fin) {
-        return res.status(400).json({ error: 'Faltan parámetros inicio y fin' });
-    }
+    if (!inicio || !fin) return res.json({ error: "Fechas no válidas" });
 
-    db.query(
-        'SELECT latitud, longitud FROM coordenadas WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? ORDER BY id ASC',
-        [inicio, fin],
-        (err, rows) => {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json(rows);
-        }
-    );
+    // Convertir a formato correcto
+    inicio = inicio.replace("T", " ") + ":00";
+    fin = fin.replace("T", " ") + ":59";
+
+    const sql = 'SELECT * FROM coordenadas WHERE fecha BETWEEN ? AND ? ORDER BY fecha ASC';
+    db.query(sql, [inicio, fin], (err, results) => {
+        if (err) return res.json({ error: "Error en la BD" });
+        res.json(results);
+    });
 });
 
 // Servidor UDP para recibir coordenadas
