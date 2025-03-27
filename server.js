@@ -8,36 +8,6 @@ const fs = require("fs");
 const https = require("https");
 const http = require("http");
 
-const port = process.env.PORT || 443; // Acceso sin :5000
-const udpPort = 5000; // Puerto UDP
-
-if (port === 443) {
-  //HTTPS server configuration
-  https.createServer({
-    key: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem`),
-    cert: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem`)
-  }, app).listen(port, () => {
-
-    console.log(`HTTPS Server running on https://localhost:${port}`);
-  });
-  // HTTP to HTTPS redirection (listen on port 80)
-  http.createServer((req, res) => {
-    res.writeHead(301, { "Location": `https://abquintero.ddns.net` });
-    res.end();
-  }).listen(80, () => {
-    console.log(`HTTP server redirecting to HTTPS on port 80`);
-  });
-} else {
-  //HTTP server configuration
-  https.createServer({
-    key: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem`),
-    cert: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem`)
-  }, app).listen(port, () => {
-
-    console.log(`HTTPS Testing Server running on https://localhost:${port}`);
-  });
-}
-
 // Conexión a MySQL
 require('dotenv').config();
 const db = mysql.createConnection({
@@ -129,4 +99,32 @@ app.listen(port, '0.0.0.0', () => {
   console.log("🚀 Servidor corriendo en http://0.0.0.0");
 });
 
+const port = process.env.PORT || 443; // Acceso sin :5000
+const udpPort = 5000; // Puerto UDP
 
+if (port === 443) {
+  //HTTPS server configuration
+  https.createServer({
+    key: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem`),
+    cert: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem`)
+  }, app).listen(port, () => {
+
+    console.log(`HTTPS Server running on https://localhost:${port}`);
+  });
+  // HTTP to HTTPS redirection (listen on port 80)
+  http.createServer((req, res) => {
+    res.writeHead(301, { "Location": `https://abquintero.ddns.net` });
+    res.end();
+  }).listen(80, () => {
+    console.log(`HTTP server redirecting to HTTPS on port 80`);
+  });
+} else {
+  //HTTP server configuration
+  https.createServer({
+    key: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/privkey.pem`),
+    cert: fs.readFileSync(`/etc/letsencrypt/live/abquintero.ddns.net/fullchain.pem`)
+  }, app).listen(port, () => {
+
+    console.log(`HTTPS Testing Server running on https://localhost:${port}`);
+  });
+}
