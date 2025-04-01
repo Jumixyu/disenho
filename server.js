@@ -29,12 +29,14 @@ db.connect(err => {
 module.exports = db;
 
 // Middleware
+app.set('view engine', 'ejs');
+// set views for error and 404 pages
+app.set('views', path.join(__dirname, 'views'));app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Servir la página web con el mapa
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index'));
 });
 
 // Endpoint para obtener SOLO la última coordenada
