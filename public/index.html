@@ -369,12 +369,7 @@
         const substractHours = (d, n) =>
           new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
 
-        const historico = await obtenerRecorridoHistorico(
-          substractHours(currentDate, 12),
-          formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora)
-        );
-
-        const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        const rutaCoords = ultimaCoord.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
         coordenadas = rutaCoords;
         coordenadas.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
@@ -433,6 +428,8 @@
         //const currentZoom = map.getZoom();
         //map.setView([lat, lon], currentZoom);
       }
+
+      obtenerFechaHoraActual()
     })();
 
 
@@ -458,12 +455,7 @@
       document.getElementById('inicio').value = inicioDefecto;
       document.getElementById('fin').value = finDefecto;
     }
-
-    // Llamar a la función cuando se cargue la página
-    window.onload = obtenerFechaHoraActual;
-
-
-  </script>
+</script>
 </body>
 
 </html>
