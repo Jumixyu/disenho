@@ -92,9 +92,17 @@
 </head>
 
 <body>
-  <div class="contenedor">
-    <h2>MyCoords - ${process.env.NOMBRE}</h2>
-  </div>
+  <h2 id="titulo">MyCoords - Cargando...</h2>
+
+  <script>
+    fetch('/config')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('titulo').textContent = `MyCoords - ${data.nombre}`;
+      })
+      .catch(error => console.error('Error al obtener el nombre:', error));
+  </script>
+
 
   <div class="contenedor">
     <button id="tiempo-real-btn">Tiempo real</button>

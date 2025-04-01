@@ -89,6 +89,10 @@ udpServer.on('message', (msg, rinfo) => {
   }
 });
 
+app.get('/config', (req, res) => {
+  res.json({ nombre: process.env.NOMBRE });
+});
+
 udpServer.bind(udpPort, () => {
   console.log(`✅ Servidor UDP escuchando en el puerto ${udpPort}`);
 });
