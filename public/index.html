@@ -261,24 +261,6 @@
       const finInput = document.getElementById('fin');
       const historicoControlsInput = document.getElementById('historico-controls');
 
-      function mostrarMapa() {
-        mapContainer.style.display = 'block'; // Muestra el mapa
-        setTimeout(() => {
-          map.invalidateSize(); // Corrige problemas de Leaflet
-        }, 300);
-      }
-
-      // Agrega los eventos para mostrar el mapa cuando se presionen los botones
-      tiempoRealBtn.addEventListener('click', () => {
-        resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
-        mostrarMapa(); // Muestra el mapa
-      });
-
-      switchHistoricoBtn.addEventListener('click', () => {
-        resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
-        mostrarMapa(); // Muestra el mapa
-      });
-
       // Agrega los eventos para mostrar el mapa cuando se presionen los botones
       tiempoRealBtn.addEventListener('click', mostrarMapa);
       historicoBtn.addEventListener('click', mostrarMapa);
