@@ -318,6 +318,11 @@
           return;
         }
 
+        // ✅ Aquí ocultamos el mensaje si los valores son correctos
+        messageEl.classList.add('hidden');
+        messageEl.classList.remove('error');
+        messageEl.textContent = '';
+
         const historico = await obtenerRecorridoHistorico(
           formatearFecha(false, inicioInput.value),
           formatearFecha(false, finInput.value)
