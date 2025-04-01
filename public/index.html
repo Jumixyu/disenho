@@ -348,8 +348,9 @@
         ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
 
         map.fitBounds(ruta.getBounds());
+        const currentCenter = map.getCenter();
         const currentZoom = map.getZoom();
-        map.setView([lat, lon], currentZoom);
+        map.setView(currentCenter, currentZoom);
 
         intervalId = setInterval(actualizarMapa, 5000);
       });
@@ -378,8 +379,9 @@
 
         liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
+        const currentCenter = map.getCenter();
         const currentZoom = map.getZoom();
-        map.setView([lat, lon], currentZoom);
+        map.setView(currentCenter, currentZoom);
       }
     })();
   </script>
