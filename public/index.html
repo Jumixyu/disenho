@@ -328,6 +328,13 @@
           formatearFecha(false, finInput.value)
         );
 
+        if (!historico || historico.length === 0) {
+            messageEl.classList.remove('hidden');
+            messageEl.classList.add('error');
+            messageEl.textContent = 'No hay datos para este rango';
+            return;
+        } 
+
         const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
         const rutaPlacement = await solicitarRuta(rutaCoords);
 
