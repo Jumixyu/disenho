@@ -81,11 +81,6 @@
       flex-direction: column;
     }
 
-    .active {
-      background-color: red;
-      color: white;
-    }
-
     #map {
       display: none;
       height: 100%;
@@ -153,16 +148,6 @@
       let liveCoords = [];
 
       const messageEl = document.getElementById('message');
-
-      // Función para resaltar el botón activo
-      function resaltarBotonActivo(btn) {
-        // Quitar la clase active de todos los botones
-        const botones = document.querySelectorAll('button');
-        botones.forEach(boton => boton.classList.remove('active'));
-
-        // Agregar la clase active al botón clickeado
-        btn.classList.add('active');
-      }
 
       async function updateMapa(lat, lon) {
         marker = L.marker([lat, lon])
@@ -267,17 +252,6 @@
           map.invalidateSize(); // Corrige problemas de Leaflet
         }, 300);
       }
-
-      // Agrega los eventos para mostrar el mapa cuando se presionen los botones
-      tiempoRealBtn.addEventListener('click', () => {
-        resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
-        mostrarMapa(); // Muestra el mapa
-      });
-
-      historicoBtn.addEventListener('click', () => {
-        resaltarBotonActivo(historicoBtn); // Resalta el botón de Recorrido Histórico
-        mostrarMapa(); // Muestra el mapa
-      });
 
       // Agrega los eventos para mostrar el mapa cuando se presionen los botones
       tiempoRealBtn.addEventListener('click', mostrarMapa);
