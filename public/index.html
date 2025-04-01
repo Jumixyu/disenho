@@ -368,7 +368,7 @@
         const currentDate = new Date(formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora));
         const substractHours = (d, n) =>
           new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
-        console.log(substractHours(currentDate, 12));
+
         const historico = await obtenerRecorridoHistorico(
           substractHours(currentDate, 12),
           formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora)
@@ -400,8 +400,8 @@
 
         map.fitBounds(ruta.getBounds());
 
-        const currentZoom = map.getZoom();
-        map.setView([lat, lon], currentZoom);
+        // const currentZoom = map.getZoom();
+        // map.setView([lat, lon], currentZoom);
 
         intervalId = setInterval(actualizarMapa, 5000);
       });
@@ -430,8 +430,8 @@
 
         liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
-        const currentZoom = map.getZoom();
-        map.setView([lat, lon], currentZoom);
+        //const currentZoom = map.getZoom();
+        //map.setView([lat, lon], currentZoom);
       }
     })();
 
