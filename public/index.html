@@ -370,8 +370,7 @@
           new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
 
         // const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-        console.log(ultimaCoord)
-        coordenadas = rutaCoords;
+        coordenadas = [ultimaCoord.latitud, ultimaCoord.longitud];
         coordenadas.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
         const rutaPlacement = await solicitarRuta(coordenadas);
