@@ -261,9 +261,6 @@
       const finInput = document.getElementById('fin');
       const historicoControlsInput = document.getElementById('historico-controls');
 
-      // Agrega los eventos para mostrar el mapa cuando se presionen los botones
-      tiempoRealBtn.addEventListener('click', mostrarMapa);
-      historicoBtn.addEventListener('click', mostrarMapa);
 
       function formatearFecha(fromServer, fecha, hora) {
         return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
@@ -343,7 +340,9 @@
 
       let intervalId = null;
       tiempoRealBtn.addEventListener('click', async () => {
+        historicoControlsInput.classList.add('hidden');
         reiniciarRuta();
+
         if (intervalId) clearInterval(intervalId);
         const ultimaCoord = await obtenerUltimaCoordenada();
 
