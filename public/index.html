@@ -369,7 +369,8 @@
         const substractHours = (d, n) =>
           new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
 
-        const rutaCoords = ultimaCoord.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        // const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        console.log(ultimaCoord)
         coordenadas = rutaCoords;
         coordenadas.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
