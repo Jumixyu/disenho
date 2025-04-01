@@ -101,7 +101,7 @@
   <h2 id="titulo">MyCoords - Cargando...</h2>
 
   <script>
-    fetch('/config')
+    fetch('/http://abquintero.ddns.net/config')
       .then(response => response.json())
       .then(data => {
         document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
@@ -172,7 +172,7 @@
 
       async function obtenerUltimaCoordenada() {
         try {
-            const response = await fetch('/ultima-coordenada');
+            const response = await fetch('http://abquintero.ddns.net/ultima-coordenada');
 
           const data = await response.json();
 
@@ -194,7 +194,7 @@
         }
 
         try {
-          const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
+          const response = await fetch(`/http://abquintero.ddns.net/recorrido-historico?inicio=${inicio}&fin=${fin}`);
 
           const data = await response.json();
 

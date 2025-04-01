@@ -31,12 +31,15 @@ module.exports = db;
 // Middleware
 app.set('view engine', 'ejs');
 // set views for error and 404 pages
-app.set('views', path.join(__dirname, 'views'));app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
+
+// serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 // Servir la página web con el mapa
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index'));
+  res.sendFile(path.join(__dirname, 'index.ejs'));
 });
 
 // Endpoint para obtener SOLO la última coordenada
