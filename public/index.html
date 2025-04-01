@@ -82,6 +82,10 @@
     }
 
     #map {
+      display: none;
+    }
+
+    #map {
       height: 100%;
       width: 100%;
       margin: 0;
@@ -382,6 +386,18 @@
         map.setView([lat, lon], currentZoom);
       }
     })();
+
+    const mapContainer = document.getElementById('map');
+    const tiempoRealBtn = document.getElementById('tiempo-real-btn');
+    const historicoBtn = document.getElementById('historico-btn');
+
+    function mostrarMapa() {
+      mapContainer.style.display = 'block';
+    }
+
+    tiempoRealBtn.addEventListener('click', mostrarMapa);
+    historicoBtn.addEventListener('click', mostrarMapa);
+    
   </script>
 </body>
 
