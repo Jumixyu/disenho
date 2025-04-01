@@ -337,8 +337,7 @@
         map.fitBounds(ruta.getBounds());
       });
 
-      let intervalId = null;
-      tiempoRealBtn.addEventListener('click', async () => {
+      async function iniciarTiempoReal(intervalId = null) {
         historicoControlsInput.classList.add('hidden');
         reiniciarRuta();
 
@@ -379,8 +378,14 @@
         // map.setView([lat, lon], currentZoom);
 
         intervalId = setInterval(actualizarMapa, 5000);
+      }
+      
+      tiempoRealBtn.addEventListener('click', async () => {
+        await iniciarTiempoReal()
       });
 
+      await iniciarTiempoReal()
+      
       async function actualizarMapa() {
         const ultimaCoord = await obtenerUltimaCoordenada();
         liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
