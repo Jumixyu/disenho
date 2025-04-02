@@ -54,13 +54,9 @@
 
     try {
       const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
-
       const data = await response.json();
 
-      if (!data.length) {
-        return;
-      }
-
+      if (!data.length) return;
       return data;
     } catch (e) {
       console.error('❌ Error al obtener recorrido histórico:', error);
@@ -111,7 +107,6 @@
     }
   }
 
-  const mapContainer = document.getElementById('map');
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const historicoBtn = document.getElementById('historico-btn');
   const reiniciarBtn = document.getElementById('reiniciar-btn');
@@ -120,39 +115,136 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
 
-  // CON ESTO SE RESALTAN LOS BOTONES
-  tiempoRealBtn.addEventListener('click', () => {
-    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
-  });
-
-  switchHistoricoBtn.addEventListener('click', () => {
-    resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
-    toggleHistorico();
-  });
-
-
   function formatearFecha(fromServer, fecha, hora) {
     return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
   }
 
   function reiniciarRuta() {
     console.log('🔄 Reiniciando recorrido...');
-    if (ruta) {
-      map.removeLayer(ruta); // Eliminar la ruta del mapa
-    }
-
-    if (liveRoute) {
-      map.removeLayer(liveRoute);
-    }
+    if (ruta)  map.removeLayer(ruta); // Eliminar la ruta del mapa
+    if (liveRoute) map.removeLayer(liveRoute);
     coordenadas = []; // Reiniciar historial de coordenadas
     liveCoords = [];
   }
 
-  reiniciarBtn.addEventListener('click', reiniciarRuta);
+  // TIEMPO REAL
+  async function iniciarTiempoReal(intervalId = null, from = '') {
+    map.removeControl(search)
+    historicoControlsInput.classList.toggle('hidden');
+    reiniciarRuta();
+
+    if (intervalId) clearInterval(intervalId);
+    const ultimaCoord = await obtenerUltimaCoordenada();
+
+    const currentDate = new Date(formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora));
+    const substractHours = (d, n) =>
+      new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
+
+    const rutaCoords = [[ultimaCoord.latitud, ultimaCoord.longitud], [ultimaCoord.latitud, ultimaCoord.longitud]]// historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+    coordenadas = rutaCoords;
+    coordenadas.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    const rutaPlacement = await solicitarRuta(coordenadas);
+
+    if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    /* if (!marker) {
+      marker = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } else {
+      marker
+        .setLatLng([lat, lon])
+        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } */
+
+    ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
+
+    /*if (liveRuns === 0) {
+      map.fitBounds(ruta.getBounds());
+      map.setView([lat, lon], 15);
+    }
+    console.log(liveRuns)
+    liveRuns =+ 1;*/
+
+    intervalId = setInterval(actualizarMapa, 5000);
+  }
+
+
+  await iniciarTiempoReal(null, 'RUNNING FROM INIT')
+
+  async function actualizarMapa() {
+    const ultimaCoord = await obtenerUltimaCoordenada();
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
+
+    if (liveRoute) map.removeLayer(liveRoute); // Eliminar ruta anterior
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    /* if (!marker) {
+      marker = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } else {
+      marker
+        .setLatLng([lat, lon])
+        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } */
+
+    liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+
+    // const currentZoom = map.getZoom();
+    map.setView([lat, lon], 20);
+  }
+
+  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
+  function obtenerFechaHoraActual() {
+    const ahora = new Date();
+
+    // Obtener la fecha en formato YYYY-MM-DD
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+
+    // Formato para el campo datetime-local
+    const fechaHoy = `${año}-${mes}-${dia}`;
+    const inicioDefecto = `${fechaHoy}T00:00`;
+
+    // Obtener la hora actual en formato HH:MM
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
+
+    // Asignar valores a los inputs
+    document.getElementById('inicio').value = inicioDefecto;
+    document.getElementById('fin').value = finDefecto;
+  }
+
+  function toggleHistorico() {
+    const historicoContainer = document.getElementById('historico-controls');
+    historicoContainer.classList.toggle('hidden');
+  }
+
+  // EVENT LISTENERS //
 
   /* switchHistoricoBtn.addEventListener('click', async () => {
     return historicoControlsInput.classList.toggle('hidden');
   }); */
+
+  switchHistoricoBtn.addEventListener('click', () => {
+    resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
+    toggleHistorico();
+  });
+
+  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   historicoBtn.addEventListener('click', async () => {
     reiniciarRuta();
@@ -207,121 +299,20 @@
     map.fitBounds(ruta.getBounds());
   });
 
-  async function iniciarTiempoReal(intervalId = null, from = '') {
-    map.removeControl(search)
-    historicoControlsInput.classList.toggle('hidden');
-    reiniciarRuta();
-
-    if (intervalId) clearInterval(intervalId);
-    const ultimaCoord = await obtenerUltimaCoordenada();
-
-    const currentDate = new Date(formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora));
-    const substractHours = (d, n) =>
-      new Date(d.setHours(d.getHours() - n)).toISOString().replace('T', ' ').substring(0, 19);
-
-    const rutaCoords = [[ultimaCoord.latitud, ultimaCoord.longitud], [ultimaCoord.latitud, ultimaCoord.longitud]]// historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-    coordenadas = rutaCoords;
-    coordenadas.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-    const rutaPlacement = await solicitarRuta(coordenadas);
-
-    if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
-
-    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-    /* if (!marker) {
-      marker = L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
-        .openPopup();
-    } else {
-      marker
-        .setLatLng([lat, lon])
-        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
-        .openPopup();
-    } */
-
-    ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
-
-    /*if (liveRuns === 0) {
-      map.fitBounds(ruta.getBounds());
-      map.setView([lat, lon], 15);
-    }
-    console.log(liveRuns)
-    liveRuns =+ 1;*/
-
-    intervalId = setInterval(actualizarMapa, 5000);
-  }
-
   tiempoRealBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
-  await iniciarTiempoReal(null, 'RUNNING FROM INIT')
-
-  async function actualizarMapa() {
-    const ultimaCoord = await obtenerUltimaCoordenada();
-    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-    const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
-
-    if (liveRoute) map.removeLayer(liveRoute); // Eliminar ruta anterior
-
-    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-    /* if (!marker) {
-      marker = L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
-        .openPopup();
-    } else {
-      marker
-        .setLatLng([lat, lon])
-        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
-        .openPopup();
-    } */
-
-    liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-
-    //const currentZoom = map.getZoom();
-    // map.setView([lat, lon], 20);
-  }
-
-  obtenerFechaHoraActual()
+  // RUNTIME
 
   fetch('/config')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
-    })
-    .catch(error => console.error('Error al obtener el nombre:', error));
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
+  })
+  .catch(error => console.error('Error al obtener el nombre:', error));
+  obtenerFechaHoraActual()
 
-  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
-  function obtenerFechaHoraActual() {
-    const ahora = new Date();
-
-    // Obtener la fecha en formato YYYY-MM-DD
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-
-    // Formato para el campo datetime-local
-    const fechaHoy = `${año}-${mes}-${dia}`;
-    const inicioDefecto = `${fechaHoy}T00:00`;
-
-    // Obtener la hora actual en formato HH:MM
-    const hora = String(ahora.getHours()).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
-    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
-
-    // Asignar valores a los inputs
-    document.getElementById('inicio').value = inicioDefecto;
-    document.getElementById('fin').value = finDefecto;
-  }
-
-  function toggleHistorico() {
-    const historicoContainer = document.getElementById('historico-controls');
-    historicoContainer.classList.toggle('hidden');
-  }
 
 })();
