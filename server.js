@@ -5,6 +5,7 @@
  */
 
 var app = require('./index');
+process.env['DEBUG'] = 'disenho:server';
 var debug = require('debug')('disenho:server');
 var http = require('http');
 
