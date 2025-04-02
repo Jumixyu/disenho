@@ -87,10 +87,16 @@
 
   function reiniciarRuta() {
     console.log('🔄 Reiniciando recorrido...');
-    if (ruta) map.removeLayer(ruta);
-    if (liveRoute) map.removeLayer(liveRoute);
-    coordenadas = [];
-    liveCoords = [];
+    if (ruta) {
+      map.removeLayer(ruta); // Remove the route from the map if it exists
+      ruta = null; // Reset ruta to null after removal
+    }
+    if (liveRoute) {
+      map.removeLayer(liveRoute); // Remove the live route from the map if it exists
+      liveRoute = null; // Reset liveRoute to null after removal
+    }
+    coordenadas = []; // Reset history of coordinates
+    liveCoords = []; // Reset live coordinates
   }
 
   function formatearFecha(fromServer, fecha, hora) {
@@ -164,6 +170,7 @@
 
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
+    console.log('ult coord', ultimaCoord)
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
     if (liveRoute) map.removeLayer(liveRoute);
