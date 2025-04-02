@@ -17,16 +17,6 @@
     notFoundMessage: 'No pudimos encontrar la dirección especificada.',
   });
 
-  search.on('result', async function (event) {
-    const { x: lon, y: lat, label } = event.result; // Extraer latitud, longitud y nombre de la ubicación
-    
-    // Crear marcador en la ubicación buscada
-    const searchedMarker = L.marker([lat, lon]).addTo(map).bindPopup(`📍 ${label}`).openPopup();
-    
-    // Consultar si el vehículo pasó por aquí
-    await verificarPasoPorUbicacion(lat, lon);
-  });
-
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
