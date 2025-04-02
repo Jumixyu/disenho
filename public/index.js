@@ -26,6 +26,7 @@
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(b => {
+      console.log(b?.textContent, b?.textContent === 'Histórico')
       if (b?.textContent === 'Histórico') map.addControl(search);
       else map.removeControl(search)
       b.classList.remove('active')
