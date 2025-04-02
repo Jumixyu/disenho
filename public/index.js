@@ -10,8 +10,6 @@
     style: 'bar',
   });
 
-  map.addControl(search);
-
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
@@ -189,6 +187,7 @@
 
   historicoBtn.addEventListener('click', async () => {
     reiniciarRuta();
+    map.addControl(search);
     const ultimaCoord = await obtenerUltimaCoordenada();
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
@@ -240,7 +239,7 @@
   });
 
   async function iniciarTiempoReal(intervalId = null, from = '') {
-    console.log(from);
+    map.removeControl(search)
     historicoControlsInput.classList.toggle('hidden');
     reiniciarRuta();
 
