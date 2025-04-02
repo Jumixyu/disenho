@@ -257,9 +257,9 @@
     
     if (currentIntervalId) clearInterval(currentIntervalId);
     
-    // Si hay una ruta en tiempo real, la ocultamos pero NO la eliminamos
+    // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
     if (liveRoute) { 
-      liveRoute.setStyle({ opacity: 0.3 }); // Hacemos la ruta semitransparente en lugar de ocultarla
+      liveRoute.setStyle({ opacity: 0 }); // Hacemos la ruta completamente invisible
     }
 
     if (!inicioInput.value || !finInput.value) {
@@ -304,9 +304,9 @@
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
-    // Ocultamos la ruta histórica pero no la eliminamos
+    // Ocultamos la ruta histórica
     if (ruta) {
-      ruta.setStyle({ opacity: 0.3 }); // Hacemos la ruta histórica semitransparente
+      ruta.setStyle({ opacity: 0 }); // Hacemos la ruta histórica completamente invisible
     }
     
     // Activamos la ruta en tiempo real
