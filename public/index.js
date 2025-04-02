@@ -17,6 +17,16 @@
     notFoundMessage: 'No pudimos encontrar la dirección especificada.',
   });
 
+  search.on('result', async function (event) {
+    const { x: lon, y: lat, label } = event.result; // Extraer latitud, longitud y nombre de la ubicación
+    
+    // Crear marcador en la ubicación buscada
+    const searchedMarker = L.marker([lat, lon]).addTo(map).bindPopup(`📍 ${label}`).openPopup();
+    
+    // Consultar si el vehículo pasó por aquí
+    await verificarPasoPorUbicacion(lat, lon);
+  });
+
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
@@ -126,6 +136,21 @@
       console.error('❌ Error al solicitar la ruta:', error);
     }
   }
+
+  async function verificarPasoPorUbicacion(lat, lon) {
+    try {
+      const response = await fetch(`/verificar-ubicacion?lat=${lat}&lon=${lon}`);
+      const data = await response.json();
+  
+      if (data && data.paso) {
+        alert(`✅ El vehículo pasó por esta ubicación el ${data.fecha} a las ${data.hora}`);
+      } else {
+        alert('❌ El vehículo NO ha pasado por esta ubicación.');
+      }
+    } catch (error) {
+      console.error('❌ Error al verificar la ubicación:', error);
+    }
+  }  
 
   const buscarBtn = document.getElementById('tiempo-real-btn');
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
