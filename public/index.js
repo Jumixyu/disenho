@@ -247,7 +247,7 @@
     map.fitBounds(ruta.getBounds());
   });
 
-  async function iniciarTiempoReal(intervalId = null) {
+  async function iniciarTiempoReal(intervalId = null, runs = 0) {
     historicoControlsInput.classList.add('hidden');
     reiniciarRuta();
 
@@ -281,11 +281,13 @@
     }
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
+    
+    if (runs === 0) {
+      map.fitBounds(ruta.getBounds());
+      const currentZoom = map.getZoom();
+      map.setView([lat, lon], currentZoom);
+    }
 
-    map.fitBounds(ruta.getBounds());
-
-    // const currentZoom = map.getZoom();
-    // map.setView([lat, lon], currentZoom);
 
     intervalId = setInterval(actualizarMapa, 5000);
   }
