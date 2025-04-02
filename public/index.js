@@ -506,7 +506,7 @@
   fetch('/config')
     .then(response => response.json())
     .then(data => {
-      document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
+      document.getElementById('titulo').textContent = `MyCoords - ${data.nombre}`;
     })
     .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual();
