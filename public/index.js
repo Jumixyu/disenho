@@ -85,8 +85,8 @@
   const tiempoRealBtn = document.getElementById('tiempo-real-btn')
   const historicoBtn = document.getElementById('historico-btn')
 
-  tiempoRealBtn.addEventListener('click', () => resaltarBotonActivo());
-  historicoBtn.addEventListener('click', () => resaltarBotonActivo());
+  tiempoRealBtn.addEventListener('click', () => resaltarBotonActivo(tiempoRealBtn));
+  historicoBtn.addEventListener('click', () => resaltarBotonActivo(historicoBtn));
 
   document.getElementById('reiniciar-btn').addEventListener('click', reiniciarRuta);
   document.getElementById('switch-historico-btn').addEventListener('click', () => {
