@@ -136,6 +136,17 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
 
+  tiempoRealBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real en rojo
+    await iniciarTiempoReal(null, 'RUNNING FROM CLICK');
+  });
+  
+  historicoBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(historicoBtn); // Resalta el botón de Histórico en rojo
+    await iniciarTiempoReal(null, 'RUNNING FROM CLICK');
+  });
+  
+
   function formatearFecha(fromServer, fecha, hora) {
     return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
   }
