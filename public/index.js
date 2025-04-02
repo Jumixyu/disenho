@@ -35,22 +35,25 @@
 
   const messageEl = document.getElementById('message');
 
-  // Función para resaltar el botón activo
+  // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
   function resaltarBotonActivo(btn) {
-    // Quitar la clase active de todos los botones
+    // Quitar la clase active y active-red de todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
       } else {
-        map.removeControl(search)
+        map.removeControl(search);
         historicoHasSearch = false;
       }
-      b.classList.remove('active')
+      b.classList.remove('active', 'active-red');
     });
 
-    // Agregar la clase active al botón clickeado
+    // Agregar la clase active y active-red solo a Tiempo Real o Histórico
     btn.classList.add('active');
+    if (btn.id === 'tiempo-real-btn' || btn.id === 'historico-btn') {
+      btn.classList.add('active-red');
+    }
   }
 
   async function obtenerUltimaCoordenada() {
