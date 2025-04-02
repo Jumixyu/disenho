@@ -260,7 +260,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    if (!marker) {
+    /* if (!marker) {
       marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
@@ -270,7 +270,7 @@
         .setLatLng([lat, lon])
         .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
         .openPopup();
-    }
+    } */
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     
