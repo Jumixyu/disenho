@@ -68,6 +68,29 @@ const path = require('path');
      }
    );
  });
+
+ // Endpoint para verificar si el vehículo pasó por una ubicación
+app.post('/verificar-ubicacion', (req, res) => {
+  const { latitud, longitud } = req.body;
+  const rango = 0.0001; // Ajusta el margen de error
+  
+  const query = `SELECT * FROM coordenadas WHERE 
+                 (latitud BETWEEN ? AND ?) AND 
+                 (longitud BETWEEN ? AND ?)
+                 ORDER BY fecha_hora DESC LIMIT 1`;
+
+  db.query(query, [latitud - rango, latitud + rango, longitud - rango, longitud + rango], (err, results) => {
+      if (err) {
+          res.status(500).send('Error en la consulta');
+          return;
+      }
+      if (results.length > 0) {
+          res.json({ paso: true, fecha_hora: results[0].fecha_hora });
+      } else {
+          res.json({ paso: false });
+      }
+  });
+});
  
  // Servidor UDP para recibir coordenadas
  const udpServer = dgram.createSocket('udp4');

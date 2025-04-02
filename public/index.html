@@ -452,5 +452,26 @@
        document.getElementById('inicio').value = inicioDefecto;
        document.getElementById('fin').value = finDefecto;
      }
+
+     function verificarUbicacion() {
+        const input = document.getElementById('inputUbicacion').value;
+        const [latitud, longitud] = input.split(',').map(Number);
+
+        fetch('/verificar-ubicacion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitud, longitud })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.paso) {
+                alert(`El vehículo pasó por esta ubicación el ${data.fecha_hora}`);
+            } else {
+                alert('El vehículo no pasó por esta ubicación');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+     }
+
  </script>
  </body>
