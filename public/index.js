@@ -16,6 +16,7 @@
   let coordenadas = []; // Guarda el historial de coordenadas
   let liveCoords = [];
   let liveRuns = 0;
+  let currentIntervalId = null;
 
   const messageEl = document.getElementById('message');
 
@@ -128,10 +129,10 @@
   }
 
   // TIEMPO REAL
-  async function iniciarTiempoReal(intervalId = null, from = '') {
-    map.removeControl(search)
-    historicoControlsInput.classList.toggle('hidden');
+  async function iniciarTiempoReal(intervalId = null) {
     reiniciarRuta();
+    map.removeControl(search)
+    historicoControlsInput.classList.remove('hidden');
 
     if (intervalId) clearInterval(intervalId);
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -171,7 +172,7 @@
     console.log(liveRuns)
     liveRuns =+ 1;*/
 
-    intervalId = setInterval(actualizarMapa, 5000);
+    currentIntervalId = setInterval(actualizarMapa, 5000);
   }
 
 
@@ -202,7 +203,7 @@
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
     // const currentZoom = map.getZoom();
-    map.setView([lat, lon], 20);
+    // map.setView([lat, lon], 20);
   }
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
@@ -247,6 +248,7 @@
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   historicoBtn.addEventListener('click', async () => {
+    if (currentIntervalId) clearInterval(currentIntervalId)
     reiniciarRuta();
     map.addControl(search);
     const ultimaCoord = await obtenerUltimaCoordenada();
