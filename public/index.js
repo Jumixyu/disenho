@@ -5,6 +5,12 @@
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
+  const search = new GeoSearch.GeoSearchControl({
+    provider: new GeoSearch.OpenStreetMapProvider(),
+  });
+  
+  map.addControl(search);
+
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
