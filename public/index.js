@@ -82,8 +82,12 @@
   }
 
   // Event listeners
-  document.getElementById('tiempo-real-btn').addEventListener('click', () => resaltarBotonActivo(tiempoRealBtn));
-  document.getElementById('historico-btn').addEventListener('click', () => resaltarBotonActivo(historicoBtn));
+  const tiempoRealBtn = document.getElementById('tiempo-real-btn')
+  const historicoBtn = document.getElementById('historico-btn')
+
+  tiempoRealBtn.addEventListener('click', () => resaltarBotonActivo());
+  historicoBtn.addEventListener('click', () => resaltarBotonActivo());
+
   document.getElementById('reiniciar-btn').addEventListener('click', reiniciarRuta);
   document.getElementById('switch-historico-btn').addEventListener('click', () => {
     const historicoControlsInput = document.getElementById('historico-controls');
