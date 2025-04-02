@@ -40,13 +40,13 @@
     try {
       const savedCoords = localStorage.getItem('liveCoords');
       const lastSaveTime = localStorage.getItem('lastSaveTime');
-      
+
       if (savedCoords) {
         // Verificamos si los datos guardados son recientes (menos de 24 horas)
         const now = new Date();
         const saveTime = new Date(lastSaveTime || 0);
         const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
-        
+
         // Solo cargamos si los datos son recientes
         if (hoursDiff < 24) {
           return JSON.parse(savedCoords);
@@ -82,7 +82,7 @@
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
-  
+
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
   }
@@ -178,7 +178,7 @@
     // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
     if (ruta) map.removeLayer(ruta); 
     coordenadas = []; // Reiniciar historial de coordenadas históricos
-    
+
     // Opción para reiniciar también el seguimiento en tiempo real
     if (liveRoute) {
       map.removeLayer(liveRoute);
@@ -197,62 +197,56 @@
 
     const ultimaCoord = await obtenerUltimaCoordenada();
 
-    // Only proceed with real-time updates if we're not in historico mode
-    if (!isHistoricoMode) {
-      const ultimaCoord = await obtenerUltimaCoordenada();
-    
-      // Intentamos cargar las coordenadas guardadas
-      const savedCoords = loadLiveCoords();
-      
-      if (savedCoords && savedCoords.length > 0) {
-        console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
-        liveCoords = savedCoords;
-      } else if (!liveCoords.length) {
-        // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
-        liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
-      }
-      
-      // Añadimos la última coordenada obtenida (la actual)
-      liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-      
-      // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
-      const rutaPlacement = await solicitarRuta(liveCoords);
-      
-      if (rutaPlacement) {
-        if (liveRoute) {
-          // Actualizamos la ruta existente
-          liveRoute.setLatLngs(rutaPlacement);
-          liveRoute.setStyle({ opacity: 1 });
-        } else {
-          // Creamos una nueva ruta
-          liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-        }
-      }
+    // Intentamos cargar las coordenadas guardadas
+    const savedCoords = loadLiveCoords();
 
-      const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-      updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
-
-      // Ajustamos el mapa para ver toda la ruta
-      if (liveRoute) {
-        map.fitBounds(liveRoute.getBounds());
-      } else {
-        map.setView([lat, lon], map.getZoom() || 15);
-      }
-
-      // Guardamos la ruta actual en localStorage
-      saveLiveCoords();
-
-      currentIntervalId = setInterval(actualizarMapa, 5000);
+    if (savedCoords && savedCoords.length > 0) {
+      console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
+      liveCoords = savedCoords;
+    } else if (!liveCoords.length) {
+      // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
+      liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
     }
+
+    // Añadimos la última coordenada obtenida (la actual)
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
+    const rutaPlacement = await solicitarRuta(liveCoords);
+
+    if (rutaPlacement) {
+      if (liveRoute) {
+        // Actualizamos la ruta existente
+        liveRoute.setLatLngs(rutaPlacement);
+        liveRoute.setStyle({ opacity: 1 });
+      } else {
+        // Creamos una nueva ruta
+        liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+      }
+    }
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
+
+    // Ajustamos el mapa para ver toda la ruta
+    if (liveRoute) {
+      map.fitBounds(liveRoute.getBounds());
+    } else {
+      map.setView([lat, lon], map.getZoom() || 15);
+    }
+
+    // Guardamos la ruta actual en localStorage
+    saveLiveCoords();
+
+    currentIntervalId = setInterval(actualizarMapa, 5000);
   }
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
 
   async function actualizarMapa() {
-    if (isHistoricoMode) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
-    
+
     // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
@@ -270,7 +264,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
     updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
-    
+
     // Guardamos la ruta actualizada en localStorage
     saveLiveCoords();
   }
@@ -317,13 +311,8 @@
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActivo(historicoBtn);
 
-    isHistoricoMode = true;
-  
-    if (currentIntervalId) {
-      clearInterval(currentIntervalId);
-      currentIntervalId = null;  
-    }
-    
+    if (currentIntervalId) clearInterval(currentIntervalId);
+
     // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
     if (liveRoute) { 
       map.removeLayer(liveRoute); 
@@ -367,9 +356,6 @@
 
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
- 
-    isHistoricoMode = false;
-
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
@@ -379,7 +365,7 @@
       map.removeLayer(ruta);
       ruta = null;
     }
-    
+
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
   });
