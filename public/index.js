@@ -300,7 +300,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    if (!marker) {
+    /* if (!marker) {
       marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
@@ -310,12 +310,12 @@
         .setLatLng([lat, lon])
         .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
         .openPopup();
-    }
+    } */
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
     //const currentZoom = map.getZoom();
-    map.setView([lat, lon], 20);
+    // map.setView([lat, lon], 20);
   }
 
   obtenerFechaHoraActual()
