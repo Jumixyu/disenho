@@ -295,10 +295,10 @@
   }
 
   tiempoRealBtn.addEventListener('click', async () => {
-    await iniciarTiempoReal('RUNNING FROM CLICK')
+    await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
-  await iniciarTiempoReal('RUNNING FROM INIT')
+  await iniciarTiempoReal(null, 'RUNNING FROM INIT')
 
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
