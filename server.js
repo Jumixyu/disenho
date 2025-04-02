@@ -1,108 +1,90 @@
-const path = require('path');
-const express = require('express');
-const dgram = require('dgram');
-const cors = require('cors');
-const mysql = require('mysql2');
-// const dotenv = require('dotenv');
+#!/usr/bin/env node
 
-const app = express();
-const port = process.env.PORT || 80; // Acceso sin :5000
-const udpPort = 5000; // Puerto UDP
+/**
+ * Module dependencies.
+ */
 
-// Conexión a MySQL
-require('dotenv').config();
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME
-});
+var app = require('./index');
+var debug = require('debug')('disenho:server');
+var http = require('http');
 
-db.connect(err => {
-  if (err) {
-    console.error('❌ Error conectando a MySQL:', err);
-    return;
-  }
-  console.log('✅ Conexión exitosa a la base de datos.');
-});
+/**
+ * Get port from environment and store in Express.
+ */
 
-module.exports = db;
+var port = normalizePort(process.env.PORT || '5000');
+app.set('port', port);
 
-// Middleware
-app.set('view engine', 'ejs');
-// set views for error and 404 pages
-app.set('views', path.join(__dirname, 'views'));
+/**
+ * Create HTTP server.
+ */
 
-// serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+var server = http.createServer(app);
 
-// Servir la página web con el mapa
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.ejs'));
-});
+/**
+ * Listen on provided port, on all network interfaces.
+ */
 
-// Endpoint para obtener SOLO la última coordenada
-app.get('/ultima-coordenada', (req, res) => {
-  db.query('SELECT * FROM coordenadas ORDER BY id DESC LIMIT 1', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows[0]); // Solo enviamos la última coordenada
-  });
-});
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
-// Endpoint para obtener recorrido histórico
-app.get('/recorrido-historico', (req, res) => {
-  const { inicio, fin } = req.query;
+/**
+ * Normalize a port into a number, string, or false.
+ */
 
-  if (!inicio || !fin) {
-    return res.status(400).json({ error: 'Faltan parámetros inicio y fin' });
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
   }
 
-  db.query(
-    'SELECT * FROM coordenadas WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? ORDER BY id ASC',
-    [inicio, fin],
-    (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json(rows);
-    }
-  );
-});
-
-// Servidor UDP para recibir coordenadas
-const udpServer = dgram.createSocket('udp4');
-
-udpServer.on('message', (msg, rinfo) => {
-  console.log(`📩 Mensaje recibido de ${rinfo.address}:${rinfo.port} -> ${msg}`);
-
-  const data = msg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*(.+)/);
-  if (data) {
-    const latitud = parseFloat(data[1]);
-    const longitud = parseFloat(data[2]);
-    const [fecha, hora] = data[3].split(' ');
-
-    db.query('INSERT INTO coordenadas (latitud, longitud, fecha, hora) VALUES (?, ?, ?, ?)',
-      [latitud, longitud, fecha, hora], (err) => {
-        if (err) console.error('❌ Error al insertar en MySQL:', err.message);
-        else console.log(`📌 Nueva coordenada guardada: Lat: ${latitud}, Long: ${longitud}`);
-      });
+  if (port >= 0) {
+    // port number
+    return port;
   }
-});
 
-app.get('/config', (req, res) => {
-  res.json({ nombre: process.env.NOMBRE });
-});
+  return false;
+}
 
-udpServer.bind(udpPort, () => {
-  console.log(`✅ Servidor UDP escuchando en el puerto ${udpPort}`);
-});
+/**
+ * Event listener for HTTP server "error" event.
+ */
 
-// Iniciar servidor HTTP en el puerto 80
-app.listen(port, '0.0.0.0', () => {
-  console.log("🚀 Servidor corriendo en http://0.0.0.0");
-});
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
