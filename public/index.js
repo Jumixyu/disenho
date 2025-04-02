@@ -37,7 +37,7 @@
 
   // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
   function resaltarBotonActivo(btn) {
-    // Quitar la clase active y active-red de todos los botones
+    // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
@@ -46,14 +46,11 @@
         map.removeControl(search);
         historicoHasSearch = false;
       }
-      b.classList.remove('active', 'active-red');
+      b.classList.remove('active'); // Solo eliminamos active
     });
-
-    // Agregar la clase active y active-red solo a Tiempo Real o Histórico
+  
+    // Agregar la clase active al botón clickeado
     btn.classList.add('active');
-    if (btn.id === 'tiempo-real-btn' || btn.id === 'historico-btn') {
-      btn.classList.add('active-red');
-    }
   }
 
   async function obtenerUltimaCoordenada() {
@@ -140,13 +137,12 @@
   const historicoControlsInput = document.getElementById('historico-controls');
 
   tiempoRealBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real en rojo
-    await iniciarTiempoReal(null, 'RUNNING FROM CLICK');
+    resaltarBotonActivo(tiempoRealBtn); // Se pondrá rojo
+    await iniciarTiempoReal();
   });
   
   historicoBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(historicoBtn); // Resalta el botón de Histórico en rojo
-    await iniciarTiempoReal(null, 'RUNNING FROM CLICK');
+    resaltarBotonActivo(historicoBtn); // Se pondrá rojo
   });
   
 
