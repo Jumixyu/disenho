@@ -1,19 +1,21 @@
 (async () => {
   'use-strict';
 
-  const map = L.map('map'); // Initial view
+  const map = L.map('map'); // Vista inicial
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
   const search = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider(),
     style: 'bar',
   });
+
   map.addControl(search);
 
   let marker = null;
-  let ruta = null; // Polyline representing the route
+  let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
-  let coordenadas = []; // History of coordinates
+  let coordenadas = []; // Guarda el historial de coordenadas
   let liveCoords = [];
   const messageEl = document.getElementById('message');
 
@@ -176,7 +178,7 @@
     if (liveRoute) map.removeLayer(liveRoute);
     updateMarker(ultimaCoord.latitud, ultimaCoord.longitud, ultimaCoord.fecha, ultimaCoord.hora);
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-    map.fitBounds(ruta.getBounds());
+    map.fitBounds(liveRoute.getBounds());
     if (map) map.setView([lat, lon], 20);
   }
 
