@@ -136,16 +136,6 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
 
-  tiempoRealBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(tiempoRealBtn); // Se pondrá rojo
-    await iniciarTiempoReal();
-  });
-  
-  historicoBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(historicoBtn); // Se pondrá rojo
-  });
-  
-
   function formatearFecha(fromServer, fecha, hora) {
     return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
   }
@@ -207,6 +197,15 @@
     // const currentZoom = map.getZoom();
     // map.setView([lat, lon], 20);
   }
+
+  tiempoRealBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(tiempoRealBtn); // Se pondrá rojo
+    await iniciarTiempoReal();
+  });
+  
+  historicoBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(historicoBtn); // Se pondrá rojo
+  });
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
   function obtenerFechaHoraActual() {
