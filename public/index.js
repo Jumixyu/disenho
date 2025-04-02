@@ -57,7 +57,7 @@
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
-    botones.map(b => b.classList.remove('active'));
+    botones.forEach(b => b.classList.remove('active'));
 
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
