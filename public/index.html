@@ -260,14 +260,15 @@
        const finInput = document.getElementById('fin');
        const historicoControlsInput = document.getElementById('historico-controls');
 
+       // CON ESTO SE RESALTAN LOS BOTONES
        tiempoRealBtn.addEventListener('click', () => {
-         resaltarBotonActivo(tiempoRealBtn);
-         mostrarMapa(); // Ya tienes la función para mostrar el mapa
+         resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
+         mostrarMapa(); // Muestra el mapa
        });
  
-       historicoBtn.addEventListener('click', () => {
-         resaltarBotonActivo(historicoBtn);
-         mostrarMapa(); // Ya tienes la función para mostrar el mapa
+       switchHistoricoBtn.addEventListener('click', () => {
+         resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
+         mostrarMapa(); // Muestra el mapa
        });
  
  
