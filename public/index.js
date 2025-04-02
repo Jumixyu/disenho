@@ -253,7 +253,11 @@
       if (currentIntervalId) clearInterval(currentIntervalId);
       reiniciarRuta();
     });
-    
+
+    if (liveRoute) { // ❌ Eliminar ruta en tiempo real
+      map.removeLayer(liveRoute);
+      liveRoute = null;
+    }
 
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
@@ -292,6 +296,12 @@
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
+
+    if (ruta) { // ❌ Eliminar ruta histórica
+      map.removeLayer(ruta);
+      ruta = null;
+    }
+
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
