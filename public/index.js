@@ -163,6 +163,8 @@
     map.setView([ultimaCoord.latitud, ultimaCoord.longitud], 20);
   }
 
+  await actualizarMapa()
+
   function obtenerFechaHoraActual() {
     const ahora = new Date();
     const año = ahora.getFullYear();
