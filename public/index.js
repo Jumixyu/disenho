@@ -5,6 +5,22 @@
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
+  function cargarRutaDesdeLocalStorage() {
+    const savedCoords = localStorage.getItem('liveCoords');
+    if (savedCoords) {
+      liveCoords = JSON.parse(savedCoords);
+    }
+  }
+  
+  cargarRutaDesdeLocalStorage(); // Llamamos a la función al iniciar
+  
+  if (liveCoords.length > 1) {
+    solicitarRuta(liveCoords).then(rutaPlacement => {
+      liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+      map.fitBounds(liveRoute.getBounds());
+    });
+  }
+
   const search = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider({
       params: {
@@ -180,16 +196,22 @@
 
   await iniciarTiempoReal(null, 'RUNNING FROM INIT')
 
+  function guardarRutaEnLocalStorage() {
+    localStorage.setItem('liveCoords', JSON.stringify(liveCoords));
+  }
+
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    // Guardar en localStorage
+    guardarRutaEnLocalStorage();
 
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
 
     if (liveRoute) map.removeLayer(liveRoute); // Eliminar ruta anterior
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
     updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
@@ -239,19 +261,9 @@
 
   historicoBtn.addEventListener('click', async () => {
     
-    if (currentIntervalId) {
-      clearInterval(currentIntervalId); // ❌ Detener actualización en tiempo real
-      currentIntervalId = null;
-    }
-  
     if (liveRoute) { 
-      map.removeLayer(liveRoute);  // ❌ Eliminar ruta en tiempo real
-      liveRoute = null;
+      liveRoute.setStyle({ opacity: 0 }); // oculta la ruta
     }
-  
-    liveCoords = []; // ❌ Borrar historial de coordenadas en vivo
-  
-    reiniciarRuta();
 
     const ultimaCoord = await obtenerUltimaCoordenada();
 
@@ -303,10 +315,13 @@
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
-    if (ruta) { // ❌ Eliminar ruta histórica
-      map.removeLayer(ruta);
-      ruta = null;
+    if (ruta) {
+      ruta.setStyle({ opacity: 0 }); // 🔴 Oculta la ruta histórica en lugar de eliminarla
     }
+    
+    if (liveRoute) {
+      liveRoute.setStyle({ opacity: 1 }); // 🔵 Vuelve a mostrar la ruta en tiempo real
+    }    
 
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
