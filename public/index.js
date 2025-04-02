@@ -311,11 +311,15 @@
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActivo(historicoBtn);
 
-    if (currentIntervalId) clearInterval(currentIntervalId);
+    if (currentIntervalId) {
+      clearInterval(currentIntervalId);
+      currentIntervalId = null;
+    }
 
     // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
     if (liveRoute) { 
-      map.removeLayer(liveRoute); 
+      map.removeLayer(liveRoute);
+      liveRoute = null;  
     }
 
     if (!inicioInput.value || !finInput.value) {
