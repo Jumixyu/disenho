@@ -176,7 +176,7 @@
     if (liveRoute) map.removeLayer(liveRoute);
     updateMarker(ultimaCoord.latitud, ultimaCoord.longitud, ultimaCoord.fecha, ultimaCoord.hora);
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-    // map.fitBounds(liveRoute.getBounds());
+    map.fitBounds(liveRoute.getBounds());
     if (map) map.setView([lat, lon], 20);
   }
 
