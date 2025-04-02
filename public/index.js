@@ -291,10 +291,6 @@
 
     if (ruta) map.removeLayer(ruta); // Eliminar ruta anterior
 
-    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
-
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     liveRoute = null;
 
