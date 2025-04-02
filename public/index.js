@@ -7,8 +7,10 @@
 
   const search = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider(),
+    style: 'bar',
+    resetButton: '🔍', // Example of using a magnifying glass icon
   });
-  
+
   map.addControl(search);
 
   let marker = null;
