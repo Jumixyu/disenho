@@ -196,18 +196,26 @@
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn');
-    botones.forEach(b => {
-      if (btn.textContent === 'Histórico') {
-        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
-      } else {
-        map.removeControl(search);
-        historicoHasSearch = false;
-      }
-      b.classList.remove('active'); // Solo eliminamos active
-    });
+    botones.forEach(b => b.classList.remove('active'));
 
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
+
+    // Conservar el estado de la búsqueda en el modo histórico
+    if (btn.id === 'historico-btn') {
+      // Si estamos en modo histórico, aseguramos que el control de búsqueda esté presente
+      if (!map.hasControl(search)) {
+        map.addControl(search);
+      }
+      historicoHasSearch = true;
+    } 
+    else if (btn.id === 'tiempo-real-btn') {
+      // Si estamos en modo tiempo real, eliminamos el control de búsqueda
+      if (map.hasControl(search)) {
+        map.removeControl(search);
+      }
+      historicoHasSearch = false;
+    }
   }
 
   async function obtenerUltimaCoordenada() {
@@ -326,6 +334,11 @@
     historicoControlsInput.classList.add('hidden');
     if (currentIntervalId) clearInterval(currentIntervalId);
 
+    // asegurar que el search bar no este
+    if (map.hasControl(search)) {
+      map.removeControl(search);
+    }
+
     const ultimaCoord = await obtenerUltimaCoordenada();
 
     // Intentamos cargar las coordenadas guardadas
@@ -429,9 +442,12 @@
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    if (!historicoHasSearch) {
+    
+    // Siempre aseguramos que el control de búsqueda esté presente en modo histórico
+    if (!map.hasControl(search)) {
       map.addControl(search);
     }
+    historicoHasSearch = true;
   });
 
   reiniciarBtn.addEventListener('click', reiniciarRuta);
@@ -448,6 +464,11 @@
     if (liveRoute) { 
       map.removeLayer(liveRoute);
       liveRoute = null;  
+    }
+
+    // asegurar que el search bar este visible
+    if (!map.hasControl(search)) {
+      map.addControl(search);
     }
 
     if (!inicioInput.value || !finInput.value) {
@@ -496,6 +517,11 @@
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
+    }
+
+    // asegurar que el search bar no este
+    if (map.hasControl(search)) {
+      map.removeControl(search);
     }
 
     // Activamos la ruta en tiempo real
