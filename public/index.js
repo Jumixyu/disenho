@@ -184,9 +184,7 @@
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   switchHistoricoBtn.addEventListener('click', async () => {
-    return historicoControlsInput.classList.contains('hidden')
-      ? historicoControlsInput.classList.remove('hidden')
-      : historicoControlsInput.classList.add('hidden');
+    return historicoControlsInput.classList.toggle('hidden');
   });
 
   historicoBtn.addEventListener('click', async () => {
