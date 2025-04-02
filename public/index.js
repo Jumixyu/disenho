@@ -6,17 +6,22 @@
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
   const search = new GeoSearch.GeoSearchControl({
-    provider: new GeoSearch.OpenStreetMapProvider(),
+    provider: new GeoSearch.OpenStreetMapProvider({
+      params: {
+        'accept-language': 'es', // render results in Dutch
+        addressdetails: 1, // include additional address detail parts
+      },
+    }),
     style: 'bar',
+    searchLabel: 'Introduzca una dirección',
+    notFoundMessage: 'No pudimos encontrar la dirección especificada.',
   });
-
 
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
   let liveRoute = null;
   let coordenadas = []; // Guarda el historial de coordenadas
   let liveCoords = [];
-  let liveRuns = 0;
   let currentIntervalId = null;
   let historicoHasSearch = false;
 
@@ -50,7 +55,7 @@
 
   async function obtenerUltimaCoordenada() {
     try {
-      const response = await fetch('http://abquintero.ddns.net/ultima-coordenada');
+      const response = await fetch('/ultima-coordenada');
       const data = await response.json();
 
       if (!data || data.error) return error;
@@ -68,7 +73,7 @@
     }
 
     try {
-      const response = await fetch(`http://abquintero.ddns.net/recorrido-historico?inicio=${inicio}&fin=${fin}`);
+      const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
       const data = await response.json();
 
       if (!data.length) return;
@@ -169,12 +174,6 @@
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     map.fitBounds(ruta.getBounds());
-    /*if (liveRuns === 0) {
-      map.fitBounds(ruta.getBounds());
-      map.setView([lat, lon], 15);
-    }
-    console.log(liveRuns)
-    liveRuns =+ 1;*/
 
     currentIntervalId = setInterval(actualizarMapa, 5000);
   }
@@ -228,11 +227,6 @@
   }
 
   // EVENT LISTENERS //
-
-  /* switchHistoricoBtn.addEventListener('click', async () => {
-    return historicoControlsInput.classList.toggle('hidden');
-  }); */
-
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
@@ -293,7 +287,7 @@
 
   // RUNTIME
 
-  fetch('http://abquintero.ddns.net/config')
+  fetch('/config')
     .then(response => response.json())
     .then(data => {
       document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
