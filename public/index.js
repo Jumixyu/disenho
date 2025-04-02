@@ -19,38 +19,6 @@
 
   const messageEl = document.getElementById('message');
 
-  // Inicializar el Autocomplete de Google Places
-  /* function initAutocomplete() {
-
-    const input = document.getElementById('search-box');
-    console.log(input.value)
-    const autocomplete = new google.maps.places.PlaceAutocompleteElement(input);
-    autocomplete.addListener('place_changed', function () {
-      const place = autocomplete.getPlace();
-      if (!place.geometry) {
-        console.log("No se encontró la ubicación");
-        return;
-      }
-
-      // Obtener coordenadas del lugar seleccionado
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-
-      // Centrar el mapa en la nueva ubicación
-      map.setView([lat, lng], 14);
-
-      // Agregar o mover el marcador
-      if (marker) {
-        marker.setLatLng([lat, lng]);
-      } else {
-        marker = L.marker([lat, lng]).addTo(map);
-      }
-    });
-  } */
-
-  // Esperar a que la API de Google Maps cargue antes de inicializar
-  // window.onload = initAutocomplete;
-
   // Función para resaltar el botón activo
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
@@ -159,6 +127,7 @@
 
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
+    toggleHistorico();
   });
 
 
@@ -273,7 +242,7 @@
     } */
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
-    
+
     /*if (liveRuns === 0) {
       map.fitBounds(ruta.getBounds());
       map.setView([lat, lon], 15);
@@ -351,7 +320,7 @@
   }
 
   function toggleHistorico() {
-    const historicoContainer = document.getElementById('historicoContainer');
+    const historicoContainer = document.getElementById('historico-controls');
     historicoContainer.style.display = historicoContainer.style.display === 'none' ? 'block' : 'none';
   }
 
