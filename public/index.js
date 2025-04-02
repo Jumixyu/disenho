@@ -238,9 +238,24 @@
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   historicoBtn.addEventListener('click', async () => {
-    if (currentIntervalId) clearInterval(currentIntervalId)
+    
+    if (currentIntervalId) {
+      clearInterval(currentIntervalId); // ❌ Detener actualización en tiempo real
+      currentIntervalId = null;
+    }
+  
+    if (liveRoute) { 
+      map.removeLayer(liveRoute);  // ❌ Eliminar ruta en tiempo real
+      liveRoute = null;
+    }
+  
+    liveCoords = []; // ❌ Borrar historial de coordenadas en vivo
+  
     reiniciarRuta();
+
     const ultimaCoord = await obtenerUltimaCoordenada();
+
+
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -253,11 +268,6 @@
       if (currentIntervalId) clearInterval(currentIntervalId);
       reiniciarRuta();
     });
-
-    if (liveRoute) { // ❌ Eliminar ruta en tiempo real
-      map.removeLayer(liveRoute);
-      liveRoute = null;
-    }
 
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
