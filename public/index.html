@@ -416,6 +416,28 @@
  
        obtenerFechaHoraActual()
      })();
+
+     function resaltarBotonActivo(btn) {
+      // Quitar la clase active de todos los botones
+      const botones = document.querySelectorAll('button');
+      botones.forEach(boton => boton.classList.remove('active'));
+
+      // Agregar la clase active al botón clickeado
+      btn.classList.add('active');
+     }
+
+      tiempoRealBtn.addEventListener('click', async () => {
+        resaltarBotonActivo(tiempoRealBtn);
+        await iniciarTiempoReal();
+      });
+
+      historicoBtn.addEventListener('click', async () => {
+        resaltarBotonActivo(historicoBtn);
+        await obtenerRecorridoHistorico(
+          formatearFecha(false, inicioInput.value),
+          formatearFecha(false, finInput.value)
+        );
+      });
  
  
      // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
