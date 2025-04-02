@@ -17,6 +17,7 @@
   let liveCoords = [];
   let liveRuns = 0;
   let currentIntervalId = null;
+  let historicoHasSearch = false;
 
   const messageEl = document.getElementById('message');
 
@@ -33,13 +34,9 @@
   async function obtenerUltimaCoordenada() {
     try {
       const response = await fetch('/ultima-coordenada');
-
       const data = await response.json();
 
-      if (!data || data.error) {
-        return error;
-      }
-
+      if (!data || data.error) return error;
       return data;
     } catch (e) {
       console.log(e);
@@ -108,6 +105,7 @@
     }
   }
 
+  const buscarBtn = document.getElementById('tiempo-real-btn');
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const historicoBtn = document.getElementById('historico-btn');
   const reiniciarBtn = document.getElementById('reiniciar-btn');
@@ -131,8 +129,7 @@
   // TIEMPO REAL
   async function iniciarTiempoReal() {
     reiniciarRuta();
-    map.removeControl(search)
-    historicoControlsInput.classList.remove('hidden');
+    historicoControlsInput.classList.add('hidden');
     if (currentIntervalId) clearInterval(currentIntervalId);
 
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -250,7 +247,7 @@
   historicoBtn.addEventListener('click', async () => {
     if (currentIntervalId) clearInterval(currentIntervalId)
     reiniciarRuta();
-    map.addControl(search);
+    historicoHasSearch = true;
     const ultimaCoord = await obtenerUltimaCoordenada();
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
@@ -306,6 +303,11 @@
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
+
+  buscarBtn.addEventListener('click', () => {
+    if (!historicoHasSearch) map.addControl(search);
+    else map.removeControl(search)
+  })
   // RUNTIME
 
   fetch('/config')
