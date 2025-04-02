@@ -9,6 +9,10 @@
     provider: new GeoSearch.OpenStreetMapProvider(),
     style: 'bar',
   });
+  map.addControl(search);
+
+  // if (b?.textContent === 'Histórico' && ruta) 
+  // else map.removeControl(search)
 
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido
@@ -26,8 +30,6 @@
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(b => {
-      if (b?.textContent === 'Histórico' && ruta) map.addControl(search);
-      else map.removeControl(search)
       b.classList.remove('active')
     });
 
