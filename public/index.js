@@ -21,8 +21,6 @@
 
   // Function to create or update a marker
   function updateMarker(lat, lon, fecha, hora) {
-
-    console.log(lat, lon, fecha, hora)
     const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
 
     // Check if lat and lon are valid numbers
@@ -178,11 +176,11 @@
     if (liveRoute) map.removeLayer(liveRoute);
     updateMarker(ultimaCoord.latitud, ultimaCoord.longitud, ultimaCoord.fecha, ultimaCoord.hora);
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-    map.fitBounds(liveRoute.getBounds());
+    // map.fitBounds(liveRoute.getBounds());
     if (map) map.setView([lat, lon], 20);
   }
 
-  await actualizarMapa()
+  // await actualizarMapa()
 
   function obtenerFechaHoraActual() {
     const ahora = new Date();
