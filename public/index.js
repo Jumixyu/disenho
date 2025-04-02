@@ -236,13 +236,14 @@
     }
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
+    liveRoute = null;
 
-    // map.fitBounds(ruta.getBounds());
+    map.fitBounds(ruta.getBounds());
   });
 
   async function iniciarTiempoReal(intervalId = null, from = '') {
     console.log(from);
-    historicoControlsInput.classList.add('hidden');
+    historicoControlsInput.classList.toggle('hidden');
     reiniciarRuta();
 
     if (intervalId) clearInterval(intervalId);
