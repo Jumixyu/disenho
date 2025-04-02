@@ -339,6 +339,8 @@
 
       let intervalId = null;
       tiempoRealBtn.addEventListener('click', async () => {
+      let intervalId = null;
+      tiempoRealBtn.addEventListener('click', async () => {
         historicoControlsInput.classList.add('hidden');
         reiniciarRuta();
 
@@ -380,6 +382,7 @@
 
         intervalId = setInterval(actualizarMapa, 5000);
       });
+
 
       async function actualizarMapa() {
         const ultimaCoord = await obtenerUltimaCoordenada();
