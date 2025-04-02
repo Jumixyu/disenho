@@ -7,8 +7,7 @@
 
   const search = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider(),
-    style: 'bar',
-    resetButton: '🔍', // Example of using a magnifying glass icon
+    style: 'bar'
   });
 
   map.addControl(search);
@@ -58,17 +57,10 @@
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
-    botones.forEach(boton => boton.classList.remove('active'));
+    botones.map(b => b.classList.remove('active'));
 
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
-  }
-
-  async function updateMapa(lat, lon) {
-    marker = L.marker([lat, lon])
-      .addTo(map)
-      .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${data.fecha} ${data.hora}`)
-      .openPopup();
   }
 
   async function obtenerUltimaCoordenada() {
@@ -231,7 +223,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    if (!marker) {
+    /* if (!marker) {
       marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
@@ -241,7 +233,7 @@
         .setLatLng([lat, lon])
         .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
         .openPopup();
-    }
+    } */
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
 
@@ -270,7 +262,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    if (!marker) {
+    /* if (!marker) {
       marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
@@ -280,16 +272,16 @@
         .setLatLng([lat, lon])
         .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
         .openPopup();
-    }
+    }*/
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     
-    if (liveRuns === 0) {
+    /*if (liveRuns === 0) {
       map.fitBounds(ruta.getBounds());
       map.setView([lat, lon], 15);
     }
     console.log(liveRuns)
-    liveRuns =+ 1;
+    liveRuns =+ 1;*/
 
     intervalId = setInterval(actualizarMapa, 5000);
   }
@@ -310,7 +302,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    if (!marker) {
+    /* if (!marker) {
       marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
@@ -320,7 +312,7 @@
         .setLatLng([lat, lon])
         .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
         .openPopup();
-    }
+    } */
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
