@@ -194,70 +194,8 @@
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
-    // INTERSECCION DEL CIRCULO
-    if (checkIntersection(liveRoute, circle)) {
-        const crossingTime = `${ultimaCoord.fecha} ${ultimaCoord.hora}`;
-        messageEl.classList.remove('hidden');
-        messageEl.classList.add('info');
-        messageEl.textContent = `La ruta cruzó la ubicación en: ${crossingTime}`;
-    }
-
     // const currentZoom = map.getZoom();
     // map.setView([lat, lon], 20);
-  }
-
-  // Crear el circulo
-  const circleRadius = 100; // Radius in meters
-  const circle = L.circle([lat, lon], { radius: circleRadius, color: 'green', fillOpacity: 0.5 }).addTo(map);
-
-  function checkIntersection(polyline, circle) {
-      const latLngs = polyline.getLatLngs();
-      const circleCenter = circle.getLatLng();
-      const radius = circle.getRadius();
-
-      for (let i = 0; i < latLngs.length - 1; i++) {
-          const point1 = latLngs[i];
-          const point2 = latLngs[i + 1];
-
-          // Check if the line segment intersects with the circle
-          if (lineIntersectsCircle(point1, point2, circleCenter, radius)) {
-              return true;
-          }
-      }
-      return false;
-  }
-
-  function lineIntersectsCircle(p1, p2, center, radius) {
-      const d = distanceToLine(center, p1, p2);
-      return d <= radius;
-  }
-
-  function distanceToLine(point, lineStart, lineEnd) {
-      const A = point.lat - lineStart.lat;
-      const B = point.lng - lineStart.lng;
-      const C = lineEnd.lat - lineStart.lat;
-      const D = lineEnd.lng - lineStart.lng;
-
-      const dot = A * C + B * D;
-      const len_sq = C * C + D * D;
-      const param = len_sq !== 0 ? dot / len_sq : -1;
-
-      let closestX, closestY;
-
-      if (param < 0) {
-          closestX = lineStart.lat;
-          closestY = lineStart.lng;
-      } else if (param > 1) {
-          closestX = lineEnd.lat;
-          closestY = lineEnd.lng;
-      } else {
-          closestX = lineStart.lat + param * C;
-          closestY = lineStart.lng + param * D;
-      }
-
-      const dx = point.lat - closestX;
-      const dy = point.lng - closestY;
-      return Math.sqrt(dx * dx + dy * dy);
   }
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
