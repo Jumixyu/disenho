@@ -124,6 +124,12 @@
        <div class="contenedor"><label for="fin">Fin:</label>
          <input type="datetime-local" id="fin" step="1" />
        </div>
+
+       <div id="historicoContainer" style="display: none;">
+         <h2>Historial de Ubicaciones</h2>
+         <input type="text" id="inputLugar" placeholder="Nombre del lugar">
+         <button onclick="buscarUbicacion()">Buscar</button>
+       </div>
  
      </div>
  
@@ -462,10 +468,31 @@
        document.getElementById('fin').value = finDefecto;
      }
 
-     function verificarUbicacion() {
-        const input = document.getElementById('inputUbicacion').value;
-        const [latitud, longitud] = input.split(',').map(Number);
+     function toggleHistorico() {
+        const historicoContainer = document.getElementById('historicoContainer');
+        historicoContainer.style.display = historicoContainer.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function buscarUbicacion() {
+        const nombre = document.getElementById('inputLugar').value;
+        
+        fetch('/buscar-lugar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.encontrado) {
+                verificarUbicacion(data.latitud, data.longitud);
+            } else {
+                alert('Ubicación no encontrada');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
+    function verificarUbicacion(latitud, longitud) {
         fetch('/verificar-ubicacion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -480,7 +507,7 @@
             }
         })
         .catch(error => console.error('Error:', error));
-     }
+    }
 
  </script>
  </body>

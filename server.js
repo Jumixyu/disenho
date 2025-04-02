@@ -69,16 +69,34 @@ const path = require('path');
    );
  });
 
- // Endpoint para verificar si el vehículo pasó por una ubicación
+ // Endpoint para buscar coordenadas por nombre de lugar
+app.post('/buscar-lugar', (req, res) => {
+  const { nombre } = req.body;
+  
+  const query = `SELECT latitud, longitud FROM coordenadas WHERE nombre = ? LIMIT 1`;
+  db.query(query, [nombre], (err, results) => {
+      if (err) {
+          res.status(500).send('Error en la consulta');
+          return;
+      }
+      if (results.length > 0) {
+          res.json({ encontrado: true, latitud: results[0].latitud, longitud: results[0].longitud });
+      } else {
+          res.json({ encontrado: false });
+      }
+  });
+});
+
+// Endpoint para verificar si el vehículo pasó por una ubicación
 app.post('/verificar-ubicacion', (req, res) => {
   const { latitud, longitud } = req.body;
-  const rango = 0.0001; // Ajusta el margen de error
+  const rango = 0.0001;
   
   const query = `SELECT * FROM coordenadas WHERE 
                  (latitud BETWEEN ? AND ?) AND 
                  (longitud BETWEEN ? AND ?)
                  ORDER BY fecha_hora DESC LIMIT 1`;
-
+  
   db.query(query, [latitud - rango, latitud + rango, longitud - rango, longitud + rango], (err, results) => {
       if (err) {
           res.status(500).send('Error en la consulta');
