@@ -227,6 +227,28 @@
  
          return result;
        }
+
+       let realtimeLayer = L.layerGroup(); // Capa para tiempo real
+       let historicalLayer = L.layerGroup(); // Capa para histórico
+
+       function activarTiempoReal() {
+          historicalLayer.clearLayers(); // Limpia el recorrido histórico si existía
+          map.removeLayer(historicalLayer);
+            
+          if (!map.hasLayer(realtimeLayer)) {
+              map.addLayer(realtimeLayer);
+          }
+       }
+
+       function activarHistorico() {
+          realtimeLayer.clearLayers(); // Limpia el recorrido en tiempo real
+          map.removeLayer(realtimeLayer); // Elimina la capa de tiempo real
+
+          if (!map.hasLayer(historicalLayer)) {
+            map.addLayer(historicalLayer);
+          }
+       }
+
  
        async function solicitarRuta(puntos) {
          if (puntos.length < 2) return;
