@@ -154,12 +154,10 @@
   // CON ESTO SE RESALTAN LOS BOTONES
   tiempoRealBtn.addEventListener('click', () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
-    mostrarMapa(); // Muestra el mapa
   });
 
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
-    mostrarMapa(); // Muestra el mapa
   });
 
 
