@@ -18,6 +18,7 @@
   let liveRoute = null;
   let coordenadas = []; // Guarda el historial de coordenadas
   let liveCoords = [];
+  let liveRuns = 0;
 
   const messageEl = document.getElementById('message');
 
@@ -247,7 +248,7 @@
     map.fitBounds(ruta.getBounds());
   });
 
-  async function iniciarTiempoReal(intervalId = null, runs = 0) {
+  async function iniciarTiempoReal(intervalId = null) {
     historicoControlsInput.classList.add('hidden');
     reiniciarRuta();
 
@@ -282,13 +283,13 @@
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     
-    if (runs === 0) {
+    if (liveRuns === 0) {
       map.fitBounds(ruta.getBounds());
       const currentZoom = map.getZoom();
       map.setView([lat, lon], currentZoom);
     }
-    runs =+ 1;
-    console.log(runs)
+    console.log(liveRuns)
+    liveRuns =+ 1;
 
     intervalId = setInterval(actualizarMapa, 5000);
   }
