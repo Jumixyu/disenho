@@ -190,7 +190,7 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    // updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
+    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
