@@ -25,6 +25,40 @@
   let currentIntervalId = null;
   let historicoHasSearch = false;
 
+  // Función para guardar las coordenadas en localStorage
+  function saveLiveCoords() {
+    try {
+      localStorage.setItem('liveCoords', JSON.stringify(liveCoords));
+      localStorage.setItem('lastSaveTime', new Date().toISOString());
+    } catch (e) {
+      console.error('Error al guardar coordenadas:', e);
+    }
+  }
+
+  // Función para cargar las coordenadas desde localStorage
+  function loadLiveCoords() {
+    try {
+      const savedCoords = localStorage.getItem('liveCoords');
+      const lastSaveTime = localStorage.getItem('lastSaveTime');
+      
+      if (savedCoords) {
+        // Verificamos si los datos guardados son recientes (menos de 24 horas)
+        const now = new Date();
+        const saveTime = new Date(lastSaveTime || 0);
+        const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+        
+        // Solo cargamos si los datos son recientes
+        if (hoursDiff < 24) {
+          return JSON.parse(savedCoords);
+        }
+      }
+      return null;
+    } catch (e) {
+      console.error('Error al cargar coordenadas:', e);
+      return null;
+    }
+  }
+
   // Function to create or update a marker
   function updateMarker(lat, lon, fecha, hora) {
     const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
@@ -103,7 +137,6 @@
     return result;
   }
 
-
   async function solicitarRuta(puntos) {
     if (puntos.length < 2) return;
 
@@ -145,7 +178,16 @@
     // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
     if (ruta) map.removeLayer(ruta); 
     coordenadas = []; // Reiniciar historial de coordenadas históricos
-    // NO reiniciamos liveCoords para mantener el historial de la ruta en tiempo real
+    
+    // Opción para reiniciar también el seguimiento en tiempo real
+    if (liveRoute) {
+      map.removeLayer(liveRoute);
+      liveRoute = null;
+      liveCoords = [];
+      // Eliminamos también los datos guardados
+      localStorage.removeItem('liveCoords');
+      localStorage.removeItem('lastSaveTime');
+    }
   }
 
   // TIEMPO REAL
@@ -154,34 +196,53 @@
     if (currentIntervalId) clearInterval(currentIntervalId);
 
     const ultimaCoord = await obtenerUltimaCoordenada();
-
-    const currentDate = new Date(formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora));
     
-    // Si no existe liveRoute, la creamos por primera vez
-    if (!liveRoute) {
+    // Intentamos cargar las coordenadas guardadas
+    const savedCoords = loadLiveCoords();
+    
+    if (savedCoords && savedCoords.length > 0) {
+      console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
+      liveCoords = savedCoords;
+    } else if (!liveCoords.length) {
+      // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
       liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
-      
-      // Necesitamos al menos dos puntos para crear una ruta
-      const puntos = [[ultimaCoord.latitud, ultimaCoord.longitud], [ultimaCoord.latitud, ultimaCoord.longitud]];
-      const rutaPlacement = await solicitarRuta(puntos);
-      
-      if (rutaPlacement) {
+    }
+    
+    // Añadimos la última coordenada obtenida (la actual)
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+    
+    // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
+    const rutaPlacement = await solicitarRuta(liveCoords);
+    
+    if (rutaPlacement) {
+      if (liveRoute) {
+        // Actualizamos la ruta existente
+        liveRoute.setLatLngs(rutaPlacement);
+        liveRoute.setStyle({ opacity: 1 });
+      } else {
+        // Creamos una nueva ruta
         liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
       }
-    } else {
-      // Si ya existe liveRoute, la hacemos visible
-      liveRoute.setStyle({ opacity: 1 });
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
     updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
 
-    map.setView([lat, lon], map.getZoom() || 15);
+    // Ajustamos el mapa para ver toda la ruta
+    if (liveRoute) {
+      map.fitBounds(liveRoute.getBounds());
+    } else {
+      map.setView([lat, lon], map.getZoom() || 15);
+    }
+
+    // Guardamos la ruta actual en localStorage
+    saveLiveCoords();
 
     currentIntervalId = setInterval(actualizarMapa, 5000);
   }
 
-  await iniciarTiempoReal(null, 'RUNNING FROM INIT')
+  // Iniciamos el modo tiempo real cuando carga la página
+  await iniciarTiempoReal();
 
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -203,6 +264,9 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
     updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
+    
+    // Guardamos la ruta actualizada en localStorage
+    saveLiveCoords();
   }
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
@@ -242,15 +306,7 @@
     }
   });
 
-  reiniciarBtn.addEventListener('click', () => {
-    reiniciarRuta();
-    // También eliminamos la ruta en tiempo real si se presiona el botón de reiniciar
-    if (liveRoute) {
-      map.removeLayer(liveRoute);
-      liveRoute = null;
-      liveCoords = [];
-    }
-  });
+  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActivo(historicoBtn);
@@ -310,7 +366,7 @@
     }
     
     // Activamos la ruta en tiempo real
-    await iniciarTiempoReal(null, 'RUNNING FROM CLICK');
+    await iniciarTiempoReal();
   });
 
   // RUNTIME
