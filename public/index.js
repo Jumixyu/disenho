@@ -129,12 +129,12 @@
   }
 
   // TIEMPO REAL
-  async function iniciarTiempoReal(intervalId = null) {
+  async function iniciarTiempoReal() {
     reiniciarRuta();
     map.removeControl(search)
     historicoControlsInput.classList.remove('hidden');
+    if (currentIntervalId) clearInterval(currentIntervalId);
 
-    if (intervalId) clearInterval(intervalId);
     const ultimaCoord = await obtenerUltimaCoordenada();
 
     const currentDate = new Date(formatearFecha(true, ultimaCoord.fecha, ultimaCoord.hora));
