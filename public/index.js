@@ -21,9 +21,16 @@
   function updateMarker(lat, lon, fecha, hora) {
     const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
     if (!marker) {
-      marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
+      marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
+      map.openPopup(marker.getPopup()); // Open the popup explicitly
     } else {
-      marker.setLatLng([lat, lon]).setPopupContent(popupContent).openPopup();
+      marker.setLatLng([lat, lon]).setPopupContent(popupContent);
+      if (marker.getPopup().isOpen()) {
+        // If the popup is already open, we can just update its content
+        marker.getPopup().setContent(popupContent);
+      } else {
+        map.openPopup(marker.getPopup()); // Open the popup explicitly
+      }
     }
   }
 
