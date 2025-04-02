@@ -51,7 +51,7 @@
   } */
 
   // Esperar a que la API de Google Maps cargue antes de inicializar
-  window.onload = initAutocomplete;
+  // window.onload = initAutocomplete;
 
   // Función para resaltar el botón activo
   function resaltarBotonActivo(btn) {
