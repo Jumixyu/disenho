@@ -17,7 +17,8 @@
   function initAutocomplete() {
 
     const input = document.getElementById('search-box');
-    const autocomplete = new google.maps.places.Autocomplete(input);
+    console.log(input.value)
+    const autocomplete = new google.maps.places.PlaceAutocompleteElement(input);
     autocomplete.addListener('place_changed', function () {
       const place = autocomplete.getPlace();
       if (!place.geometry) {
