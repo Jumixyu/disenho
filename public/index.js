@@ -18,8 +18,9 @@
   const messageEl = document.getElementById('message');
 
   // Function to create or update a marker
-  // Function to create or update a marker
   function updateMarker(lat, lon, fecha, hora) {
+
+    console.log(lat, lon, fecha, hora)
     const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
 
     // Check if lat and lon are valid numbers
