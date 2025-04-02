@@ -282,6 +282,7 @@
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     
+    console.log(runs)
     if (runs === 0) {
       map.fitBounds(ruta.getBounds());
       const currentZoom = map.getZoom();
