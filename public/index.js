@@ -15,18 +15,19 @@
 
   // Inicializar el Autocomplete de Google Places
   function initAutocomplete() {
-    var input = document.getElementById('search-box');
-    var autocomplete = new google.maps.places.Autocomplete(input);
+
+    const input = document.getElementById('search-box');
+    const autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.addListener('place_changed', function () {
-      var place = autocomplete.getPlace();
+      const place = autocomplete.getPlace();
       if (!place.geometry) {
         console.log("No se encontró la ubicación");
         return;
       }
 
       // Obtener coordenadas del lugar seleccionado
-      var lat = place.geometry.location.lat();
-      var lng = place.geometry.location.lng();
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
 
       // Centrar el mapa en la nueva ubicación
       map.setView([lat, lng], 14);
