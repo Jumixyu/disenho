@@ -30,7 +30,7 @@
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
     let resultsPanel = document.getElementById('search-results-panel');
-    
+
     if (!resultsPanel) {
       resultsPanel = document.createElement('div');
       resultsPanel.id = 'search-results-panel';
@@ -43,7 +43,7 @@
         <div id="results-content"></div>
       `;
       document.body.appendChild(resultsPanel);
-      
+
       // Agregar evento para cerrar el panel
       document.getElementById('close-results').addEventListener('click', () => {
         resultsPanel.classList.add('hidden');
@@ -52,29 +52,29 @@
         searchResultsMarkers = [];
       });
     }
-    
+
     return resultsPanel;
   };
-  
+
   // Función para mostrar resultados de búsqueda
   const mostrarResultadosBusqueda = (resultados) => {
     const resultsPanel = createResultsPanel();
     const resultsContent = document.getElementById('results-content');
-    
+
     // Eliminar marcadores anteriores
     searchResultsMarkers.forEach(m => map.removeLayer(m));
     searchResultsMarkers = [];
-    
+
     if (!resultados || resultados.length === 0) {
       resultsContent.innerHTML = '<p>No se encontraron registros del vehículo cerca de esta ubicación.</p>';
       resultsPanel.classList.remove('hidden');
       return;
     }
-    
+
     // Formato para los resultados
     let html = `<p>Se encontraron ${resultados.length} registros del vehículo cerca de esta ubicación:</p>`;
     html += '<ul class="results-list">';
-    
+
     resultados.forEach((result, index) => {
       const distanciaFormateada = result.distancia_km.toFixed(2);
       html += `
@@ -83,7 +83,7 @@
           <strong>📍 Distancia:</strong> ${distanciaFormateada} km
         </li>
       `;
-      
+
       // Crear marcador para cada resultado
       const resultMarker = L.marker([result.latitud, result.longitud], {
         icon: L.divIcon({
@@ -92,40 +92,40 @@
           iconSize: [25, 25],
         })
       }).addTo(map);
-      
+
       resultMarker.bindPopup(`
         <strong>Resultado #${index + 1}</strong><br>
         📅 Fecha: ${result.fecha} ${result.hora}<br>
         📍 Coordenadas: ${result.latitud}, ${result.longitud}<br>
         🔍 Distancia: ${distanciaFormateada} km
       `);
-      
+
       searchResultsMarkers.push(resultMarker);
     });
-    
+
     html += '</ul>';
     resultsContent.innerHTML = html;
-    
+
     // Agregar eventos para los items de la lista
     document.querySelectorAll('.result-item').forEach(item => {
       item.addEventListener('click', () => {
         const index = parseInt(item.dataset.index);
         const result = resultados[index];
-        
+
         // Centrar mapa en este resultado
         map.setView([result.latitud, result.longitud], 16);
-        
+
         // Abrir popup del marcador
         searchResultsMarkers[index].openPopup();
       });
     });
-    
+
     // Si hay resultados, ajustar el mapa para mostrarlos todos
     if (searchResultsMarkers.length > 0) {
       const group = new L.featureGroup(searchResultsMarkers);
       map.fitBounds(group.getBounds().pad(0.2));
     }
-    
+
     resultsPanel.classList.remove('hidden');
   };
 
@@ -134,7 +134,7 @@
     try {
       const response = await fetch(`/buscar-ubicacion?lat=${lat}&lon=${lon}&radio=${radio}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         searchResults = data;
         mostrarResultadosBusqueda(data);
@@ -196,26 +196,18 @@
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn');
-    botones.forEach(b => b.classList.remove('active'));
+    botones.forEach(b => {
+      if (btn.textContent === 'Histórico') {
+        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
+      } else {
+        map.removeControl(search);
+        historicoHasSearch = false;
+      }
+      b.classList.remove('active'); // Solo eliminamos active
+    });
 
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
-
-    // Conservar el estado de la búsqueda en el modo histórico
-    if (btn.id === 'historico-btn') {
-      // Si estamos en modo histórico, aseguramos que el control de búsqueda esté presente
-      if (!map.hasControl(search)) {
-        map.addControl(search);
-      }
-      historicoHasSearch = true;
-    } 
-    else if (btn.id === 'tiempo-real-btn') {
-      // Si estamos en modo tiempo real, eliminamos el control de búsqueda
-      if (map.hasControl(search)) {
-        map.removeControl(search);
-      }
-      historicoHasSearch = false;
-    }
   }
 
   async function obtenerUltimaCoordenada() {
@@ -319,11 +311,11 @@
       localStorage.removeItem('liveCoords');
       localStorage.removeItem('lastSaveTime');
     }
-    
+
     // Eliminamos los marcadores de resultados de búsqueda
     searchResultsMarkers.forEach(m => map.removeLayer(m));
     searchResultsMarkers = [];
-    
+
     // Ocultamos el panel de resultados
     const resultsPanel = document.getElementById('search-results-panel');
     if (resultsPanel) resultsPanel.classList.add('hidden');
@@ -333,11 +325,6 @@
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     if (currentIntervalId) clearInterval(currentIntervalId);
-
-    // asegurar que el search bar no este
-    if (map.hasControl(search)) {
-      map.removeControl(search);
-    }
 
     const ultimaCoord = await obtenerUltimaCoordenada();
 
@@ -442,12 +429,9 @@
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    
-    // Siempre aseguramos que el control de búsqueda esté presente en modo histórico
-    if (!map.hasControl(search)) {
+    if (!historicoHasSearch) {
       map.addControl(search);
     }
-    historicoHasSearch = true;
   });
 
   reiniciarBtn.addEventListener('click', reiniciarRuta);
@@ -466,9 +450,9 @@
       liveRoute = null;  
     }
 
-    // asegurar que el search bar este visible
-    if (!map.hasControl(search)) {
+    if (!historicoHasSearch) {
       map.addControl(search);
+      historicoHasSearch = true;
     }
 
     if (!inicioInput.value || !finInput.value) {
@@ -519,11 +503,6 @@
       ruta = null;
     }
 
-    // asegurar que el search bar no este
-    if (map.hasControl(search)) {
-      map.removeControl(search);
-    }
-
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
   });
@@ -532,18 +511,19 @@
   fetch('/config')
     .then(response => response.json())
     .then(data => {
-      document.getElementById('titulo').textContent = `MyCoords - ${data.nombre}`;
+      document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
     })
     .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual();
-  
+
   // NUEVA FUNCIONALIDAD: Manejar búsqueda por ubicación
   // Agregar evento para reaccionar cuando se selecciona una ubicación en la barra de búsqueda
   map.on('geosearch/showlocation', (e) => {
     const { location } = e;
     console.log('Ubicación seleccionada:', location);
-    
+
     // Buscar si el vehículo estuvo cerca de esta ubicación
     buscarUbicacion(location.y, location.x, 0.5); // 0.5 km de radio por defecto
   });
+
 })();
