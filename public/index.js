@@ -286,8 +286,8 @@
       map.fitBounds(ruta.getBounds());
       const currentZoom = map.getZoom();
       map.setView([lat, lon], currentZoom);
-      runs++
     }
+    runs =+ 1;
 
     intervalId = setInterval(actualizarMapa, 5000);
   }
