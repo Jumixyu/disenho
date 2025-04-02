@@ -25,7 +25,11 @@
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
-    botones.forEach(b => b.classList.remove('active'));
+    botones.forEach(b => {
+      if (b?.textContent === 'Histórico') map.addControl(search);
+      else map.removeControl(search)
+      b.classList.remove('active')
+    });
 
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
@@ -303,10 +307,9 @@
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
-
+  let searchAdded = 
   buscarBtn.addEventListener('click', () => {
-    if (!historicoHasSearch) map.addControl(search);
-    else map.removeControl(search)
+
   })
   // RUNTIME
 
