@@ -22,7 +22,7 @@
   const messageEl = document.getElementById('message');
 
   // Inicializar el Autocomplete de Google Places
-  function initAutocomplete() {
+  /* function initAutocomplete() {
 
     const input = document.getElementById('search-box');
     console.log(input.value)
@@ -48,7 +48,7 @@
         marker = L.marker([lat, lng]).addTo(map);
       }
     });
-  }
+  } */
 
   // Esperar a que la API de Google Maps cargue antes de inicializar
   window.onload = initAutocomplete;
@@ -288,6 +288,7 @@
       map.setView([lat, lon], currentZoom);
     }
     runs =+ 1;
+    console.log(runs)
 
     intervalId = setInterval(actualizarMapa, 5000);
   }
