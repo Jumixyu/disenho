@@ -5,22 +5,6 @@
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-  function cargarRutaDesdeLocalStorage() {
-    const savedCoords = localStorage.getItem('liveCoords');
-    if (savedCoords) {
-      liveCoords = JSON.parse(savedCoords);
-    }
-  }
-  
-  cargarRutaDesdeLocalStorage(); // Llamamos a la función al iniciar
-  
-  if (liveCoords.length > 1) {
-    solicitarRuta(liveCoords).then(rutaPlacement => {
-      liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-      map.fitBounds(liveRoute.getBounds());
-    });
-  }
-
   const search = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider({
       params: {
@@ -196,16 +180,9 @@
 
   await iniciarTiempoReal(null, 'RUNNING FROM INIT')
 
-  function guardarRutaEnLocalStorage() {
-    localStorage.setItem('liveCoords', JSON.stringify(liveCoords));
-  }
-
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-    // Guardar en localStorage
-    guardarRutaEnLocalStorage();
 
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
 
