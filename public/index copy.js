@@ -20,14 +20,6 @@
   let currentIntervalId = null;
   let historicoHasSearch = false;
 
-  // Function to create or update a marker
-  function updateMarker(lat, lon, fecha, hora) {
-    const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
-
-    if (!marker) marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
-    else marker.setLatLng([lat, lon]).setPopupContent(popupContent).openPopup();
-  }
-
   const messageEl = document.getElementById('message');
 
   // Función para resaltar el botón activo
@@ -35,12 +27,11 @@
     // Quitar la clase active de todos los botones
     const botones = document.querySelectorAll('button');
     botones.forEach(b => {
-      if (btn.textContent === 'Histórico') {
-        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
-      } else {
-        map.removeControl(search)
-        historicoHasSearch = false;
+      if (b?.textContent === 'Histórico') {
+        map.addControl(search);
+        console.log('FIRING');
       }
+      else map.removeControl(search)
       b.classList.remove('active')
     });
 
@@ -50,7 +41,7 @@
 
   async function obtenerUltimaCoordenada() {
     try {
-      const response = await fetch('http://abquintero.ddns.net/ultima-coordenada');
+      const response = await fetch('/ultima-coordenada');
       const data = await response.json();
 
       if (!data || data.error) return error;
@@ -68,7 +59,7 @@
     }
 
     try {
-      const response = await fetch(`http://abquintero.ddns.net/recorrido-historico?inicio=${inicio}&fin=${fin}`);
+      const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
       const data = await response.json();
 
       if (!data.length) return;
@@ -137,7 +128,7 @@
 
   function reiniciarRuta() {
     console.log('🔄 Reiniciando recorrido...');
-    if (ruta) map.removeLayer(ruta); // Eliminar la ruta del mapa
+    if (ruta)  map.removeLayer(ruta); // Eliminar la ruta del mapa
     if (liveRoute) map.removeLayer(liveRoute);
     coordenadas = []; // Reiniciar historial de coordenadas
     liveCoords = [];
@@ -165,10 +156,20 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
+    /* if (!marker) {
+      marker = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } else {
+      marker
+        .setLatLng([lat, lon])
+        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } */
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
-    map.fitBounds(ruta.getBounds());
+
     /*if (liveRuns === 0) {
       map.fitBounds(ruta.getBounds());
       map.setView([lat, lon], 15);
@@ -178,6 +179,7 @@
 
     currentIntervalId = setInterval(actualizarMapa, 5000);
   }
+
 
   await iniciarTiempoReal(null, 'RUNNING FROM INIT')
 
@@ -191,7 +193,17 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    // updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
+    /* if (!marker) {
+      marker = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } else {
+      marker
+        .setLatLng([lat, lon])
+        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } */
 
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
 
@@ -236,9 +248,6 @@
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    if (!historicoHasSearch) {
-      map.addControl(search);
-    }
   });
 
   reiniciarBtn.addEventListener('click', reiniciarRuta);
@@ -246,6 +255,7 @@
   historicoBtn.addEventListener('click', async () => {
     if (currentIntervalId) clearInterval(currentIntervalId)
     reiniciarRuta();
+    historicoHasSearch = true;
     const ultimaCoord = await obtenerUltimaCoordenada();
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
@@ -278,7 +288,17 @@
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
+    if (!marker) {
+      marker = L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    } else {
+      marker
+        .setLatLng([lat, lon])
+        .setPopupContent(`📍 Lat: ${lat}, Long: ${lon}<br>📅 ${ultimaCoord.fecha} ${ultimaCoord.hora}`)
+        .openPopup();
+    }
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
     liveRoute = null;
@@ -293,11 +313,13 @@
 
   // RUNTIME
 
-  fetch('http://abquintero.ddns.net/config')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
-    })
-    .catch(error => console.error('Error al obtener el nombre:', error));
+  fetch('/config')
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
+  })
+  .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual()
+
+
 })();
