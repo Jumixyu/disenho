@@ -180,6 +180,32 @@
 
   await iniciarTiempoReal(null, 'RUNNING FROM INIT')
 
+  async function actualizarMapa() {
+    const ultimaCoord = await obtenerUltimaCoordenada();
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
+
+    if (liveRoute) map.removeLayer(liveRoute); // Eliminar ruta anterior
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    // updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
+
+    liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+
+    // INTERSECCION DEL CIRCULO
+    if (checkIntersection(liveRoute, circle)) {
+        const crossingTime = `${ultimaCoord.fecha} ${ultimaCoord.hora}`;
+        messageEl.classList.remove('hidden');
+        messageEl.classList.add('info');
+        messageEl.textContent = `La ruta cruzó la ubicación en: ${crossingTime}`;
+    }
+
+    // const currentZoom = map.getZoom();
+    // map.setView([lat, lon], 20);
+  }
+
   // Crear el circulo
   const circleRadius = 100; // Radius in meters
   const circle = L.circle([lat, lon], { radius: circleRadius, color: 'green', fillOpacity: 0.5 }).addTo(map);
@@ -232,32 +258,6 @@
       const dx = point.lat - closestX;
       const dy = point.lng - closestY;
       return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  async function actualizarMapa() {
-    const ultimaCoord = await obtenerUltimaCoordenada();
-    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-    const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
-
-    if (liveRoute) map.removeLayer(liveRoute); // Eliminar ruta anterior
-
-    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-    // updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora)
-
-    liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-
-    // INTERSECCION DEL CIRCULO
-    if (checkIntersection(liveRoute, circle)) {
-        const crossingTime = `${ultimaCoord.fecha} ${ultimaCoord.hora}`;
-        messageEl.classList.remove('hidden');
-        messageEl.classList.add('info');
-        messageEl.textContent = `La ruta cruzó la ubicación en: ${crossingTime}`;
-    }
-
-    // const currentZoom = map.getZoom();
-    // map.setView([lat, lon], 20);
   }
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
