@@ -68,24 +68,6 @@ const path = require('path');
      }
    );
  });
-
- // Endpoint para buscar coordenadas por nombre de lugar
-app.post('/buscar-lugar', (req, res) => {
-  const { nombre } = req.body;
-  
-  const query = `SELECT latitud, longitud FROM coordenadas WHERE nombre = ? LIMIT 1`;
-  db.query(query, [nombre], (err, results) => {
-      if (err) {
-          res.status(500).send('Error en la consulta');
-          return;
-      }
-      if (results.length > 0) {
-          res.json({ encontrado: true, latitud: results[0].latitud, longitud: results[0].longitud });
-      } else {
-          res.json({ encontrado: false });
-      }
-  });
-});
  
  // Servidor UDP para recibir coordenadas
  const udpServer = dgram.createSocket('udp4');
@@ -107,31 +89,6 @@ app.post('/buscar-lugar', (req, res) => {
    }
  });
 
- app.get('/verificar-ubicacion', async (req, res) => {
-    const { lat, lon } = req.query;
-
-    try {
-      // Consultar si hay registros en la base de datos cercanos a la ubicación
-      const query = `
-        SELECT fecha, hora
-        FROM coordenadas
-        WHERE ST_Distance_Sphere(POINT(longitud, latitud), POINT(?, ?)) < 50
-        ORDER BY fecha DESC, hora DESC
-        LIMIT 1;
-      `;
-
-      const [result] = await db.execute(query, [lon, lat]);
-
-      if (result.length > 0) {
-        res.json({ paso: true, fecha: result[0].fecha, hora: result[0].hora });
-      } else {
-        res.json({ paso: false });
-      }
-    } catch (error) {
-      console.error('❌ Error en la consulta:', error);
-      res.status(500).json({ error: 'Error en el servidor' });
-    }
-  });
  
  app.get('/config', (req, res) => {
    res.json({ nombre: process.env.NOMBRE });
