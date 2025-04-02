@@ -18,8 +18,16 @@
   const messageEl = document.getElementById('message');
 
   // Function to create or update a marker
+  // Function to create or update a marker
   function updateMarker(lat, lon, fecha, hora) {
     const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+
+    // Check if lat and lon are valid numbers
+    if (isNaN(lat) || isNaN(lon)) {
+      console.error('Invalid coordinates:', lat, lon);
+      return; // Exit if coordinates are invalid
+    }
+
     if (!marker) {
       marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
       map.openPopup(marker.getPopup()); // Open the popup explicitly
