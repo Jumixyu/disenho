@@ -321,7 +321,7 @@
 
   function toggleHistorico() {
     const historicoContainer = document.getElementById('historico-controls');
-    historicoContainer.style.display = historicoContainer.style.display === 'none' ? 'block' : 'none';
+    historicoContainer.classList.toggle('hidden');
   }
 
 })();
