@@ -1,0 +1,86 @@
+*,
+    :before,
+    :after {
+      box-sizing: border-box;
+      border-width: 0;
+      border-style: solid;
+      border-color: #e5e7eb
+    }
+
+    html {
+      overscroll-behavior-x: auto;
+    }
+
+    body,
+    html {
+      margin: 0;
+      -webkit-text-size-adjust: 100%;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    button {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 1rem;
+      background-color: #1c8a32;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #309c46;
+    }
+
+    .contenedor {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .message {
+      color: #2e59a4;
+    }
+
+    .message.error {
+      color: #b13030;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .flex-column {
+      flex-direction: column;
+    }
+
+    .active {
+      background-color: red;
+      color: white;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 1rem;
+      border-radius: 1rem;
+    }
