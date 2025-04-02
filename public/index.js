@@ -245,10 +245,11 @@
 
     ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
 
-    map.fitBounds(ruta.getBounds());
+    // map.fitBounds(ruta.getBounds());
   });
 
-  async function iniciarTiempoReal(intervalId = null) {
+  async function iniciarTiempoReal(intervalId = null, from = '') {
+    console.log(from);
     historicoControlsInput.classList.add('hidden');
     reiniciarRuta();
 
@@ -285,8 +286,7 @@
     
     if (liveRuns === 0) {
       map.fitBounds(ruta.getBounds());
-      const currentZoom = map.getZoom();
-      map.setView([lat, lon], currentZoom);
+      map.setView([lat, lon], 15);
     }
     console.log(liveRuns)
     liveRuns =+ 1;
@@ -295,10 +295,10 @@
   }
 
   tiempoRealBtn.addEventListener('click', async () => {
-    await iniciarTiempoReal()
+    await iniciarTiempoReal('RUNNING FROM CLICK')
   });
 
-  await iniciarTiempoReal()
+  await iniciarTiempoReal('RUNNING FROM INIT')
 
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
