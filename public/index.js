@@ -315,7 +315,7 @@
     
     // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
     if (liveRoute) { 
-      liveRoute.setStyle({ opacity: 0 }); // Hacemos la ruta completamente invisible
+      map.removeLayer(liveRoute); 
     }
 
     if (!inicioInput.value || !finInput.value) {
@@ -362,7 +362,8 @@
 
     // Ocultamos la ruta histórica
     if (ruta) {
-      ruta.setStyle({ opacity: 0 }); // Hacemos la ruta histórica completamente invisible
+      map.removeLayer(ruta);
+      ruta = null;
     }
     
     // Activamos la ruta en tiempo real
