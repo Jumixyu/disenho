@@ -29,7 +29,7 @@
     botones.forEach(b => {
       if (b?.textContent === 'Histórico') {
         map.addControl(search);
-        console.log('FIRING')
+        console.log('FIRING');
       }
       else map.removeControl(search)
       b.classList.remove('active')
@@ -311,10 +311,6 @@
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
   });
 
-  let searchAdded = 
-  buscarBtn.addEventListener('click', () => {
-
-  })
   // RUNTIME
 
   fetch('/config')
