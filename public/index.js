@@ -38,7 +38,7 @@
   // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('button');
+    const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn');
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
@@ -247,6 +247,13 @@
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
+
+    historicoBtn.addEventListener('click', async () => {
+      resaltarBotonActivo(historicoBtn); // ✅ Asegura que esto se llame
+      if (currentIntervalId) clearInterval(currentIntervalId);
+      reiniciarRuta();
+    });
+    
 
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');

@@ -72,7 +72,7 @@ button:hover {
     flex-direction: column;
 }
 
-.active {
+button.active {
     background-color: red;
     color: white;
 }
