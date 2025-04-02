@@ -290,23 +290,6 @@
     map.fitBounds(ruta.getBounds());
   });
 
-  // Función para verificar si el vehículo pasó por una ubicación
-  async function verificarPasoPorUbicacion(lat, lon) {
-    try {
-      const response = await fetch(`/verificar-paso?lat=${lat}&lon=${lon}`);
-      const data = await response.json();
-
-      if (data.paso) {
-        alert(`El vehículo pasó por aquí el ${data.fecha} a las ${data.hora}`);
-      } else {
-        alert('El vehículo no ha pasado por esta ubicación.');
-      }
-    } catch (error) {
-      console.error('Error al verificar ubicación:', error);
-    }
-  }
-
-
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     await iniciarTiempoReal(null, 'RUNNING FROM CLICK')
