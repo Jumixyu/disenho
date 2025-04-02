@@ -170,13 +170,14 @@
 
   async function actualizarMapa() {
     const ultimaCoord = await obtenerUltimaCoordenada();
-    console.log('ult coord', ultimaCoord)
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
     if (liveRoute) map.removeLayer(liveRoute);
     updateMarker(ultimaCoord.latitud, ultimaCoord.longitud, ultimaCoord.fecha, ultimaCoord.hora);
     liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-    // map.setView([ultimaCoord.latitud, ultimaCoord.longitud], 20);
+    map.fitBounds(ruta.getBounds());
+    if (map) map.setView([lat, lon], 20);
   }
 
   await actualizarMapa()
