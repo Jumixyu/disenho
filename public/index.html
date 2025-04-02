@@ -143,6 +143,7 @@
 
  
    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBo1isVQCG523pyV-99x-ZhAQj0IttX2e8&libraries=places"></script>
    <script>
      (async () => {
        'use-strict';
@@ -158,6 +159,36 @@
        let liveCoords = [];
  
        const messageEl = document.getElementById('message');
+
+       // Inicializar el Autocomplete de Google Places
+       function initAutocomplete() {
+            var input = document.getElementById('search-box');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    console.log("No se encontró la ubicación");
+                    return;
+                }
+
+                // Obtener coordenadas del lugar seleccionado
+                var lat = place.geometry.location.lat();
+                var lng = place.geometry.location.lng();
+
+                // Centrar el mapa en la nueva ubicación
+                map.setView([lat, lng], 14);
+
+                // Agregar o mover el marcador
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng]).addTo(map);
+                }
+            });
+        }
+
+        // Esperar a que la API de Google Maps cargue antes de inicializar
+        window.onload = initAutocomplete;
  
        // Función para resaltar el botón activo
        function resaltarBotonActivo(btn) {
@@ -462,42 +493,6 @@
      function toggleHistorico() {
         const historicoContainer = document.getElementById('historicoContainer');
         historicoContainer.style.display = historicoContainer.style.display === 'none' ? 'block' : 'none';
-    }
-    
-    function buscarUbicacion() {
-        const nombre = document.getElementById('inputLugar').value;
-        
-        fetch('/buscar-lugar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.encontrado) {
-                verificarUbicacion(data.latitud, data.longitud);
-            } else {
-                alert('Ubicación no encontrada');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function verificarUbicacion(latitud, longitud) {
-        fetch('/verificar-ubicacion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ latitud, longitud })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.paso) {
-                alert(`El vehículo pasó por esta ubicación el ${data.fecha_hora}`);
-            } else {
-                alert('El vehículo no pasó por esta ubicación');
-            }
-        })
-        .catch(error => console.error('Error:', error));
     }
 
  </script>
