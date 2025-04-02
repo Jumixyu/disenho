@@ -245,6 +245,8 @@
   await iniciarTiempoReal();
 
   async function actualizarMapa() {
+
+    if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
 
     // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
@@ -252,14 +254,9 @@
 
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
 
-    if (rutaPlacement) {
-      if (liveRoute) {
-        // Actualizamos la ruta existente con las nuevas coordenadas
-        liveRoute.setLatLngs(rutaPlacement);
-      } else {
-        // Creamos una nueva ruta si no existe
-        liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-      }
+    if (rutaPlacement && liveRoute) {  
+      // Actualizamos la ruta existente con las nuevas coordenadas
+      liveRoute.setLatLngs(rutaPlacement);
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
