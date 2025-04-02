@@ -24,6 +24,129 @@
   let liveCoords = [];
   let currentIntervalId = null;
   let historicoHasSearch = false;
+  let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
+  let searchResultsMarkers = []; // Para almacenar marcadores de resultados
+
+  // Crear o asegurarse que existe el elemento de resultados de búsqueda
+  const createResultsPanel = () => {
+    let resultsPanel = document.getElementById('search-results-panel');
+    
+    if (!resultsPanel) {
+      resultsPanel = document.createElement('div');
+      resultsPanel.id = 'search-results-panel';
+      resultsPanel.className = 'search-results-panel hidden';
+      resultsPanel.innerHTML = `
+        <div class="results-header">
+          <h3>Resultados de búsqueda</h3>
+          <button id="close-results">×</button>
+        </div>
+        <div id="results-content"></div>
+      `;
+      document.body.appendChild(resultsPanel);
+      
+      // Agregar evento para cerrar el panel
+      document.getElementById('close-results').addEventListener('click', () => {
+        resultsPanel.classList.add('hidden');
+        // Eliminar marcadores de resultados previos
+        searchResultsMarkers.forEach(m => map.removeLayer(m));
+        searchResultsMarkers = [];
+      });
+    }
+    
+    return resultsPanel;
+  };
+  
+  // Función para mostrar resultados de búsqueda
+  const mostrarResultadosBusqueda = (resultados) => {
+    const resultsPanel = createResultsPanel();
+    const resultsContent = document.getElementById('results-content');
+    
+    // Eliminar marcadores anteriores
+    searchResultsMarkers.forEach(m => map.removeLayer(m));
+    searchResultsMarkers = [];
+    
+    if (!resultados || resultados.length === 0) {
+      resultsContent.innerHTML = '<p>No se encontraron registros del vehículo cerca de esta ubicación.</p>';
+      resultsPanel.classList.remove('hidden');
+      return;
+    }
+    
+    // Formato para los resultados
+    let html = `<p>Se encontraron ${resultados.length} registros del vehículo cerca de esta ubicación:</p>`;
+    html += '<ul class="results-list">';
+    
+    resultados.forEach((result, index) => {
+      const distanciaFormateada = result.distancia_km.toFixed(2);
+      html += `
+        <li class="result-item" data-index="${index}">
+          <strong>📅 Fecha:</strong> ${result.fecha} ${result.hora}<br>
+          <strong>📍 Distancia:</strong> ${distanciaFormateada} km
+        </li>
+      `;
+      
+      // Crear marcador para cada resultado
+      const resultMarker = L.marker([result.latitud, result.longitud], {
+        icon: L.divIcon({
+          className: 'result-marker',
+          html: `<div class="marker-number">${index + 1}</div>`,
+          iconSize: [25, 25],
+        })
+      }).addTo(map);
+      
+      resultMarker.bindPopup(`
+        <strong>Resultado #${index + 1}</strong><br>
+        📅 Fecha: ${result.fecha} ${result.hora}<br>
+        📍 Coordenadas: ${result.latitud}, ${result.longitud}<br>
+        🔍 Distancia: ${distanciaFormateada} km
+      `);
+      
+      searchResultsMarkers.push(resultMarker);
+    });
+    
+    html += '</ul>';
+    resultsContent.innerHTML = html;
+    
+    // Agregar eventos para los items de la lista
+    document.querySelectorAll('.result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const index = parseInt(item.dataset.index);
+        const result = resultados[index];
+        
+        // Centrar mapa en este resultado
+        map.setView([result.latitud, result.longitud], 16);
+        
+        // Abrir popup del marcador
+        searchResultsMarkers[index].openPopup();
+      });
+    });
+    
+    // Si hay resultados, ajustar el mapa para mostrarlos todos
+    if (searchResultsMarkers.length > 0) {
+      const group = new L.featureGroup(searchResultsMarkers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+    
+    resultsPanel.classList.remove('hidden');
+  };
+
+  // Función para buscar si el vehículo estuvo cerca de una ubicación
+  async function buscarUbicacion(lat, lon, radio = 0.5) {
+    try {
+      const response = await fetch(`/buscar-ubicacion?lat=${lat}&lon=${lon}&radio=${radio}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        searchResults = data;
+        mostrarResultadosBusqueda(data);
+      } else {
+        console.error('Error al buscar ubicación:', data.error);
+        alert('Error al buscar ubicación');
+      }
+    } catch (error) {
+      console.error('Error en la petición de búsqueda:', error);
+      alert('Error al comunicarse con el servidor');
+    }
+  }
 
   // Función para guardar las coordenadas en localStorage
   function saveLiveCoords() {
@@ -188,6 +311,14 @@
       localStorage.removeItem('liveCoords');
       localStorage.removeItem('lastSaveTime');
     }
+    
+    // Eliminamos los marcadores de resultados de búsqueda
+    searchResultsMarkers.forEach(m => map.removeLayer(m));
+    searchResultsMarkers = [];
+    
+    // Ocultamos el panel de resultados
+    const resultsPanel = document.getElementById('search-results-panel');
+    if (resultsPanel) resultsPanel.classList.add('hidden');
   }
 
   // TIEMPO REAL
@@ -379,4 +510,14 @@
     })
     .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual();
+  
+  // NUEVA FUNCIONALIDAD: Manejar búsqueda por ubicación
+  // Agregar evento para reaccionar cuando se selecciona una ubicación en la barra de búsqueda
+  map.on('geosearch/showlocation', (e) => {
+    const { location } = e;
+    console.log('Ubicación seleccionada:', location);
+    
+    // Buscar si el vehículo estuvo cerca de esta ubicación
+    buscarUbicacion(location.y, location.x, 0.5); // 0.5 km de radio por defecto
+  });
 })();
