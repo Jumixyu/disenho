@@ -171,18 +171,35 @@
     }
 
     let lastPopupContent = ""; // Guarda el último contenido recibido
+    let infoVisible = false;   // Estado del toggle
 
     function updateMarker(lat, lon, fecha, hora) {
-    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+      lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+  
     if (!marker) {
-      marker = L.marker([lat, lon]).addTo(map).bindPopup(lastPopupContent);
-      } else {
-        marker.setLatLng([lat, lon]).setPopupContent(lastPopupContent);
-      }
+      marker = L.marker([lat, lon]).addTo(map);
+  } else {
+      marker.setLatLng([lat, lon]);
     }
 
+  // Asegurarse de cerrar el popup si existiera
+  if (map.hasLayer(marker.getPopup())) {
+    marker.closePopup();
+  }
+}
+
 document.getElementById("tiempo-real-btn").addEventListener("click", () => {
-  document.getElementById("tiempoRealInfo").innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+  const infoDiv = document.getElementById("tiempoRealInfo");
+
+  infoVisible = !infoVisible;
+
+  if (infoVisible) {
+    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+    infoDiv.style.display = "block";
+  } else {
+    infoDiv.innerHTML = "";
+    infoDiv.style.display = "none";
+  }
 });
 
 
