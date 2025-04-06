@@ -170,25 +170,30 @@
       }
     }
 
-    let lastPopupContent = ""; // Guarda el último contenido recibido
-    let infoVisible = false;   // Estado del toggle
+    let lastPopupContent = "";
+let infoVisible = true; // Por defecto, visible al cargar la página
 
-    function updateMarker(lat, lon, fecha, hora) {
-      lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
-  
-    if (!marker) {
-      marker = L.marker([lat, lon]).addTo(map);
+function updateMarker(lat, lon, fecha, hora) {
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+
+  if (!marker) {
+    marker = L.marker([lat, lon]).addTo(map);
   } else {
-      marker.setLatLng([lat, lon]);
-    }
-
-  // Asegurarse de cerrar el popup si existiera
-  if (map.hasLayer(marker.getPopup())) {
-    marker.closePopup();
+    marker.setLatLng([lat, lon]);
   }
+
+  // Mostrar automáticamente al cargar
+  const infoDiv = document.getElementById("tiempoRealInfo");
+  if (infoVisible) {
+    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+    infoDiv.style.display = "block";
+  }
+
+  // Asegurarse de que no haya popups en el mapa
+  if (marker.getPopup()) marker.closePopup();
 }
 
-document.getElementById("tiempo-real-btn").addEventListener("click", () => {
+document.getElementById("btnTiempoReal").addEventListener("click", () => {
   const infoDiv = document.getElementById("tiempoRealInfo");
 
   infoVisible = !infoVisible;
