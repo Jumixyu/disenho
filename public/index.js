@@ -170,24 +170,12 @@
       }
     }
 
+    // Function to create or update a marker
     function updateMarker(lat, lon, fecha, hora) {
       const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
-    
-      if (!marker) {
-        marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent);
-      } else {
-        marker.setLatLng([lat, lon]).setPopupContent(popupContent);
-      }
-    
-      // Mostrar la info en el panel debajo de Tiempo Real
-      const infoPanel = document.getElementById('live-info-panel');
-      if (infoPanel) {
-        infoPanel.innerHTML = `
-          <strong>Última ubicación</strong><br>
-          📅 Fecha: ${fecha} ${hora}<br>
-          📍 Coordenadas: ${lat.toFixed(6)}, ${lon.toFixed(6)}
-        `;
-      }
+
+      if (!marker) marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
+      else marker.setLatLng([lat, lon]).setPopupContent(popupContent).openPopup();
     }
 
     const messageEl = document.getElementById('message');
