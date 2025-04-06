@@ -189,7 +189,6 @@
         `;
       }
     }
-    
 
     const messageEl = document.getElementById('message');
 
