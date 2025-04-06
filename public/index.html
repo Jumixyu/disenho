@@ -24,28 +24,31 @@
   <div class="contenedor">
     <h1 id="titulo">MyCoords - HQRs</h1>
   </div>
-  <div class="contenedor" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-    <button id="tiempo-real-btn">Tiempo real</button>
+  <div class="contenedor" style="display: flex; flex-direction: column; gap: 10px; font-family: sans-serif;">
+
+    <!-- Fila con los controles principales -->
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <button id="tiempo-real-btn">Tiempo real</button>
   
-    <label style="display: flex; align-items: center; gap: 5px;">
-      <input type="checkbox" id="toggleUbicacion" checked>
-      Mostrar última ubicación
-    </label>
+      <label style="display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" id="toggleUbicacion" checked>
+        Mostrar última ubicación
+      </label>
   
-    <!-- Ahora el recuadro queda alineado en la misma fila -->
+      <button id="switch-historico-btn">Histórico</button>
+      <button id="reiniciar-btn">Reiniciar</button>
+    </div>
+  
+    <!-- Recuadro de Última Ubicación debajo -->
     <div id="tiempoRealInfo" style="
       padding: 10px;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       color: white;
-      font-family: sans-serif;
       font-size: 14px;
-      max-width: 350px;
+      max-width: 400px;
     "></div>
-  
-    <button id="switch-historico-btn">Histórico</button>
-    <button id="reiniciar-btn">Reiniciar</button>
   </div>
   
   <div class="contenedor hidden" id="tiempo-real-controls">
