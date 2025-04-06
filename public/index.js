@@ -170,13 +170,21 @@
       }
     }
 
-    // Function to create or update a marker
-    function updateMarker(lat, lon, fecha, hora) {
-      const popupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+    let lastPopupContent = ""; // Guarda el último contenido recibido
 
-      if (!marker) marker = L.marker([lat, lon]).addTo(map).bindPopup(popupContent).openPopup();
-      else marker.setLatLng([lat, lon]).setPopupContent(popupContent).openPopup();
+    function updateMarker(lat, lon, fecha, hora) {
+    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+    if (!marker) {
+      marker = L.marker([lat, lon]).addTo(map).bindPopup(lastPopupContent);
+      } else {
+        marker.setLatLng([lat, lon]).setPopupContent(lastPopupContent);
+      }
     }
+
+document.getElementById("tiempo-real-btn").addEventListener("click", () => {
+  document.getElementById("tiempoRealInfo").innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+});
+
 
     const messageEl = document.getElementById('message');
 
