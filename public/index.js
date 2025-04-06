@@ -171,41 +171,39 @@
     }
 
     let lastPopupContent = "";
-let infoVisible = true; // Por defecto, visible al cargar la página
-
-function updateMarker(lat, lon, fecha, hora) {
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
-
-  if (!marker) {
-    marker = L.marker([lat, lon]).addTo(map);
-  } else {
-    marker.setLatLng([lat, lon]);
-  }
-
-  // Mostrar automáticamente al cargar
-  const infoDiv = document.getElementById("tiempoRealInfo");
-  if (infoVisible) {
-    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
-    infoDiv.style.display = "block";
-  }
-
-  // Asegurarse de que no haya popups en el mapa
-  if (marker.getPopup()) marker.closePopup();
-}
-
-document.getElementById("tiempo-real-btn").addEventListener("click", () => {
-  const infoDiv = document.getElementById("tiempoRealInfo");
-
-  infoVisible = !infoVisible;
-
-  if (infoVisible) {
-    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
-    infoDiv.style.display = "block";
-  } else {
-    infoDiv.innerHTML = "";
-    infoDiv.style.display = "none";
-  }
-});
+    const infoDiv = document.getElementById("tiempoRealInfo");
+    const checkbox = document.getElementById("toggleUbicacion");
+    
+    function updateMarker(lat, lon, fecha, hora) {
+      lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+    
+      if (!marker) {
+        marker = L.marker([lat, lon]).addTo(map);
+      } else {
+        marker.setLatLng([lat, lon]);
+      }
+    
+      // Mostrar contenido si la casilla está activada
+      if (checkbox.checked) {
+        infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+        infoDiv.style.display = "block";
+      }
+    
+      // Asegúrate de que no salga popup en el mapa
+      if (marker.getPopup()) marker.closePopup();
+    }
+    
+    // Evento al cambiar el checkbox
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+        infoDiv.style.display = "block";
+      } else {
+        infoDiv.innerHTML = "";
+        infoDiv.style.display = "none";
+      }
+    });
+    
 
 
     const messageEl = document.getElementById('message');
