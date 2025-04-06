@@ -28,6 +28,7 @@ body {
     padding: 1rem;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 
 }
 
@@ -90,7 +91,7 @@ button.active {
 }
 
 #map {
-    height: 100vh;
+    height: 600px;
     width: 100%;
     margin: 0;
     padding: 1rem;
