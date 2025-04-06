@@ -24,19 +24,32 @@
   <div class="contenedor">
     <h1 id="titulo">MyCoords - HQRs</h1>
   </div>
-
   <div class="contenedor">
     <button id="tiempo-real-btn">Tiempo real</button>
-    <label>
+  
+    <label style="margin-left: 10px;">
       <input type="checkbox" id="toggleUbicacion" checked>
       Mostrar última ubicación
     </label>
-    <div id="tiempoRealInfo" style="margin-top: 10px; font-family: sans-serif;"></div>
+  
+    <!-- Recuadro resaltado debajo del checkbox -->
+    <div id="tiempoRealInfo" style="
+      margin-top: 8px;
+      margin-left: 4px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      color: white;
+      font-family: sans-serif;
+      font-size: 14px;
+      max-width: 300px;
+    "></div>
+  
     <button id="switch-historico-btn">Histórico</button>
     <button id="reiniciar-btn">Reiniciar</button>
   </div>
   
-
   <div class="contenedor hidden" id="tiempo-real-controls">
     <div class="contenedor flex-column">
       <div class="contenedor">
