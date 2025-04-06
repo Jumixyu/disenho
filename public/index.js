@@ -5,21 +5,6 @@
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-  const search = new GeoSearch.GeoSearchControl({
-    provider: new GeoSearch.LocationIQProvider({
-      params: {
-        key: 'pk.1bd3b4d38e5253804dbd94ba72319d0a',
-        limit: 5,
-        bounded: 1,
-        countrycodes: 'co', // Limita la búsqueda a Colombia
-      },
-    }),
-    style: 'bar',
-    searchLabel: 'Introduzca una dirección',
-    notFoundMessage: 'No pudimos encontrar la dirección especificada.',
-  });
-  
-
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido histórico
   let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
@@ -202,10 +187,7 @@
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
-      } else {
-        map.removeControl(search);
-        historicoHasSearch = false;
-      }
+      } 
       b.classList.remove('active'); // Solo eliminamos active
     });
 
@@ -432,9 +414,6 @@
   switchHistoricoBtn.addEventListener('click', () => {
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    if (!historicoHasSearch) {
-      map.addControl(search);
-    }
   });
 
   reiniciarBtn.addEventListener('click', reiniciarRuta);
@@ -451,11 +430,6 @@
     if (liveRoute) { 
       map.removeLayer(liveRoute);
       liveRoute = null;  
-    }
-
-    if (!historicoHasSearch) {
-      map.addControl(search);
-      historicoHasSearch = true;
     }
 
     if (!inicioInput.value || !finInput.value) {
@@ -528,5 +502,5 @@
     // Buscar si el vehículo estuvo cerca de esta ubicación
     buscarUbicacion(location.y, location.x, 0.5); // 0.5 km de radio por defecto
   });
-  
+
 })();
