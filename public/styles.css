@@ -9,6 +9,7 @@
 
 html {
     overscroll-behavior-x: auto;
+    scroll-behavior: smooth;
 }
 
 body,
@@ -16,7 +17,6 @@ html {
     margin: 0;
     -webkit-text-size-adjust: 100%;
     width: 100%;
-    height: 100%;
 }
 
 body {
