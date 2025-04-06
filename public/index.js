@@ -6,16 +6,19 @@
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
   const search = new GeoSearch.GeoSearchControl({
-    provider: new GeoSearch.OpenStreetMapProvider({
+    provider: new GeoSearch.LocationIQProvider({
       params: {
-        'accept-language': 'es', // render results in Dutch
-        addressdetails: 1, // include additional address detail parts
+        key: 'pk.1bd3b4d38e5253804dbd94ba72319d0a',
+        limit: 5,
+        bounded: 1,
+        countrycodes: 'co', // Limita la búsqueda a Colombia
       },
     }),
     style: 'bar',
     searchLabel: 'Introduzca una dirección',
     notFoundMessage: 'No pudimos encontrar la dirección especificada.',
   });
+  
 
   let marker = null;
   let ruta = null; // Polilínea que representa el recorrido histórico
