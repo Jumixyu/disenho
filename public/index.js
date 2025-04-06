@@ -1,7 +1,7 @@
 (async () => {
   'use-strict';
 
-  const map = L.map('map'); // Vista inicial
+  const map = L.map('map').setView([0,0],2); // Vista inicial
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
@@ -511,7 +511,7 @@
   fetch('/config')
     .then(response => response.json())
     .then(data => {
-      document.getElementById('titulo').textContent = `Mapa MyCoords - ${data.nombre}`;
+      document.getElementById('title').textContent = `MyCoords - ${data.nombre}`;
     })
     .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual();
