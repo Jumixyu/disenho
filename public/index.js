@@ -528,5 +528,84 @@
     // Buscar si el vehículo estuvo cerca de esta ubicación
     buscarUbicacion(location.y, location.x, 0.5); // 0.5 km de radio por defecto
   });
-
+    // NUEVA FUNCIÓN: Buscar por clic en el mapa con punto editable y radio ajustable
+    let selectedCircle = null;
+    let selectedPoint = null;
+    let radioControl = null;
+  
+    function crearSliderDeRadio() {
+      if (radioControl) return; // No crear si ya existe
+  
+      radioControl = L.control({ position: 'topright' });
+  
+      radioControl.onAdd = function () {
+        const div = L.DomUtil.create('div', 'radio-slider-control');
+        div.innerHTML = `
+          <label for="radioSlider" style="font-weight: bold;">🎯 Radio de búsqueda</label><br>
+          <input type="range" id="radioSlider" min="100" max="2000" step="100" value="500" />
+          <span id="radioValue">500</span> m
+        `;
+        return div;
+      };
+  
+      radioControl.addTo(map);
+  
+      // Prevenir que el mapa se mueva mientras se usa el slider
+      const slider = document.getElementById('radioSlider');
+      L.DomEvent.disableClickPropagation(slider);
+      slider.addEventListener('input', (e) => {
+        const nuevoRadio = parseInt(e.target.value);
+        document.getElementById('radioValue').textContent = nuevoRadio;
+  
+        if (selectedCircle) selectedCircle.setRadius(nuevoRadio);
+  
+        if (selectedPoint) {
+          const { lat, lng } = selectedPoint.getLatLng();
+          buscarUbicacion(lat, lng, nuevoRadio / 1000); // convertir a km
+        }
+      });
+    }
+  
+    map.on('click', (e) => {
+      const { lat, lng } = e.latlng;
+  
+      // Crear controles si aún no existen
+      crearSliderDeRadio();
+  
+      // Eliminar anteriores si existen
+      if (selectedPoint) map.removeLayer(selectedPoint);
+      if (selectedCircle) map.removeLayer(selectedCircle);
+  
+      // Crear punto arrastrable
+      selectedPoint = L.marker([lat, lng], {
+        draggable: true,
+        icon: L.divIcon({
+          className: 'custom-draggable-point',
+          html: '<div style="width:12px;height:12px;background:red;border-radius:50%;"></div>',
+          iconSize: [12, 12],
+          iconAnchor: [6, 6]
+        })
+      }).addTo(map);
+  
+      // Crear círculo con radio por defecto 500m
+      selectedCircle = L.circle([lat, lng], {
+        radius: 500,
+        color: '#3182ce',
+        fillColor: '#63b3ed',
+        fillOpacity: 0.2
+      }).addTo(map);
+  
+      // Buscar ubicación inicialmente
+      buscarUbicacion(lat, lng, 0.5);
+  
+      // Evento al mover el punto
+      selectedPoint.on('drag', () => {
+        const { lat, lng } = selectedPoint.getLatLng();
+        selectedCircle.setLatLng([lat, lng]);
+  
+        const radio = parseInt(document.getElementById('radioSlider').value);
+        buscarUbicacion(lat, lng, radio / 1000); // km
+      });
+    });
+  
 })();
