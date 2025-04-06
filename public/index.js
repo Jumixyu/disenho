@@ -193,7 +193,7 @@ function updateMarker(lat, lon, fecha, hora) {
   if (marker.getPopup()) marker.closePopup();
 }
 
-document.getElementById("btnTiempoReal").addEventListener("click", () => {
+document.getElementById("tiempo-real-btn").addEventListener("click", () => {
   const infoDiv = document.getElementById("tiempoRealInfo");
 
   infoVisible = !infoVisible;
