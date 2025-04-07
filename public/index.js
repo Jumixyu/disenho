@@ -384,7 +384,9 @@
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
+    const fechaerror = ultimaCoord.fecha
+    const fechacorregida = fechaerror.split("T")[0];
+    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
 
     // Ajustamos el mapa para ver toda la ruta
     if (liveRoute) {
