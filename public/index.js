@@ -537,15 +537,4 @@
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
   });
-
-  // NUEVA FUNCIONALIDAD: Manejar búsqueda por ubicación
-  // Agregar evento para reaccionar cuando se selecciona una ubicación en la barra de búsqueda
-  map.on('geosearch/showlocation', (e) => {
-    const { location } = e;
-    console.log('Ubicación seleccionada:', location);
-
-    // Buscar si el vehículo estuvo cerca de esta ubicación
-    buscarUbicacion(location.y, location.x, 0.5); // 0.5 km de radio por defecto
-    });
-  
 })();
