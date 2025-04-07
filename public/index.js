@@ -26,6 +26,25 @@
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
 
+  function updateMarker(lat, lon, fecha, hora) {
+    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+  
+    if (!marker) {
+      marker = L.marker([lat, lon]).addTo(map);
+    } else {
+      marker.setLatLng([lat, lon]);
+    }
+  
+    // Mostrar contenido si la casilla está activada
+    if (checkbox.checked) {
+      infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+      infoDiv.style.display = "block";
+    }
+  
+    // Asegúrate de que no salga popup en el mapa
+    if (marker.getPopup()) marker.closePopup();
+  }
+
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
     let resultsPanel = document.getElementById('search-results-panel');
@@ -133,25 +152,6 @@
     resultsPanel.classList.remove('hidden');
   };
 
-  // Función para buscar si el vehículo estuvo cerca de una ubicación
-  async function buscarUbicacion(lat, lon, radio = 0.5) {
-    try {
-      const response = await fetch(`/buscar-ubicacion?lat=${lat}&lon=${lon}&radio=${radio}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        searchResults = data;
-        mostrarResultadosBusqueda(data);
-      } else {
-        console.error('Error al buscar ubicación:', data.error);
-        alert('Error al buscar ubicación');
-      }
-    } catch (error) {
-      console.error('Error en la petición de búsqueda:', error);
-      alert('Error al comunicarse con el servidor');
-    }
-  }
-
   // Función para guardar las coordenadas en localStorage
   function saveLiveCoords() {
     try {
@@ -190,24 +190,6 @@
   const infoDiv = document.getElementById("tiempoRealInfo");
   const checkbox = document.getElementById("toggleUbicacion");
   
-  function updateMarker(lat, lon, fecha, hora) {
-    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
-  
-    if (!marker) {
-      marker = L.marker([lat, lon]).addTo(map);
-    } else {
-      marker.setLatLng([lat, lon]);
-    }
-  
-    // Mostrar contenido si la casilla está activada
-    if (checkbox.checked) {
-      infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
-      infoDiv.style.display = "block";
-    }
-  
-    // Asegúrate de que no salga popup en el mapa
-    if (marker.getPopup()) marker.closePopup();
-  }
   
   // Evento al cambiar el checkbox
   checkbox.addEventListener("change", () => {
