@@ -271,3 +271,52 @@ button.active {
     overflow: auto;
 }
   
+/* Estilo del contenedor de checkbox */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: sans-serif;
+    color: white; /* o el color que estés usando en modo oscuro */
+  }
+  
+  /* Estilo base del checkbox */
+  .custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #888;
+    border-radius: 6px;
+    background-color: #1e1e1e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  
+  /* Estilo cuando está marcado */
+  .custom-checkbox:checked {
+    background-color: #4caf50;
+    border-color: #4caf50;
+  }
+  
+  /* Dibujar el ✔️ cuando está marcado */
+  .custom-checkbox:checked::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Accesibilidad: foco al tabular */
+  .custom-checkbox:focus {
+    outline: 2px solid #4caf50;
+    outline-offset: 2px;
+  }
+  
