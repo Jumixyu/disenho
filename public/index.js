@@ -97,7 +97,7 @@
 
       resultMarker.bindPopup(`
         <strong>Resultado #${index + 1}</strong><br>
-        📅 Fecha: ${result.fecha} ${result.hora}<br>
+        📅 Fecha: ${soloFecha} ${result.hora}<br>
         📍 Coordenadas: ${result.latitud}, ${result.longitud}<br>
         🔍 Distancia: ${distanciaFormateada} km
       `);
