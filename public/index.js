@@ -76,6 +76,8 @@
 
     resultados.forEach((result, index) => {
       const distanciaFormateada = result.distancia_km.toFixed(2);
+
+      //corrigiendo la fecha T00:00:00
       const fechaISO = result.fecha;
       const soloFecha = fechaISO.split("T")[0];
 
@@ -384,8 +386,11 @@
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    //corrigiendo la fecha T00:00:00
     const fechaerror = ultimaCoord.fecha
     const fechacorregida = fechaerror.split("T")[0];
+
     updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
 
     // Ajustamos el mapa para ver toda la ruta
@@ -420,7 +425,12 @@
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-    updateMarker(lat, lon, ultimaCoord.fecha, ultimaCoord.hora);
+
+    //corrigiendo la fecha T00:00:00
+    const fechaerror2 = ultimaCoord.fecha
+    const fechacorregida2 = fechaerror2.split("T")[0];
+
+    updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora);
 
     // Guardamos la ruta actualizada en localStorage
     saveLiveCoords();
