@@ -1,8 +1,10 @@
 (async () => {
   'use-strict';
 
-  const map = L.map('map'); // Vista inicial
+  // Vista inicial del mapa
+  const map = L.map('map');
 
+  //NOMBRES EN EL TITLE
   fetch('/config')
     .then(response => response.json())
     .then(data => {
@@ -74,9 +76,12 @@
 
     resultados.forEach((result, index) => {
       const distanciaFormateada = result.distancia_km.toFixed(2);
+      const fechaISO = result.fecha;
+      const soloFecha = fechaISO.split("T")[0];
+
       html += `
         <li class="result-item" data-index="${index}">
-          <strong>📅 Fecha:</strong> ${result.fecha} ${result.hora}<br>
+          <strong>📅 Fecha:</strong> ${soloFecha} ${result.hora}<br>
           <strong>📍 Distancia:</strong> ${distanciaFormateada} km
         </li>
       `;
