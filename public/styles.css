@@ -47,7 +47,6 @@ h1 {
 
 .contenedor1 {
     display: flex;
-    flex-direction: column;
     gap: 10px;
     font-family: sans-serif;
 }
