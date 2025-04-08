@@ -49,6 +49,8 @@ h1 {
     display: flex;
     gap: 10px;
     font-family: sans-serif;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .text1 {
