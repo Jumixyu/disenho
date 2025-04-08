@@ -51,6 +51,7 @@ h1 {
     font-family: sans-serif;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }
 
 .text1 {
