@@ -58,6 +58,21 @@
 
   //------------------------------------------BOTONES-------------------------------------------------------------------------
 
+  // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
+  function resaltarBotonActivo(btn) {
+    // Quitar la clase active de todos los botones
+    const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn');
+    botones.forEach(b => {
+      if (btn.textContent === 'Histórico') {
+        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
+      }
+      b.classList.remove('active'); // Solo eliminamos active
+    });
+
+    // Agregar la clase active al botón clickeado
+    btn.classList.add('active');
+  }
+
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
@@ -72,6 +87,56 @@
 
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
+  });
+
+  historicoBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(historicoBtn);
+
+    if (currentIntervalId) {
+      clearInterval(currentIntervalId);
+      currentIntervalId = null;
+    }
+
+    // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
+    if (liveRoute) { 
+      map.removeLayer(liveRoute);
+      liveRoute = null;  
+    }
+
+    if (!inicioInput.value || !finInput.value) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Debe llenar los campos de inicio y fin';
+      return;
+    }
+
+    // ✅ Aquí ocultamos el mensaje si los valores son correctos
+    messageEl.classList.add('hidden');
+    messageEl.classList.remove('error');
+    messageEl.textContent = '';
+
+    // Eliminamos solo la ruta histórica anterior
+    if (ruta) map.removeLayer(ruta);
+
+    const historico = await obtenerRecorridoHistorico(
+      formatearFecha(false, inicioInput.value),
+      formatearFecha(false, finInput.value)
+    );
+
+    if (!historico || historico.length === 0) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'No hay datos para este rango';
+      return;
+    }
+
+    const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+    const rutaPlacement = await solicitarRuta(rutaCoords);
+
+    if (rutaPlacement) {
+      ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
+      map.fitBounds(ruta.getBounds());
+    }
   });
 
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
@@ -234,21 +299,6 @@
 
 
   const messageEl = document.getElementById('message');
-
-  // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
-  function resaltarBotonActivo(btn) {
-    // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn');
-    botones.forEach(b => {
-      if (btn.textContent === 'Histórico') {
-        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
-      }
-      b.classList.remove('active'); // Solo eliminamos active
-    });
-
-    // Agregar la clase active al botón clickeado
-    btn.classList.add('active');
-  }
 
   async function obtenerUltimaCoordenada() {
     try {
