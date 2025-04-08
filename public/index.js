@@ -35,6 +35,29 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
 
+  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
+  function obtenerFechaHoraActual() {
+    const ahora = new Date();
+
+    // Obtener la fecha en formato YYYY-MM-DD
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+
+    // Formato para el campo datetime-local
+    const fechaHoy = `${año}-${mes}-${dia}`;
+    const inicioDefecto = `${fechaHoy}T00:00`;
+
+    // Obtener la hora actual en formato HH:MM
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
+
+    // Asignar valores a los inputs
+    document.getElementById('inicio').value = inicioDefecto;
+    document.getElementById('fin').value = finDefecto;
+  }
+
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora) {
     lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
@@ -72,6 +95,8 @@
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
   }
+
+  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
@@ -488,29 +513,6 @@
     saveLiveCoords();
   }
 
-  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
-  function obtenerFechaHoraActual() {
-    const ahora = new Date();
-
-    // Obtener la fecha en formato YYYY-MM-DD
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-
-    // Formato para el campo datetime-local
-    const fechaHoy = `${año}-${mes}-${dia}`;
-    const inicioDefecto = `${fechaHoy}T00:00`;
-
-    // Obtener la hora actual en formato HH:MM
-    const hora = String(ahora.getHours()).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
-    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
-
-    // Asignar valores a los inputs
-    document.getElementById('inicio').value = inicioDefecto;
-    document.getElementById('fin').value = finDefecto;
-  }
-
   function toggleHistorico() {
     const historicoContainer = document.getElementById('historico-controls');
     historicoContainer.classList.toggle('hidden');
@@ -522,6 +524,5 @@
     toggleHistorico();
   });
 
-  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
 })();
