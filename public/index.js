@@ -26,6 +26,8 @@
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
 
+
+  //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora) {
     lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
   
@@ -44,6 +46,25 @@
     // Asegúrate de que no salga popup en el mapa
     if (marker.getPopup()) marker.closePopup();
   }
+
+
+  //------------------------------------------BOTONES-------------------------------------------------------------------------
+
+  tiempoRealBtn.addEventListener('click', async () => {
+    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
+    messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
+    messageEl.classList.remove('error');
+    messageEl.textContent = '';
+
+    // Ocultamos la ruta histórica
+    if (ruta) {
+      map.removeLayer(ruta);
+      ruta = null;
+    }
+
+    // Activamos la ruta en tiempo real
+    await iniciarTiempoReal();
+  });
 
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
@@ -504,19 +525,4 @@
     }
   });
 
-  tiempoRealBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
-    messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
-    messageEl.classList.remove('error');
-    messageEl.textContent = '';
-
-    // Ocultamos la ruta histórica
-    if (ruta) {
-      map.removeLayer(ruta);
-      ruta = null;
-    }
-
-    // Activamos la ruta en tiempo real
-    await iniciarTiempoReal();
-  });
 })();
