@@ -35,6 +35,9 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
   const buscadorBtn = document.getElementById('buscador-btn');
+  const buscadorControls = document.getElementById('buscador-controls');
+  const radioSlider = document.getElementById('radioSlider');
+  const radioValor = document.getElementById('radioValor')
 
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
@@ -93,7 +96,12 @@
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
+    // Oculta buscador-controls si no es el botón buscador
+       if (btn.id !== 'buscador-btn') {
+        buscadorControls.classList.add('hidden');
+      }
 
+  btn.classList.add('active');
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
   }
@@ -528,8 +536,14 @@
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleHistorico();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+    historicoControls.classList.remove('hidden'); // muestra el selector de fechas
+    buscadorControls.classList.remove('hidden');  // muestra el slider
   });
-
+  
+  radioSlider.addEventListener('input', () => {
+    radioValor.textContent = radioSlider.value;
+  });
+  
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
 })();
