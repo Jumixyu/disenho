@@ -532,7 +532,6 @@
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleHistorico();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-    historicoControls.classList.remove('hidden'); // muestra el selector de fechas
     buscadorControls.classList.remove('hidden');  // muestra el slider
   });
   
