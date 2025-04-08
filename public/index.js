@@ -96,10 +96,6 @@
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
-    // Oculta buscador-controls si no es el botón buscador
-       if (btn.id !== 'buscador-btn') {
-        buscadorControls.classList.add('hidden');
-      }
 
   btn.classList.add('active');
     // Agregar la clase active al botón clickeado
