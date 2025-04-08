@@ -521,6 +521,12 @@
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
   });
+  
+  buscadorBtn.addEventListener('click', () => {
+    resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
+    toggleHistorico();                // ✅ Muestra el panel de fechas
+    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+  });
 
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
