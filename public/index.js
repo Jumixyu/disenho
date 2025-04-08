@@ -96,8 +96,6 @@
     btn.classList.add('active');
   }
 
-  reiniciarBtn.addEventListener('click', reiniciarRuta);
-
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
@@ -524,5 +522,6 @@
     toggleHistorico();
   });
 
+  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
 })();

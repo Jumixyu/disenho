@@ -273,6 +273,9 @@ button.active {
     overflow: auto;
 }
   
+
+/*------------------------------------------Checkboxes--------------------------------------------------*/
+
 /* Estilo del contenedor de checkbox */
 .checkbox-label {
     display: flex;
