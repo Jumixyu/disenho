@@ -26,6 +26,14 @@
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
 
+  const buscarBtn = document.getElementById('tiempo-real-btn');
+  const tiempoRealBtn = document.getElementById('tiempo-real-btn');
+  const historicoBtn = document.getElementById('historico-btn');
+  const reiniciarBtn = document.getElementById('reiniciar-btn');
+  const switchHistoricoBtn = document.getElementById('switch-historico-btn');
+  const inicioInput = document.getElementById('inicio');
+  const finInput = document.getElementById('fin');
+  const historicoControlsInput = document.getElementById('historico-controls');
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora) {
@@ -314,15 +322,6 @@
       console.error('❌ Error al solicitar la ruta:', error);
     }
   } 
-
-  const buscarBtn = document.getElementById('tiempo-real-btn');
-  const tiempoRealBtn = document.getElementById('tiempo-real-btn');
-  const historicoBtn = document.getElementById('historico-btn');
-  const reiniciarBtn = document.getElementById('reiniciar-btn');
-  const switchHistoricoBtn = document.getElementById('switch-historico-btn');
-  const inicioInput = document.getElementById('inicio');
-  const finInput = document.getElementById('fin');
-  const historicoControlsInput = document.getElementById('historico-controls');
 
   function formatearFecha(fromServer, fecha, hora) {
     return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
