@@ -2,7 +2,7 @@
   'use-strict';
 
   // Vista inicial del mapa
-  const map = L.map('map');
+  const map = L.map('map').setView([0, 0], 2);
 
   //NOMBRES EN EL TITLE
   fetch('/config')
