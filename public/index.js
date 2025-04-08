@@ -34,6 +34,8 @@
   const inicioInput = document.getElementById('inicio');
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
+  const buscadorBtn = document.getElementById('buscador-btn');
+
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO
   function obtenerFechaHoraActual() {
@@ -521,7 +523,7 @@
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
   });
-  
+
   buscadorBtn.addEventListener('click', () => {
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleHistorico();                // ✅ Muestra el panel de fechas
