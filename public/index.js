@@ -439,7 +439,7 @@
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-    
+
     if (currentIntervalId) clearInterval(currentIntervalId);
 
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -530,6 +530,7 @@
 
   // EVENT LISTENERS //
   switchHistoricoBtn.addEventListener('click', () => {
+    buscadorControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
   });
