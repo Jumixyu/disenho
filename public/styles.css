@@ -406,7 +406,7 @@ input[type="range"]::-moz-range-track {
     justify-content: center;
   }
   
-  .info-button:hover {
+  .info-btn:hover {
     background-color: rgba(255, 255, 255, 0.15);
     transform: scale(1.1);
   }
