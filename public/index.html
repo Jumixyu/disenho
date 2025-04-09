@@ -51,20 +51,29 @@
       <div class="contenedor"><label for="fin">Fin:</label>
         <input type="datetime-local" id="fin" step="1" class="datetime-input"/>
       </div>
-
-      <div class="contenedor hidden" id="buscador-controls">
-        <div class="contenedor">
-          <label for="radioSlider">Radio de busqueda: <span id="radioValor">500</span> m</label>
-          <input type="range" id="radioSlider" min="10" max="1000" step="10" value="500" />
-        </div>
-      </div>
-
-      <div class="contenedor">
+      <div class="contenedor ">
         <button id="historico-btn">📌 Ver Recorrido Histórico</button>
       </div>
     </div>
   </div>
 
+  <div class="contenedor hidden" id="buscador-controls">
+    <div class="contenedor flex-column">
+      <div class="contenedor"><label for="inicioSearch">Inicio:</label>
+        <input type="datetime-local" id="inicioSearch" step="1" class="datetime-input"/>
+      </div>
+      <div class="contenedor"><label for="finSearch">Fin:</label>
+        <input type="datetime-local" id="finSearch" step="1" class="datetime-input"/>
+      </div>
+      <div class="contenedor ">
+        <label for="radioSlider">Radio de busqueda: <span id="radioValor">500</span> m</label>
+        <input type="range" id="radioSlider" min="10" max="1000" step="10" value="500" />
+      </div>
+      <div class="contenedor ">
+        <button id="historico-btn">🔎 Busqueda</button>
+      </div>
+    </div>
+  </div>
 
   <div class="contenedor">
     <p id="message" class="message hidden"></p>
