@@ -402,7 +402,7 @@
       }
 
       return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
-    } catch (error) {
+    } catch (e) {
       console.error('❌ Error al solicitar la ruta:', e);
     }
   } 
