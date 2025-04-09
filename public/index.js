@@ -123,25 +123,25 @@
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   switchHistoricoBtn.addEventListener('click', () => {
+
+    buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
-    reiniciarBtn.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
 
-    buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
 
   });
 
   buscadorBtn.addEventListener('click', () => {
+
+    tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
 
-    tiemporealControls.classList.add('hidden');
-    buscadorControls.classList.remove('hidden');
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
   });
