@@ -126,6 +126,10 @@
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+
+    buscadorControls.classList.add('hidden');
+    ocultarCirculoBuscador(); // <- Ocultar círculo
+
   });
 
   buscadorBtn.addEventListener('click', () => {
@@ -133,26 +137,17 @@
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+
+    buscadorControls.classList.remove('hidden');
+    mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
+
   });
 
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
   });
   
-  buscadorBtn.addEventListener('click', () => {
-    buscadorControls.classList.remove('hidden');
-    mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
-  });
 
-  tiempoRealBtn.addEventListener('click', () => {
-    buscadorControls.classList.add('hidden');
-    ocultarCirculoBuscador(); // <- Ocultar círculo
-  });
-  
-  switchHistoricoBtn.addEventListener('click', () => {
-    buscadorControls.classList.add('hidden');
-    ocultarCirculoBuscador(); // <- Ocultar círculo
-  });
   
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
@@ -170,6 +165,10 @@
 
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
+
+    buscadorControls.classList.add('hidden');
+    ocultarCirculoBuscador(); // <- Ocultar círculo
+
   });
 
   historicoBtn.addEventListener('click', async () => {
