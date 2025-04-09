@@ -387,7 +387,7 @@ input[type="range"]::-moz-range-track {
 
 /* BTN DE INFO */
 
-.info-btn {
+.contenedor2 > button {
     position: absolute;
     left: 10px;
     top: 10px;
@@ -404,9 +404,4 @@ input[type="range"]::-moz-range-track {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .info-btn:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: scale(1.1);
-  }
+}
