@@ -69,6 +69,9 @@
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora) {
+
+    const isTiempoRealActive = !tiemporealControls.classList.contains('hidden');
+    
     lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
   
     if (!marker) {
@@ -132,6 +135,12 @@
 
     ocultarCirculoBuscador(); // <- Ocultar círculo
 
+    // quitar marcador
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+
   });
 
   buscadorBtn.addEventListener('click', () => {
@@ -148,6 +157,12 @@
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
+    }
+
+    // quitar marcador
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
     }
 
   });
@@ -190,6 +205,12 @@
     if (liveRoute) { 
       map.removeLayer(liveRoute);
       liveRoute = null;  
+    }
+
+    // quitar marcador
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
     }
 
     if (!inicioInput.value || !finInput.value) {
