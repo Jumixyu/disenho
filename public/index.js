@@ -322,33 +322,13 @@
     }
   });
 
-  // Función para mostrar los resultados de búsqueda
+  /// Función para mostrar los resultados de búsqueda solo en el panel lateral
   function mostrarResultadosBusqueda(resultados) {
-    // Creamos marcadores numerados para cada resultado
-    resultados.forEach((resultado, index) => {
-      const markerIcon = L.divIcon({
-        className: 'marker-number',
-        html: `<span>${index + 1}</span>`,
-        iconSize: [25, 25],
-        iconAnchor: [12, 12]
-      });
-      
-      const marker = L.marker([resultado.latitud, resultado.longitud], { icon: markerIcon }).addTo(map);
-      
-      // Formateamos la fecha para el popup
-      const fecha = resultado.fecha.split('T')[0];
-      
-      marker.bindPopup(`
-        <strong>Registro #${index + 1}</strong><br>
-        📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}<br>
-        📅 ${fecha} ${resultado.hora}<br>
-        📏 Distancia: ${Math.round(resultado.distancia * 1000)}m del centro
-      `);
-      
-      searchResultsMarkers.push(marker);
-    });
+    // Limpiamos marcadores anteriores por si acaso
+    searchResultsMarkers.forEach(m => map.removeLayer(m));
+    searchResultsMarkers = [];
     
-    // Crear panel de resultados
+    // No creamos marcadores, solo el panel de resultados
     crearPanelResultados(resultados);
   }
 
@@ -402,10 +382,9 @@
         <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
       `;
       
-      // Al hacer clic en un resultado, centra el mapa en ese punto
+      // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
       item.addEventListener('click', () => {
         map.setView([resultado.latitud, resultado.longitud], 18);
-        searchResultsMarkers[index].openPopup();
       });
       
       resultsList.appendChild(item);
