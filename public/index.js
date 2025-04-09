@@ -151,6 +151,7 @@
 
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
+    toggleTiempoReal();
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
