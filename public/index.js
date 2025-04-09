@@ -27,6 +27,8 @@
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
   let searchCircle = null; // para mantener referencia al círculo
+  let lastSearchLatLng = null;
+  let lastSearchRadius = null;
 
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const historicoBtn = document.getElementById('historico-btn');
@@ -126,6 +128,21 @@
     radioValor.textContent = radioSlider.value;
   });
   
+  buscadorBtn.addEventListener('click', () => {
+    buscadorControls.classList.remove('hidden');
+    mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
+  });
+
+  tiempoRealBtn.addEventListener('click', () => {
+    buscadorControls.classList.add('hidden');
+    ocultarCirculoBuscador(); // <- Ocultar círculo
+  });
+  
+  switchHistoricoBtn.addEventListener('click', () => {
+    buscadorControls.classList.add('hidden');
+    ocultarCirculoBuscador(); // <- Ocultar círculo
+  });
+  
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
@@ -201,22 +218,44 @@
     if (buscadorControls.classList.contains('hidden')) return;
   
       const { lat, lng } = e.latlng;
-  
+      
+      // Guarda latlng y radio
+      lastSearchLatLng = e.latlng;
+      lastSearchRadius = parseInt(radioSlider.value, 10);
+    
     // Elimina círculo anterior si existe
     if (searchCircle) {
       map.removeLayer(searchCircle);
     }
   
     // Crear nuevo círculo
-    const radioMetros = parseInt(radioSlider.value, 10);
     searchCircle = L.circle([lat, lng], {
       color: '#007bff',
       fillColor: '#cce5ff',
       fillOpacity: 0.4,
-      radius: radioMetros
+      radius: lastSearchRadius
     }).addTo(map);
   });
   
+  function mostrarCirculoBuscador() {
+    if (lastSearchLatLng && lastSearchRadius) {
+      if (searchCircle) {
+        map.removeLayer(searchCircle); // Evita duplicados
+      }
+      searchCircle = L.circle(lastSearchLatLng, {
+        color: '#007bff',
+        fillColor: '#cce5ff',
+        fillOpacity: 0.4,
+        radius: lastSearchRadius
+      }).addTo(map);
+    }
+  }
+  
+  function ocultarCirculoBuscador() {
+    if (searchCircle) {
+      map.removeLayer(searchCircle);
+    }
+  }
 
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
