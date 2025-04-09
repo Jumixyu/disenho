@@ -369,7 +369,7 @@
       const header = document.createElement('div');
       header.className = 'results-header';
       header.innerHTML = `
-        <h3>Resultados (${resultados.length})</h3>
+        <h3>Resultados de búsqueda (${resultados.length})</h3>
         <button id="close-results">×</button>
       `;
       
@@ -396,7 +396,7 @@
     const resultsList = document.createElement('ul');
     resultsList.className = 'results-list';
     
-    resultados.forEach((resultado, index) => {
+    resultados.slice().reverse().forEach((resultado, index) => {
       const fecha = resultado.fecha.split('T')[0];
       const item = document.createElement('li');
       item.className = 'result-item';
