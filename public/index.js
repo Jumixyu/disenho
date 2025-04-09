@@ -23,6 +23,7 @@
   let liveCoords = [];
   let currentIntervalId = null;
   let historicoHasSearch = false;
+  let realtimeHasSearch = false;
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
 
@@ -93,6 +94,8 @@
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
+      }else if (btn.textContent === 'Tiempo real'){
+        realtimeHasSearch = document.getElementById('tiempo-real-controls').classList.contains('hidden') ? false : true;
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
