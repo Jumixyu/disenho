@@ -386,13 +386,27 @@ input[type="range"]::-moz-range-track {
 
 
 /* BTN DE INFO */
+
 .info-btn {
     position: absolute;
-    left: 0;
-    background-color: transparent;
-    border: none;
-    color: rgb(226, 217, 217);
-    font-size: 2rem;
+    left: 10px;
+    top: 10px;
+    background-color: rgba(255, 255, 255, 0.05); /* Suave, no muy brillante */
+    color: #f0f0f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 0.5rem;
-}
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .info-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+  }
