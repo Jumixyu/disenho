@@ -170,9 +170,6 @@
 
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
-
-    tiemporealControls.classList.remove('hidden');
-
   });
 
   historicoBtn.addEventListener('click', async () => {
