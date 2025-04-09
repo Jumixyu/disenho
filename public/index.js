@@ -376,12 +376,11 @@
       const item = document.createElement('li');
       item.className = 'result-item';
       item.innerHTML = `
-        <strong>#${index + 1}</strong><br>
-        📍 Lat: ${resultado.latitud.toFixed(6)}, Long: ${resultado.longitud.toFixed(6)}<br>
-        📅 ${fecha} ${resultado.hora}
+        <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
+        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
       `;
       
-      // Al hacer clic en un resultado, centra el mapa en ese punto
+      // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
       item.addEventListener('click', () => {
         map.setView([resultado.latitud, resultado.longitud], 18);
       });
