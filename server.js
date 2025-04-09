@@ -89,39 +89,7 @@ const path = require('path');
    }
  });
 
- // Endpoint para buscar si el vehículo estuvo cerca de una coordenada específica
-  app.get('/buscar-ubicacion', (req, res) => {
-    const { lat, lon, radio } = req.query;
-    
-    if (!lat || !lon) {
-      return res.status(400).json({ error: 'Se requieren latitud y longitud' });
-    }
-    
-    // Radio de búsqueda en kilómetros (por defecto 0.5 km si no se especifica)
-    const radioKm = radio ? parseFloat(radio) : 0.5;
-    
-    // Fórmula Haversine para búsqueda de proximidad
-    // 111.045 es aproximadamente la cantidad de km por grado de latitud
-    const query = `
-      SELECT *, 
-      (111.045 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(?)) * COS(RADIANS(latitud)) * 
-      COS(RADIANS(longitud) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitud)))))) 
-      AS distancia_km
-      FROM coordenadas
-      HAVING distancia_km < ?
-      ORDER BY distancia_km, fecha DESC, hora DESC
-      LIMIT 20
-    `;
-    
-    db.query(query, [lat, lon, lat, radioKm], (err, rows) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json(rows);
-    });
-  });
-
- 
+ // .env para nombres en la ventana de la página
  app.get('/config', (req, res) => {
    res.json({ nombre: process.env.NOMBRE });
  });
