@@ -95,6 +95,7 @@
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
       }else if (btn.textContent === 'Tiempo real'){
+        console.log("Tiempo real");
         realtimeHasSearch = document.getElementById('tiempo-real-controls').classList.contains('hidden') ? false : true;
       }
       b.classList.remove('active'); // Solo eliminamos active
