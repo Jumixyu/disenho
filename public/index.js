@@ -402,8 +402,9 @@
       item.className = 'result-item';
       item.innerHTML = `
         <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
-        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small><br>
-        <small>Latitud: ${resultado.latitud}, Longitud: ${resultado.longitud}</small>
+        <small>Latitud: ${resultado.latitud}</small><br>
+        <small>Longitud: ${resultado.longitud}</small><br>
+        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
       `;
       
       // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
