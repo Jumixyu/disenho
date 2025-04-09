@@ -404,3 +404,23 @@ input[type="range"]::-moz-range-track {
     cursor: pointer;
     border-radius: 0.5rem;
 }
+
+.search-results-panel h3 {
+    margin-top: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+  
+.search-results-panel p {
+    margin: 0.2rem 0;
+    color: #cccccc;
+    font-size: 0.9rem;
+}
+  
+.search-results-panel hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
+}
+  
