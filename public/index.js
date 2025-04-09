@@ -387,7 +387,7 @@
   async function solicitarRuta(puntos) {
     if (puntos.length < 2) return;
 
-    let coordenadasStr = substractArrayEvenly(puntos, 1000000)
+    let coordenadasStr = substractArrayEvenly(puntos, 20)
       .map((coord) => `${coord[1]},${coord[0]}`)
       .join(';');
     let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
