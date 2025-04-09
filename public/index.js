@@ -144,6 +144,12 @@
 
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
+    // Ocultamos la ruta histórica
+    if (ruta) {
+      map.removeLayer(ruta);
+      ruta = null;
+    }
+
   });
 
   radioSlider.addEventListener('input', () => {
