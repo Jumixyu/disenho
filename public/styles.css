@@ -375,9 +375,17 @@ input[type="range"]::-moz-range-track {
 
 /* PANEL DE BUSQUEDA */
 .search-results-panel {
-    background-color: rgba(255, 255, 255, 0.95); 
+    /*background-color: rgba(255, 255, 255, 0.95); 
     color: #333; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);*/
+
+    background-color: rgba(30, 30, 30, 0.95); /* Fondo oscuro translúcido */
+    color: #f0f0f0; /* Texto claro */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra más marcada */
+    border-radius: 12px;
+    padding: 1rem;
+    max-height: 90vh;
+    overflow-y: auto;
 }
   
 .results-list .result-item {
