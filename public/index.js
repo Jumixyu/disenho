@@ -258,113 +258,6 @@
     }
   }
 
-  // Crear o asegurarse que existe el elemento de resultados de búsqueda
-  const createResultsPanel = () => {
-    let resultsPanel = document.getElementById('search-results-panel');
-
-    if (!resultsPanel) {
-      resultsPanel = document.createElement('div');
-      resultsPanel.id = 'search-results-panel';
-      resultsPanel.className = 'search-results-panel hidden';
-      resultsPanel.innerHTML = `
-        <div class="results-header">
-          <h3>Resultados de búsqueda</h3>
-          <button id="close-results">×</button>
-        </div>
-        <div id="results-content"></div>
-      `;
-      document.body.appendChild(resultsPanel);
-
-      // Agregar evento para cerrar el panel
-      document.getElementById('close-results').addEventListener('click', () => {
-        resultsPanel.classList.add('hidden');
-        // Eliminar marcadores de resultados previos
-        searchResultsMarkers.forEach(m => map.removeLayer(m));
-        searchResultsMarkers = [];
-      });
-    }
-
-    return resultsPanel;
-  };
-
-  // Función para mostrar resultados de búsqueda
-  const mostrarResultadosBusqueda = (resultados) => {
-    const resultsPanel = createResultsPanel();
-    const resultsContent = document.getElementById('results-content');
-
-    // Eliminar marcadores anteriores
-    searchResultsMarkers.forEach(m => map.removeLayer(m));
-    searchResultsMarkers = [];
-
-    if (!resultados || resultados.length === 0) {
-      resultsContent.innerHTML = '<p>No se encontraron registros del vehículo cerca de esta ubicación.</p>';
-      resultsPanel.classList.remove('hidden');
-      return;
-    }
-
-    // Formato para los resultados
-    let html = `<p>Se encontraron ${resultados.length} registros del vehículo cerca de esta ubicación:</p>`;
-    html += '<ul class="results-list">';
-
-    resultados.forEach((result, index) => {
-      const distanciaFormateada = result.distancia_km.toFixed(2);
-
-      //corrigiendo la fecha T00:00:00
-      const fechaISO = result.fecha;
-      const soloFecha = fechaISO.split("T")[0];
-
-      html += `
-        <li class="result-item" data-index="${index}">
-          <strong>📅 Fecha:</strong> ${soloFecha} ${result.hora}<br>
-          <strong>📍 Distancia:</strong> ${distanciaFormateada} km
-        </li>
-      `;
-
-      // Crear marcador para cada resultado
-      const resultMarker = L.marker([result.latitud, result.longitud], {
-        icon: L.divIcon({
-          className: 'result-marker',
-          html: `<div class="marker-number">${index + 1}</div>`,
-          iconSize: [25, 25],
-        })
-      }).addTo(map);
-
-      resultMarker.bindPopup(`
-        <strong>Resultado #${index + 1}</strong><br>
-        📅 Fecha: ${soloFecha} ${result.hora}<br>
-        📍 Coordenadas: ${result.latitud}, ${result.longitud}<br>
-        🔍 Distancia: ${distanciaFormateada} km
-      `);
-
-      searchResultsMarkers.push(resultMarker);
-    });
-
-    html += '</ul>';
-    resultsContent.innerHTML = html;
-
-    // Agregar eventos para los items de la lista
-    document.querySelectorAll('.result-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const index = parseInt(item.dataset.index);
-        const result = resultados[index];
-
-        // Centrar mapa en este resultado
-        map.setView([result.latitud, result.longitud], 16);
-
-        // Abrir popup del marcador
-        searchResultsMarkers[index].openPopup();
-      });
-    });
-
-    // Si hay resultados, ajustar el mapa para mostrarlos todos
-    if (searchResultsMarkers.length > 0) {
-      const group = new L.featureGroup(searchResultsMarkers);
-      map.fitBounds(group.getBounds().pad(0.2));
-    }
-
-    resultsPanel.classList.remove('hidden');
-  };
-
   // Función para guardar las coordenadas en localStorage
   function saveLiveCoords() {
     try {
@@ -404,7 +297,7 @@
   const checkbox = document.getElementById("toggleUbicacion");
   
   
-  // Evento al cambiar el checkbox
+  // Evento al cambiar el checkbox de ultima ubicación
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
       infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
@@ -414,8 +307,6 @@
       infoDiv.style.display = "none";
     }
   });
-  
-
 
   const messageEl = document.getElementById('message');
 
@@ -472,7 +363,7 @@
   async function solicitarRuta(puntos) {
     if (puntos.length < 2) return;
 
-    let coordenadasStr = substractArrayEvenly(puntos, 200)
+    let coordenadasStr = substractArrayEvenly(puntos, 300)
       .map((coord) => `${coord[1]},${coord[0]}`)
       .join(';');
     let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
