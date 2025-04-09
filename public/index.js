@@ -38,6 +38,7 @@
   const finInput = document.getElementById('fin');
   const historicoControlsInput = document.getElementById('historico-controls');
   const buscadorBtn = document.getElementById('buscador-btn');
+  const busquedaBtn =document.getElementById('busqueda-btn');
   const buscadorControls = document.getElementById('buscador-controls');
   const radioSlider = document.getElementById('radioSlider');
   const radioValor = document.getElementById('radioValor')
@@ -91,7 +92,7 @@
   // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('#tiempo-real-btn, #historico-btn, #switch-historico-btn, #buscador-btn');
+    const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
