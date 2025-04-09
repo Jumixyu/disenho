@@ -357,7 +357,7 @@
       if (!data.length) return;
       return data;
     } catch (e) {
-      console.error('❌ Error al obtener recorrido histórico:', error);
+      console.error('❌ Error al obtener recorrido histórico:', e);
     }
   }
 
@@ -384,7 +384,7 @@
   async function solicitarRuta(puntos) {
     if (puntos.length < 2) return;
 
-    let coordenadasStr = substractArrayEvenly(puntos, 20)
+    let coordenadasStr = substractArrayEvenly(puntos, 1000000)
       .map((coord) => `${coord[1]},${coord[0]}`)
       .join(';');
     let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
@@ -399,8 +399,8 @@
       }
 
       return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
-    } catch (error) {
-      console.error('❌ Error al solicitar la ruta:', error);
+    } catch (e) {
+      console.error('❌ Error al solicitar la ruta:', e);
     }
   } 
 
