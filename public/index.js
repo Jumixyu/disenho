@@ -96,8 +96,6 @@
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
-
-  btn.classList.add('active');
     // Agregar la clase active al botón clickeado
     btn.classList.add('active');
   }
