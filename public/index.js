@@ -270,8 +270,6 @@
 
   // -------------------------------- FUNCION PARA BUSCAR COORDENADAS DENTRO DEL CIRCULO -----------------------------------
 
-  // Añadir después de la función ocultarCirculoBuscador
-
 // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
     if (!lastSearchLatLng) {
@@ -392,7 +390,7 @@
     
     document.getElementById('results-content').appendChild(resultsList);
 
-    }
+  }
 
   // -----------------------------------------------------------------------------------------------------------------------
 
