@@ -659,6 +659,8 @@
 
     updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora);
 
+    map.setView([lat, lon], map.getZoom());
+
     // Guardamos la ruta actualizada en localStorage
     saveLiveCoords();
   }
