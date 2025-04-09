@@ -533,6 +533,7 @@
     buscadorControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
+    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
   });
 
   buscadorBtn.addEventListener('click', () => {
