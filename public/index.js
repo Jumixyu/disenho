@@ -200,7 +200,7 @@
     // Solo activar si el modo Buscador está visible
     if (buscadorControls.classList.contains('hidden')) return;
   
-    const { lat, lng } = e.latlng;
+      const { lat, lng } = e.latlng;
   
     // Elimina círculo anterior si existe
     if (searchCircle) {
