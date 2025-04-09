@@ -55,20 +55,9 @@
     const hora = String(ahora.getHours()).padStart(2, '0');
     const minutos = String(ahora.getMinutes()).padStart(2, '0');
     const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
-  }
 
-  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO HISTORICO
-  
-  function recibirCalendarioHistorico() {
-    // Asignar valores a los inputs
     document.getElementById('inicio').value = inicioDefecto;
     document.getElementById('fin').value = finDefecto;
-  }
-
-  // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO BUSCADOR
-
-  function recibirCalendarioBuscador() {
-    // Asignar valores a los inputs
     document.getElementById('inicioSearch').value = inicioDefecto;
     document.getElementById('finSearch').value = finDefecto;
   }
