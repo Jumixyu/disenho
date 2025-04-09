@@ -92,7 +92,7 @@
   // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
   function resaltarBotonActivo(btn) {
     // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('#tiempo-real-btn,, #historico-btn, #switch-historico-btn, #buscador-btn');
+    const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
     botones.forEach(b => {
       if (btn.textContent === 'Histórico') {
         historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
@@ -103,6 +103,16 @@
         console.log("Buscador");
         realtimeHasSearch = document.getElementById('buscador-controls').classList.contains('hidden') ? false : true;
       }
+      b.classList.remove('active'); // Solo eliminamos active
+    });
+    // Agregar la clase active al botón clickeado
+    btn.classList.add('active');
+  }
+
+  function resaltarBotonActuador(btn) {
+    // Quitar la clase active de todos los botones
+    const botones = document.querySelectorAll('#historico-btn');
+    botones.forEach(b => {
       b.classList.remove('active'); // Solo eliminamos active
     });
     // Agregar la clase active al botón clickeado
@@ -163,7 +173,7 @@
   });
 
   historicoBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(historicoBtn);
+    resaltarBotonActuador(historicoBtn);
 
     if (currentIntervalId) {
       clearInterval(currentIntervalId);
