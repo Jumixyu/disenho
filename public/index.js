@@ -116,7 +116,7 @@
 
   buscadorBtn.addEventListener('click', () => {
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
-    toggleHistorico();                // ✅ Muestra el panel de fechas
+    toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
     buscadorControls.classList.remove('hidden');  // muestra el slider
   });
@@ -550,6 +550,11 @@
   function toggleHistorico() {
     const historicoContainer = document.getElementById('historico-controls');
     historicoContainer.classList.toggle('hidden');
+  }
+
+  function toggleBuscador() {
+    const BuscadorContainer = document.getElementById('buscador-controls');
+    BuscadorContainer.classList.toggle('hidden');
   }
 
 })();
