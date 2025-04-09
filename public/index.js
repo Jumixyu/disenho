@@ -147,8 +147,6 @@
     radioValor.textContent = radioSlider.value;
   });
   
-
-  
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
@@ -517,6 +515,11 @@
   function toggleBuscador() {
     const BuscadorContainer = document.getElementById('buscador-controls');
     BuscadorContainer.classList.toggle('hidden');
+  }
+
+  function toggleTiempoReal() {
+    const tiempoRealContainer = document.getElementById('tiempo-real-controls');
+    tiempoRealContainer.classList.toggle('hidden');
   }
 
 })();
