@@ -123,6 +123,7 @@
 
   switchHistoricoBtn.addEventListener('click', () => {
     buscadorControls.classList.add('hidden');
+    reiniciarBtn.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
@@ -138,6 +139,7 @@
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
 
+    reiniciarBtn.classList.add('hidden');
     buscadorControls.classList.remove('hidden');
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
@@ -167,6 +169,8 @@
 
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
+
+
 
   });
 
