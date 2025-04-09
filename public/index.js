@@ -404,7 +404,7 @@
         <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
         <small>Latitud: ${resultado.latitud}</small><br>
         <small>Longitud: ${resultado.longitud}</small><br>
-        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
+        <small>Distancia del centro: ${Math.round(resultado.distancia * 1000)}m</small>
       `;
       
       // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
