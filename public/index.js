@@ -97,6 +97,9 @@
       }else if (btn.textContent === 'Tiempo real'){
         console.log("Tiempo real");
         realtimeHasSearch = document.getElementById('tiempo-real-controls').classList.contains('hidden') ? false : true;
+      }else if (btn.textContent === 'Buscador'){
+        console.log("Buscador");
+        realtimeHasSearch = document.getElementById('buscador-controls').classList.contains('hidden') ? false : true;
       }
       b.classList.remove('active'); // Solo eliminamos active
     });
@@ -399,7 +402,7 @@
       }
 
       return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
-    } catch (e) {
+    } catch (error) {
       console.error('❌ Error al solicitar la ruta:', e);
     }
   } 
