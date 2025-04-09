@@ -296,7 +296,7 @@
   const checkbox = document.getElementById("toggleUbicacion");
   
   
-  // Evento al cambiar el checkbox
+  // Evento al cambiar el checkbox de ultima ubicación
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
       infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
@@ -306,8 +306,6 @@
       infoDiv.style.display = "none";
     }
   });
-  
-
 
   const messageEl = document.getElementById('message');
 
@@ -364,7 +362,7 @@
   async function solicitarRuta(puntos) {
     if (puntos.length < 2) return;
 
-    let coordenadasStr = substractArrayEvenly(puntos, 200)
+    let coordenadasStr = substractArrayEvenly(puntos, 300)
       .map((coord) => `${coord[1]},${coord[0]}`)
       .join(';');
     let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
