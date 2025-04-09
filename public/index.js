@@ -119,7 +119,6 @@
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-    buscadorControls.classList.remove('hidden');  // muestra el slider
   });
 
   radioSlider.addEventListener('input', () => {
