@@ -392,6 +392,6 @@ input[type="range"]::-moz-range-track {
     background-color: transparent;
     border: none;
     color: rgb(226, 217, 217);
-    font-size: 1rem;
+    font-size: 2rem;
     cursor: pointer;
 }
