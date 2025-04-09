@@ -39,6 +39,27 @@
   const radioSlider = document.getElementById('radioSlider');
   const radioValor = document.getElementById('radioValor')
 
+  function obtenerFechaHoraActual() {
+    const ahora = new Date();
+
+    // Obtener la fecha en formato YYYY-MM-DD
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+
+    // Formato para el campo datetime-local
+    const fechaHoy = `${año}-${mes}-${dia}`;
+    const inicioDefecto = `${fechaHoy}T00:00`;
+
+    // Obtener la hora actual en formato HH:MM
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
+
+    // Asignar valores a los inputs
+    document.getElementById('inicio').value = inicioDefecto;
+    document.getElementById('fin').value = finDefecto;
+  }
 
   // FUNCIÓN PARA RECIBIR CON ALGO EN EL CALENDARIO HISTORICO
   function recibirCalendarioHistorico() {
