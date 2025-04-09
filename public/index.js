@@ -42,7 +42,10 @@
   const busquedaBtn =document.getElementById('busqueda-btn');
   const buscadorControls = document.getElementById('buscador-controls');
   const radioSlider = document.getElementById('radioSlider');
-  const radioValor = document.getElementById('radioValor')
+  const radioValor = document.getElementById('radioValor');
+  const infoBtn = document.getElementById('info-btn');
+  const modal = document.getElementById('infoModal');
+  const closeBtn = document.getElementById('closeModal');
 
   function obtenerFechaHoraActual() {
     const ahora = new Date();
@@ -88,6 +91,7 @@
     if (marker.getPopup()) marker.closePopup();
   }
 
+  
 
   //------------------------------------------BOTONES-------------------------------------------------------------------------
 
@@ -244,6 +248,21 @@
     if (rutaPlacement) {
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
+    }
+  });
+
+  infoBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Opcional: cerrar al hacer clic fuera del contenido
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
     }
   });
 
