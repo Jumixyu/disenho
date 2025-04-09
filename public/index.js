@@ -70,8 +70,6 @@
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora) {
 
-    const isTiempoRealActive = !tiemporealControls.classList.contains('hidden');
-    
     lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
   
     if (!marker) {
@@ -404,7 +402,8 @@
       item.className = 'result-item';
       item.innerHTML = `
         <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
-        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
+        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small><br>
+        <small>Latitud: ${resultado.latitud}, Longitud: ${resultado.longitud}</small>
       `;
       
       // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
