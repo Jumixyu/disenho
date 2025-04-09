@@ -106,6 +106,28 @@
     btn.classList.add('active');
   }
 
+  // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
+
+  switchHistoricoBtn.addEventListener('click', () => {
+    buscadorControls.classList.add('hidden');
+    resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
+    toggleHistorico();
+    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+  });
+
+  buscadorBtn.addEventListener('click', () => {
+    resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
+    toggleHistorico();                // ✅ Muestra el panel de fechas
+    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+    buscadorControls.classList.remove('hidden');  // muestra el slider
+  });
+
+  radioSlider.addEventListener('input', () => {
+    radioValor.textContent = radioSlider.value;
+  });
+  
+  reiniciarBtn.addEventListener('click', reiniciarRuta);
+
   tiempoRealBtn.addEventListener('click', async () => {
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
@@ -172,6 +194,9 @@
     }
   });
 
+
+
+  
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
     let resultsPanel = document.getElementById('search-results-panel');
@@ -527,26 +552,5 @@
     const historicoContainer = document.getElementById('historico-controls');
     historicoContainer.classList.toggle('hidden');
   }
-
-  // EVENT LISTENERS //
-  switchHistoricoBtn.addEventListener('click', () => {
-    buscadorControls.classList.add('hidden');
-    resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
-    toggleHistorico();
-    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-  });
-
-  buscadorBtn.addEventListener('click', () => {
-    resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
-    toggleHistorico();                // ✅ Muestra el panel de fechas
-    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-    buscadorControls.classList.remove('hidden');  // muestra el slider
-  });
-
-  radioSlider.addEventListener('input', () => {
-    radioValor.textContent = radioSlider.value;
-  });
-  
-  reiniciarBtn.addEventListener('click', reiniciarRuta);
 
 })();
