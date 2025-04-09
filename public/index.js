@@ -27,7 +27,6 @@
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
 
-  const buscarBtn = document.getElementById('tiempo-real-btn');
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const historicoBtn = document.getElementById('historico-btn');
   const reiniciarBtn = document.getElementById('reiniciar-btn');
@@ -439,6 +438,8 @@
   // TIEMPO REAL
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
+    buscadorControls.classList.add('hidden');
+    
     if (currentIntervalId) clearInterval(currentIntervalId);
 
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -539,7 +540,7 @@
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
     buscadorControls.classList.remove('hidden');  // muestra el slider
   });
-  
+
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
   });
