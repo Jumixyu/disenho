@@ -31,6 +31,7 @@
   let lastSearchRadius = null;
 
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
+  const tiemporealControls = document.getElementById('tiempo-real-controls');
   const historicoBtn = document.getElementById('historico-btn');
   const reiniciarBtn = document.getElementById('reiniciar-btn');
   const switchHistoricoBtn = document.getElementById('switch-historico-btn');
@@ -122,7 +123,7 @@
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   switchHistoricoBtn.addEventListener('click', () => {
-    buscadorControls.classList.add('hidden');
+    tiemporealControls.classList.add('hidden');
     reiniciarBtn.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
@@ -139,7 +140,7 @@
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
 
-    reiniciarBtn.classList.add('hidden');
+    tiemporealControls.classList.add('hidden');
     buscadorControls.classList.remove('hidden');
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
