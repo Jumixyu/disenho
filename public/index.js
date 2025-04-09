@@ -208,7 +208,7 @@
     }
   
     // Crear nuevo círculo
-    const radioMetros = parseInt(radioSlider.value, 10) * 1000;
+    const radioMetros = parseInt(radioSlider.value, 10);
     searchCircle = L.circle([lat, lng], {
       color: '#007bff',
       fillColor: '#cce5ff',
