@@ -26,6 +26,7 @@
   let realtimeHasSearch = false;
   let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
   let searchResultsMarkers = []; // Para almacenar marcadores de resultados
+  let searchCircle = null; // para mantener referencia al círculo
 
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const historicoBtn = document.getElementById('historico-btn');
@@ -193,8 +194,29 @@
     }
   });
 
+  //------------- CIRCULO -------------
 
-
+  map.on('click', async (e) => {
+    // Solo activar si el modo Buscador está visible
+    if (buscadorControls.classList.contains('hidden')) return;
+  
+    const { lat, lng } = e.latlng;
+  
+    // Elimina círculo anterior si existe
+    if (searchCircle) {
+      map.removeLayer(searchCircle);
+    }
+  
+    // Crear nuevo círculo
+    const radioMetros = parseInt(radioSlider.value, 10) * 1000;
+    searchCircle = L.circle([lat, lng], {
+      color: '#007bff',
+      fillColor: '#cce5ff',
+      fillOpacity: 0.4,
+      radius: radioMetros
+    }).addTo(map);
+  });
+  
 
   // Crear o asegurarse que existe el elemento de resultados de búsqueda
   const createResultsPanel = () => {
