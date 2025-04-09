@@ -222,7 +222,7 @@
     }
   });
 
-  //------------- CIRCULO -------------
+  //--------------------------------------------------- CIRCULO ----------------------------------------------------
 
   map.on('click', async (e) => {
     // Solo activar si el modo Buscador está visible
@@ -268,6 +268,155 @@
     }
   }
 
+  // -------------------------------- FUNCION PARA BUSCAR COORDENADAS DENTRO DEL CIRCULO -----------------------------------
+
+  // Añadir después de la función ocultarCirculoBuscador
+
+// Buscar ubicaciones en el área del círculo
+  document.getElementById('busqueda-btn').addEventListener('click', async () => {
+    if (!lastSearchLatLng) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Primero haz clic en el mapa para definir un área de búsqueda';
+      return;
+    }
+    
+    const inicioSearch = document.getElementById('inicioSearch').value;
+    const finSearch = document.getElementById('finSearch').value;
+    
+    if (!inicioSearch || !finSearch) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Debe llenar los campos de inicio y fin para la búsqueda';
+      return;
+    }
+    
+    // Ocultamos mensaje si hay
+    messageEl.classList.add('hidden');
+    
+    // Limpiamos marcadores anteriores
+    searchResultsMarkers.forEach(m => map.removeLayer(m));
+    searchResultsMarkers = [];
+    
+    const { lat, lng } = lastSearchLatLng;
+    const radio = parseInt(radioSlider.value, 10);
+    
+    try {
+      const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
+      searchResults = await response.json();
+      
+      if (!searchResults || searchResults.length === 0) {
+        messageEl.classList.remove('hidden');
+        messageEl.textContent = 'No se encontraron ubicaciones en esta área y período de tiempo';
+        return;
+      }
+      
+      // Mostrar resultados en el mapa
+      mostrarResultadosBusqueda(searchResults);
+      
+    } catch (error) {
+      console.error('Error al buscar por área:', error);
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Error al realizar la búsqueda';
+    }
+  });
+
+  // Función para mostrar los resultados de búsqueda
+  function mostrarResultadosBusqueda(resultados) {
+    // Creamos marcadores numerados para cada resultado
+    resultados.forEach((resultado, index) => {
+      const markerIcon = L.divIcon({
+        className: 'marker-number',
+        html: `<span>${index + 1}</span>`,
+        iconSize: [25, 25],
+        iconAnchor: [12, 12]
+      });
+      
+      const marker = L.marker([resultado.latitud, resultado.longitud], { icon: markerIcon }).addTo(map);
+      
+      // Formateamos la fecha para el popup
+      const fecha = resultado.fecha.split('T')[0];
+      
+      marker.bindPopup(`
+        <strong>Registro #${index + 1}</strong><br>
+        📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}<br>
+        📅 ${fecha} ${resultado.hora}<br>
+        📏 Distancia: ${Math.round(resultado.distancia * 1000)}m del centro
+      `);
+      
+      searchResultsMarkers.push(marker);
+    });
+    
+    // Crear panel de resultados
+    crearPanelResultados(resultados);
+  }
+
+  // Función para crear el panel de resultados
+  function crearPanelResultados(resultados) {
+    // Verificamos si ya existe el panel
+    let resultsPanel = document.getElementById('search-results-panel');
+    
+    if (!resultsPanel) {
+      resultsPanel = document.createElement('div');
+      resultsPanel.id = 'search-results-panel';
+      resultsPanel.className = 'search-results-panel';
+      
+      // Creamos el encabezado del panel
+      const header = document.createElement('div');
+      header.className = 'results-header';
+      header.innerHTML = `
+        <h3>Resultados (${resultados.length})</h3>
+        <button id="close-results">×</button>
+      `;
+      
+      const content = document.createElement('div');
+      content.id = 'results-content';
+      
+      resultsPanel.appendChild(header);
+      resultsPanel.appendChild(content);
+      document.body.appendChild(resultsPanel);
+      
+      // Evento para cerrar el panel
+      document.getElementById('close-results').addEventListener('click', () => {
+        resultsPanel.classList.add('hidden');
+      });
+    } else {
+      // Si ya existe, actualizamos el título y lo mostramos
+      resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length})`;
+      resultsPanel.classList.remove('hidden');
+      const content = document.getElementById('results-content');
+      content.innerHTML = '';
+    }
+    
+    // Crear la lista de resultados
+    const resultsList = document.createElement('ul');
+    resultsList.className = 'results-list';
+    
+    resultados.forEach((resultado, index) => {
+      const fecha = resultado.fecha.split('T')[0];
+      const item = document.createElement('li');
+      item.className = 'result-item';
+      item.innerHTML = `
+        <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
+        <small>Distancia: ${Math.round(resultado.distancia * 1000)}m del centro</small>
+      `;
+      
+      // Al hacer clic en un resultado, centra el mapa en ese punto
+      item.addEventListener('click', () => {
+        map.setView([resultado.latitud, resultado.longitud], 18);
+        searchResultsMarkers[index].openPopup();
+      });
+      
+      resultsList.appendChild(item);
+    });
+    
+    document.getElementById('results-content').appendChild(resultsList);
+
+    }
+
+  // -----------------------------------------------------------------------------------------------------------------------
+
   // Función para guardar las coordenadas en localStorage
   function saveLiveCoords() {
     try {
@@ -300,7 +449,7 @@
       console.error('Error al cargar coordenadas:', e);
       return null;
     }
-  }
+  } 
 
   let lastPopupContent = "";
   const infoDiv = document.getElementById("tiempoRealInfo");

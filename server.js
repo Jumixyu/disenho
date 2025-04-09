@@ -89,6 +89,36 @@ const path = require('path');
    }
  });
 
+ // Endpoint para buscar coordenadas dentro del círculo
+app.get('/buscar-por-area', (req, res) => {
+  const { lat, lng, radio, inicio, fin } = req.query;
+  
+  if (!lat || !lng || !radio || !inicio || !fin) {
+    return res.status(400).json({ error: 'Faltan parámetros necesarios' });
+  }
+  
+  // Consulta que utiliza la fórmula de Haversine para calcular distancias
+  const query = `
+    SELECT *, 
+    (6371 * acos(cos(radians(?)) * cos(radians(latitud)) * cos(radians(longitud) - radians(?)) + sin(radians(?)) * sin(radians(latitud)))) AS distancia 
+    FROM coordenadas 
+    WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? 
+    HAVING distancia <= ? 
+    ORDER BY fecha ASC, hora ASC`;
+  
+  db.query(
+    query,
+    [lat, lng, lat, inicio, fin, radio/1000], // Convertimos metros a kilómetros
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json(rows);
+    }
+  );
+});
+
  // .env para nombres en la ventana de la página
  app.get('/config', (req, res) => {
    res.json({ nombre: process.env.NOMBRE });
