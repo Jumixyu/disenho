@@ -89,39 +89,37 @@ const path = require('path');
    }
  });
 
- // Endpoint para buscar si el vehículo estuvo cerca de una coordenada específica
-  app.get('/buscar-ubicacion', (req, res) => {
-    const { lat, lon, radio } = req.query;
-    
-    if (!lat || !lon) {
-      return res.status(400).json({ error: 'Se requieren latitud y longitud' });
-    }
-    
-    // Radio de búsqueda en kilómetros (por defecto 0.5 km si no se especifica)
-    const radioKm = radio ? parseFloat(radio) : 0.5;
-    
-    // Fórmula Haversine para búsqueda de proximidad
-    // 111.045 es aproximadamente la cantidad de km por grado de latitud
-    const query = `
-      SELECT *, 
-      (111.045 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(?)) * COS(RADIANS(latitud)) * 
-      COS(RADIANS(longitud) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(latitud)))))) 
-      AS distancia_km
-      FROM coordenadas
-      HAVING distancia_km < ?
-      ORDER BY distancia_km, fecha DESC, hora DESC
-      LIMIT 20
-    `;
-    
-    db.query(query, [lat, lon, lat, radioKm], (err, rows) => {
+ // Endpoint para buscar coordenadas dentro del círculo
+app.get('/buscar-por-area', (req, res) => {
+  const { lat, lng, radio, inicio, fin } = req.query;
+  
+  if (!lat || !lng || !radio || !inicio || !fin) {
+    return res.status(400).json({ error: 'Faltan parámetros necesarios' });
+  }
+  
+  // Consulta que utiliza la fórmula de Haversine para calcular distancias
+  const query = `
+    SELECT *, 
+    (6371 * acos(cos(radians(?)) * cos(radians(latitud)) * cos(radians(longitud) - radians(?)) + sin(radians(?)) * sin(radians(latitud)))) AS distancia 
+    FROM coordenadas 
+    WHERE CONCAT(fecha, " ", hora) BETWEEN ? AND ? 
+    HAVING distancia <= ? 
+    ORDER BY fecha ASC, hora ASC`;
+  
+  db.query(
+    query,
+    [lat, lng, lat, inicio, fin, radio/1000], // Convertimos metros a kilómetros
+    (err, rows) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message });
+        return;
       }
       res.json(rows);
-    });
-  });
+    }
+  );
+});
 
- 
+ // .env para nombres en la ventana de la página
  app.get('/config', (req, res) => {
    res.json({ nombre: process.env.NOMBRE });
  });

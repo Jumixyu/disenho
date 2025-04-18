@@ -11,28 +11,83 @@
 </head>
 
 <body>
-  <div class="contenedor">
-    <h1 id="titulo">MyCoords - HQRs</h1>
+  <div class="contenedor2">
+    <button id="info-btn">?</button>
+    <h1 id="titulo">MyCoords - Seguimiento de vehículo</h1>
+  </div>
 
+  <!-- Ventana flotante (modal) -->
+  <div id="infoModal" class="info-modal"> 
+    <div class="info-modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2>Guía de Navegación</h2>
+      <p> MyCoords es un sistema interactivo diseñado para el seguimiento y análisis de recorridos geolocalizados de vehículos.<br><br> 
+        1. En la ventana de "Tiempo Real" podrás observar el recorrido de un vehículo el tiempo real, observando una línea que traza su recorrido conforme se mueve. El botón "Limpizar Trazo" permite limpizar las líneas trazadas del mapa.<br><br>   
+        2. En la ventana de "Histórico" podrás observar el recorrido del vehículo en una ventana específica de tiempo, la cual puedes ajustar en el calendario.<br>
+        📝<strong>Nota:</strong> El primer recorrido se registró el día 18 de marzo.<br><br>
+        3. En la ventana de "Buscador" podrás identificar en que momentos el vehículo se acercó al area de busqueda elegído en el mapa. <br>
+        📝<strong>Nota:</strong>  El resultado de esta búsqueda está sujeto al rango de tiempo del calendario.<br><br>
+        
+        💡<strong>Tip:</strong> Para una mejor experiencia, te recomendamos escoger como inicio el 8 de abril y como fin el 9 de abril, ya que tenemos más rutas registradas en este rango.</p>
+    </div>
+  </div>
+
+  <div class="contenedor1">
+
+    <!-- Fila con los controles principales -->
+    <div style="display: flex; align-items: center; gap: 15px;">    
+      <label style="display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" class="custom-checkbox" id="toggleUbicacion" checked>
+        Mostrar última ubicación
+      </label>
+    </div>
+  
+    <!-- Recuadro de Última Ubicación debajo -->
+    <div id="tiempoRealInfo" class="text1"></div>
   </div>
 
   <div class="contenedor">
     <button id="tiempo-real-btn">Tiempo real</button>
     <button id="switch-historico-btn">Histórico</button>
-    <button id="reiniciar-btn">Reiniciar</button>
+    <button id="buscador-btn">Buscador</button>
   </div>
-
+  
+  <div class="contenedor hidden" id="tiempo-real-controls">
+    <div class="contenedor flex-column">
+      <div class="contenedor">
+        <button id="reiniciar-btn">🔄 Limpiar Trazo</button>
+      </div>
+    </div>
+  </div>
+  
   <div class="contenedor hidden" id="historico-controls">
     <div class="contenedor flex-column">
       <div class="contenedor"><label for="inicio">Inicio:</label>
-        <input type="datetime-local" id="inicio" step="1" />
+        <input type="datetime-local" id="inicio" step="1" class="datetime-input"/>
       </div>
       <div class="contenedor"><label for="fin">Fin:</label>
-        <input type="datetime-local" id="fin" step="1" />
+        <input type="datetime-local" id="fin" step="1" class="datetime-input"/>
       </div>
-
-      <div class="contenedor">
+      <div class="contenedor ">
         <button id="historico-btn">📌 Ver Recorrido Histórico</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="contenedor hidden" id="buscador-controls">
+    <div class="contenedor flex-column">
+      <div class="contenedor"><label for="inicioSearch">Inicio:</label>
+        <input type="datetime-local" id="inicioSearch" step="1" class="datetime-input"/>
+      </div>
+      <div class="contenedor"><label for="finSearch">Fin:</label>
+        <input type="datetime-local" id="finSearch" step="1" class="datetime-input"/>
+      </div>
+      <div class="contenedor ">
+        <label for="radioSlider">Radio de busqueda: <br><span id="radioValor">500</span> m</label>
+        <input type="range" id="radioSlider" min="10" max="1000" step="10" value="500" />
+      </div>
+      <div class="contenedor ">
+        <button id="busqueda-btn">🔎 Busqueda</button>
       </div>
     </div>
   </div>
@@ -42,7 +97,6 @@
   </div>
 
   <div id="map"></div>
-
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
   <script src="./index.js"></script>
