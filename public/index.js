@@ -29,6 +29,7 @@
   let searchCircle = null; // para mantener referencia al círculo
   let lastSearchLatLng = null;
   let lastSearchRadius = null;
+  let marcadorSeleccionado;
 
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -429,6 +430,14 @@
       // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
       item.addEventListener('click', () => {
         map.setView([resultado.latitud, resultado.longitud], 18);
+
+        // Eliminar marcador anterior si existe
+        if (marcadorSeleccionado) {
+          map.removeLayer(marcadorSeleccionado);
+        }
+        
+        // Crear y agregar el nuevo marcador
+        marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
       });
       
       resultsList.appendChild(item);
