@@ -427,7 +427,7 @@ input[type="range"]::-moz-range-track {
     color: #f0f0f0;
     padding: 1.5rem;
     border-radius: 12px;
-    width: 400px;
+    width: 480px;
     position: relative;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
 }
