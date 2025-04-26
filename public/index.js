@@ -365,13 +365,34 @@
     }
   });
 
-  /// Función para mostrar los resultados de búsqueda solo en el panel lateral
+  /// Función para mostrar los resultados de búsqueda en el mapa y en el panel lateral
   function mostrarResultadosBusqueda(resultados) {
-    // Limpiamos marcadores anteriores por si acaso
+    // Limpiamos marcadores y trazos anteriores
     searchResultsMarkers.forEach(m => map.removeLayer(m));
     searchResultsMarkers = [];
-    
-    // No creamos marcadores, solo el panel de resultados
+    if (searchResultPath) {
+      map.removeLayer(searchResultPath);
+      searchResultPath = null;
+    }
+
+    const pathCoordinates = [];
+
+    resultados.forEach(ubicacion => {
+      // Asumiendo que cada 'ubicacion' tiene propiedades 'latitud' y 'longitud'
+      const latlng = [ubicacion.latitud, ubicacion.longitud];
+      const marker = L.marker(latlng); // Creamos el marcador (asumiendo Leaflet)
+      marker.addTo(map); // Añadimos el marcador al mapa
+      searchResultsMarkers.push(marker); // Guardamos el marcador para futuras limpiezas
+      pathCoordinates.push(latlng); // Añadimos las coordenadas al array del trazo
+    });
+
+    // Creamos la polilínea si hay al menos dos ubicaciones
+    if (pathCoordinates.length > 1) {
+      searchResultPath = L.polyline(pathCoordinates, { color: 'blue' }); // Creamos la polilínea (asumiendo Leaflet)
+      searchResultPath.addTo(map); // Añadimos la polilínea al mapa
+    }
+
+    // Creamos el panel de resultados (esta parte no la modificamos)
     crearPanelResultados(resultados);
   }
 
