@@ -11,20 +11,25 @@ const udpPort = 5000; // Puerto UDP
 
 // Conexión a MySQL
 require('dotenv').config();
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
  
-db.connect(err => {
-  if (err) {
-    console.error('❌ Error conectando a MySQL:', err);
-    return;
-  }
-  console.log('✅ Conexión exitosa a la base de datos.');
-});
+console.log('✅ Conexión exitosa a la base de datos.');
+
+// Add the periodic ping right here
+setInterval(() => {
+  db.query('SELECT 1', (err) => {
+    if (err) console.error('❌ Error pineando la base de datos:', err);
+    else console.log('💓 La conexión a la base de datos está viva');
+  });
+}, 60000); // Ping every minute
 
 module.exports = db;
 
