@@ -90,17 +90,16 @@ udpServer.on('message', (msg, rinfo) => {
   // Reemplazar saltos de línea por espacios
   const cleanMsg = msg.toString().replace(/\n/g, ' ');
 
-  const data = cleanMsg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*([\d-]+\s[\d:]+)\s*RPM:\s*(\d+)/);
+  const data = cleanMsg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*([\d-]+\s[\d:]+)/);
   if (data) {
     const latitud = parseFloat(data[1]);
     const longitud = parseFloat(data[2]);
     const [fecha, hora] = data[3].split(' ');
-    const rpm = parseInt(data[4]);
 
-    db.query('INSERT INTO coordenadas (latitud, longitud, fecha, hora, rpm) VALUES (?, ?, ?, ?, ?)',
-      [latitud, longitud, fecha, hora, rpm], (err) => {
+    db.query('INSERT INTO coordenadas (latitud, longitud, fecha, hora, rpm) VALUES (?, ?, ?, ?)',
+      [latitud, longitud, fecha, hora], (err) => {
         if (err) console.error('❌ Error al insertar en MySQL:', err.message);
-        else console.log(`📌 Coordenada guardada: Lat: ${latitud}, Long: ${longitud}, RPM: ${rpm}`);
+        else console.log(`📌 Coordenada guardada: Lat: ${latitud}, Long: ${longitud}`);
       });
   }
 });
