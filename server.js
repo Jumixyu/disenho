@@ -12,9 +12,9 @@ const udpPort = 5000; // Puerto UDP
 // Conexión a MySQL
 require('dotenv').config();
 
-
-try{
-  const db = mysql.createPool({
+let db = null
+try {
+  db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -26,6 +26,7 @@ try{
   console.log('✅ Conexión exitosa a la base de datos.');
 } catch (e) {
   console.log(e);
+  process.exit(1)
 }
 
 // Add the periodic ping right here
@@ -123,7 +124,7 @@ app.get('/buscar-por-area', (req, res) => {
 
   db.query(
     query,
-    [lat, lng, lat, inicio, fin, radio/1000], // Convertimos metros a kilómetros
+    [lat, lng, lat, inicio, fin, radio / 1000], // Convertimos metros a kilómetros
     (err, rows) => {
       if (err) {
         res.status(500).json({ error: err.message });
