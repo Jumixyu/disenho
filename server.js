@@ -74,26 +74,40 @@ app.get('/recorrido-historico', (req, res) => {
   );
 });
 
-// Test database insertion
-const testData = {
-  latitud: 11.0055555,
-  longitud: -74.8000000,
-  fecha: '2025-04-28', 
-  hora: '14:30:00',
-  rpm: 1500
-};
 
-db.query(
-  'INSERT INTO coordenadas (latitud, longitud, fecha, hora, rpm) VALUES (?, ?, ?, ?, ?)',
-  [testData.latitud, testData.longitud, testData.fecha, testData.hora, testData.rpm],
-  (err, results) => {
-    if (err) {
-      console.error('❌ TEST ERROR al insertar en MySQL:', err.message);
-    } else {
-      console.log(`✅ TEST OK: Datos de prueba insertados con ID=${results.insertId}`);
-    }
+// Servidor udp para recibir coordenadas
+udpServer.on('message', (msg, rinfo) => {
+  console.log(`📩 Mensaje recibido de ${rinfo.address}:${rinfo.port} -> ${msg}`);
+
+  // Reemplazar saltos de línea por espacios
+  const cleanMsg = msg.toString().replace(/\n/g, ' ');
+ 
+  const data = cleanMsg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*([\d-]+\s[\d:]+)\s*RPM:\s*(\d+)/);
+  
+  if (data) {
+    const latitud = parseFloat(data[1]);
+    const longitud = parseFloat(data[2]);
+    const [fecha, hora] = data[3].split(' ');
+    const rpm = parseInt(data[4]);
+    
+    console.log(`Intentando insertar: Lat=${latitud}, Long=${longitud}, Fecha=${fecha}, Hora=${hora}, RPM=${rpm}`);
+    
+    db.query(
+      'INSERT INTO coordenadas (latitud, longitud, fecha, hora, rpm) VALUES (?, ?, ?, ?, ?)',
+      [latitud, longitud, fecha, hora, rpm], 
+      (err, results) => {
+        if (err) {
+          console.error('❌ Error al insertar en MySQL:', err.message);
+          console.error('Error completo:', err);
+        } else {
+          console.log(`📌 Coordenada guardada: ID=${results.insertId}, Lat=${latitud}, Long=${longitud}, RPM=${rpm}`);
+        }
+      }
+    );
+  } else {
+    console.error('❌ No se pudo extraer datos del mensaje:', cleanMsg);
   }
-);
+});
 
 // Endpoint para buscar coordenadas dentro del círculo
 app.get('/buscar-por-area', (req, res) => {
