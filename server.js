@@ -96,7 +96,7 @@ udpServer.on('message', (msg, rinfo) => {
     const longitud = parseFloat(data[2]);
     const [fecha, hora] = data[3].split(' ');
 
-    db.query('INSERT INTO coordenadas (latitud, longitud, fecha, hora, rpm) VALUES (?, ?, ?, ?)',
+    db.query('INSERT INTO coordenadas (latitud, longitud, fecha, hora) VALUES (?, ?, ?, ?)',
       [latitud, longitud, fecha, hora], (err) => {
         if (err) console.error('❌ Error al insertar en MySQL:', err.message);
         else console.log(`📌 Coordenada guardada: Lat: ${latitud}, Long: ${longitud}`);
