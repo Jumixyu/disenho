@@ -74,7 +74,6 @@ app.get('/recorrido-historico', (req, res) => {
   );
 });
 
-
 // Servidor UDP para recibir coordenadas
 const udpServer = dgram.createSocket('udp4');
 
