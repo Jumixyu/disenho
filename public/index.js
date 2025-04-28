@@ -72,9 +72,9 @@
   }
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
-  function updateMarker(lat, lon, fecha, hora) {
+  function updateMarker(lat, lon, fecha, hora, rpm) {
 
-    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora}`;
+    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
   
     if (!marker) {
       marker = L.marker([lat, lon]).addTo(map);
@@ -504,6 +504,8 @@
     try {
       const response = await fetch('/ultima-coordenada');
       const data = await response.json();
+
+      console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
 
       if (!data || data.error) return error;
       return data;
