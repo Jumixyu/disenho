@@ -659,7 +659,7 @@
     // Guardamos la ruta actual en localStorage
     saveLiveCoords();
 
-    currentIntervalId = setInterval(actualizarMapa, 5000);
+    currentIntervalId = setInterval(actualizarMapa, 100);
   }
 
   // Iniciamos el modo tiempo real cuando carga la página
