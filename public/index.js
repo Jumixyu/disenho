@@ -642,13 +642,12 @@
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-    const rpm = ultimaCoord.rpm;
 
     //corrigiendo la fecha T00:00:00
     const fechaerror = ultimaCoord.fecha
     const fechacorregida = fechaerror.split("T")[0];
 
-    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, rpm);
+    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
 
     // Ajustamos el mapa para ver toda la ruta
     if (liveRoute) {
@@ -687,7 +686,7 @@
     const fechaerror2 = ultimaCoord.fecha
     const fechacorregida2 = fechaerror2.split("T")[0];
 
-    updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora,rpm);
+    updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora);
 
     map.setView([lat, lon], map.getZoom());
 
