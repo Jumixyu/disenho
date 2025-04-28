@@ -75,7 +75,7 @@ const path = require('path');
  udpServer.on('message', (msg, rinfo) => {
    console.log(`📩 Mensaje recibido de ${rinfo.address}:${rinfo.port} -> ${msg}`);
  
-   const data = msg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s*RPM:\s*(\d+)/);
+   const data = msg.toString().match(/Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*(.+)\s*RPM:\s*(\d+)/);
    if (data) {
      const latitud = parseFloat(data[1]);
      const longitud = parseFloat(data[2]);
