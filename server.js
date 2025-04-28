@@ -91,7 +91,7 @@ udpServer.on('message', (msg, rinfo) => {
   const cleanMsg = msg.toString().replace(/\n/g, ' ');
 
   const data = cleanMsg.toString().match(
-    /Latitud:\s*([-0-9.]+)\s*[\r\n]+Longitud:\s*([-0-9.]+)\s*[\r\n]+Fecha y Hora GPS:\s*([\d-]+\s[\d:]+)\s*[\r\n]+RPM:\s*(-?\d+)/
+    /Latitud:\s*([-0-9.]+)\s*Longitud:\s*([-0-9.]+)\s*Fecha y Hora GPS:\s*([\d-]+\s[\d:]+)+RPM:\s*(-?\d+)/
   );
   if (data) {
     const latitud = parseFloat(data[1]);
