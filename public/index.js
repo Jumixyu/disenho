@@ -74,7 +74,7 @@
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
 
-    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
+    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <strong>🧭RPM:</Strong> ${rpm}`;
   
     if (!marker) {
       marker = L.marker([lat, lon]).addTo(map);
