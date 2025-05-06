@@ -42,6 +42,8 @@ function toggleTiempoReal() {
 // Vista inicial del mapa
 const map = L.map('map');
 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
 // NOMBRES EN EL TITLE
 fetch('/config')
 .then(response => response.json())
