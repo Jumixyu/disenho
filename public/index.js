@@ -1,8 +1,29 @@
-  (async () => {
+
+
+// menus desplegables
+
+function toggleHistorico() {
+  const historicoContainer = document.getElementById('historico-controls');
+  historicoContainer.classList.toggle('hidden');
+}
+
+function toggleBuscador() {
+  const BuscadorContainer = document.getElementById('buscador-controls');
+  BuscadorContainer.classList.toggle('hidden');
+}
+
+function toggleTiempoReal() {
+  const tiempoRealContainer = document.getElementById('tiempo-real-controls');
+  tiempoRealContainer.classList.toggle('hidden');
+}
+
+// Vista inicial del mapa
+const map = L.map('map');
+
+(async () => {
   'use-strict';
 
-  // Vista inicial del mapa
-  const map = L.map('map');
+  
 
   //NOMBRES EN EL TITLE
   fetch('/config')
@@ -696,18 +717,3 @@
   }
 
 })();
-
-function toggleHistorico() {
-  const historicoContainer = document.getElementById('historico-controls');
-  historicoContainer.classList.toggle('hidden');
-}
-
-function toggleBuscador() {
-  const BuscadorContainer = document.getElementById('buscador-controls');
-  BuscadorContainer.classList.toggle('hidden');
-}
-
-function toggleTiempoReal() {
-  const tiempoRealContainer = document.getElementById('tiempo-real-controls');
-  tiempoRealContainer.classList.toggle('hidden');
-}
