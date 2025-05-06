@@ -234,7 +234,6 @@ const closeBtn = document.getElementById('closeModal');
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
 
-    document.getElementById("final").scrollIntoView({ behavior: "smooth" });
   });
 
   historicoBtn.addEventListener('click', async () => {
