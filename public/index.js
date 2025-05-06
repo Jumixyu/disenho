@@ -177,6 +177,8 @@
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
+    
+    document.getElementById("final").scrollIntoView({ behavior: "smooth" });
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     toggleTiempoReal();
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
@@ -659,7 +661,7 @@
     // Guardamos la ruta actual en localStorage
     saveLiveCoords();
 
-    currentIntervalId = setInterval(actualizarMapa, 100);
+    currentIntervalId = setInterval(actualizarMapa, 2000);
   }
 
   // Iniciamos el modo tiempo real cuando carga la página
