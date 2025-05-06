@@ -1,4 +1,4 @@
-(async () => {
+  (async () => {
   'use-strict';
 
   // Vista inicial del mapa
@@ -12,7 +12,6 @@
     })
     .catch(error => console.error('Error al obtener el nombre:', error));
   obtenerFechaHoraActual();
-
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
@@ -696,19 +695,19 @@
     saveLiveCoords();
   }
 
-  function toggleHistorico() {
-    const historicoContainer = document.getElementById('historico-controls');
-    historicoContainer.classList.toggle('hidden');
-  }
-
-  function toggleBuscador() {
-    const BuscadorContainer = document.getElementById('buscador-controls');
-    BuscadorContainer.classList.toggle('hidden');
-  }
-
-  function toggleTiempoReal() {
-    const tiempoRealContainer = document.getElementById('tiempo-real-controls');
-    tiempoRealContainer.classList.toggle('hidden');
-  }
-
 })();
+
+function toggleHistorico() {
+  const historicoContainer = document.getElementById('historico-controls');
+  historicoContainer.classList.toggle('hidden');
+}
+
+function toggleBuscador() {
+  const BuscadorContainer = document.getElementById('buscador-controls');
+  BuscadorContainer.classList.toggle('hidden');
+}
+
+function toggleTiempoReal() {
+  const tiempoRealContainer = document.getElementById('tiempo-real-controls');
+  tiempoRealContainer.classList.toggle('hidden');
+}
