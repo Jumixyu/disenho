@@ -36,6 +36,7 @@ const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
 
 
+
 // Vista inicial del mapa
 
 const map = L.map('map');
@@ -138,6 +139,9 @@ async function obtenerRecorridoHistorico(inicio, fin) {
 
 (async () => {
   'use-strict';
+
+  // Iniciamos el modo tiempo real cuando carga la página
+  await iniciarTiempoReal();
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
@@ -679,11 +683,8 @@ async function obtenerRecorridoHistorico(inicio, fin) {
     // Guardamos la ruta actual en localStorage
     saveLiveCoords();
 
-    currentIntervalId = setInterval(actualizarMapa, 2000);
+    currentIntervalId = setInterval(actualizarMapa, 5000);
   }
-
-  // Iniciamos el modo tiempo real cuando carga la página
-  await iniciarTiempoReal();
 
   async function actualizarMapa() {
 
