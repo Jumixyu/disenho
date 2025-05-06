@@ -177,8 +177,6 @@
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
-    
-    document.getElementById("final").scrollIntoView({ behavior: "smooth" });
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     toggleTiempoReal();
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
@@ -196,6 +194,8 @@
 
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
+
+    document.getElementById("final").scrollIntoView({ behavior: "smooth" });
   });
 
   historicoBtn.addEventListener('click', async () => {
