@@ -119,6 +119,23 @@ async function obtenerUltimaCoordenada() {
   }
 }
 
+// Función para obtener recorrido histórico
+async function obtenerRecorridoHistorico(inicio, fin) {
+  if (!inicio || !fin) {
+    throw new TypeError('"inicio" y "fin" son parámetros requeridos');
+  }
+
+  try {
+    const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
+    const data = await response.json();
+
+    if (!data.length) return;
+    return data;
+  } catch (e) {
+    console.error('❌ Error al obtener recorrido histórico:', e);
+  }
+}
+
 (async () => {
   'use-strict';
 
@@ -534,26 +551,6 @@ async function obtenerUltimaCoordenada() {
       infoDiv.style.display = "none";
     }
   });
-
-
-  
-
-  // Función para obtener recorrido histórico
-  async function obtenerRecorridoHistorico(inicio, fin) {
-    if (!inicio || !fin) {
-      throw new TypeError('"inicio" y "fin" son parámetros requeridos');
-    }
-
-    try {
-      const response = await fetch(`/recorrido-historico?inicio=${inicio}&fin=${fin}`);
-      const data = await response.json();
-
-      if (!data.length) return;
-      return data;
-    } catch (e) {
-      console.error('❌ Error al obtener recorrido histórico:', e);
-    }
-  }
 
   function substractArrayEvenly(arr, maxLength) {
     const n = arr.length;
