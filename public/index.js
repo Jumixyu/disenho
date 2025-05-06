@@ -20,36 +20,37 @@ function toggleTiempoReal() {
 // Vista inicial del mapa
 const map = L.map('map');
 
+// NOMBRES EN EL TITLE
+fetch('/config')
+.then(response => response.json())
+.then(data => {
+  document.getElementById('title').textContent = `MyCoords - ${data.nombre}`;
+})
+.catch(error => console.error('Error al obtener el nombre:', error));
+obtenerFechaHoraActual();
+
+//Variables
+let marker = null;
+let ruta = null; // Polilínea que representa el recorrido histórico
+let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
+let coordenadas = []; // Guarda el historial de coordenadas
+let liveCoords = [];
+let currentIntervalId = null;
+let historicoHasSearch = false;
+let realtimeHasSearch = false;
+let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
+let searchResultsMarkers = []; // Para almacenar marcadores de resultados
+let searchCircle = null; // para mantener referencia al círculo
+let lastSearchLatLng = null;
+let lastSearchRadius = null;
+let marcadorSeleccionado;
+
 (async () => {
   'use-strict';
 
-  
-
-  //NOMBRES EN EL TITLE
-  fetch('/config')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('title').textContent = `MyCoords - ${data.nombre}`;
-    })
-    .catch(error => console.error('Error al obtener el nombre:', error));
-  obtenerFechaHoraActual();
-
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-  let marker = null;
-  let ruta = null; // Polilínea que representa el recorrido histórico
-  let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
-  let coordenadas = []; // Guarda el historial de coordenadas
-  let liveCoords = [];
-  let currentIntervalId = null;
-  let historicoHasSearch = false;
-  let realtimeHasSearch = false;
-  let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
-  let searchResultsMarkers = []; // Para almacenar marcadores de resultados
-  let searchCircle = null; // para mantener referencia al círculo
-  let lastSearchLatLng = null;
-  let lastSearchRadius = null;
-  let marcadorSeleccionado;
+  
 
   const tiempoRealBtn = document.getElementById('tiempo-real-btn');
   const tiemporealControls = document.getElementById('tiempo-real-controls');
