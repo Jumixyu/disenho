@@ -1,3 +1,58 @@
+//Variables
+let marker = null;
+let ruta = null; // Polilínea que representa el recorrido histórico
+let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
+let coordenadas = []; // Guarda el historial de coordenadas
+let liveCoords = [];
+let currentIntervalId = null;
+let historicoHasSearch = false;
+let realtimeHasSearch = false;
+let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
+let searchResultsMarkers = []; // Para almacenar marcadores de resultados
+let searchCircle = null; // para mantener referencia al círculo
+let lastSearchLatLng = null;
+let lastSearchRadius = null;
+let marcadorSeleccionado;
+let lastPopupContent = "";
+
+const tiempoRealBtn = document.getElementById('tiempo-real-btn');
+const tiemporealControls = document.getElementById('tiempo-real-controls');
+const historicoBtn = document.getElementById('historico-btn');
+const reiniciarBtn = document.getElementById('reiniciar-btn');
+const switchHistoricoBtn = document.getElementById('switch-historico-btn');
+const inicioInput = document.getElementById('inicio');
+const finInput = document.getElementById('fin');
+const historicoControlsInput = document.getElementById('historico-controls');
+const buscadorBtn = document.getElementById('buscador-btn');
+const busquedaBtn =document.getElementById('busqueda-btn');
+const buscadorControls = document.getElementById('buscador-controls');
+const radioSlider = document.getElementById('radioSlider');
+const radioValor = document.getElementById('radioValor');
+const infoBtn = document.getElementById('info-btn');
+const modal = document.getElementById('infoModal');
+const closeBtn = document.getElementById('closeModal');
+const infoDiv = document.getElementById("tiempoRealInfo");
+const checkbox = document.getElementById("toggleUbicacion");
+const messageEl = document.getElementById('message');
+
+
+// Vista inicial del mapa
+
+const map = L.map('map');
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+// NOMBRES EN EL TITLE
+
+fetch('/config')
+.then(response => response.json())
+.then(data => {
+  document.getElementById('title').textContent = `MyCoords - ${data.nombre}`;
+})
+.catch(error => console.error('Error al obtener el nombre:', error));
+obtenerFechaHoraActual();
+
+// Obtener fecha y hora actual
 
 function obtenerFechaHoraActual() {
   const ahora = new Date();
@@ -39,57 +94,33 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
-// Vista inicial del mapa
-const map = L.map('map');
+// Función para guardar las coordenadas en localStorage
+function saveLiveCoords() {
+  try {
+    localStorage.setItem('liveCoords', JSON.stringify(liveCoords));
+    localStorage.setItem('lastSaveTime', new Date().toISOString());
+  } catch (e) {
+    console.error('Error al guardar coordenadas:', e);
+  }
+}
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+async function obtenerUltimaCoordenada() {
+  try {
+    const response = await fetch('/ultima-coordenada');
+    const data = await response.json();
 
-// NOMBRES EN EL TITLE
-fetch('/config')
-.then(response => response.json())
-.then(data => {
-  document.getElementById('title').textContent = `MyCoords - ${data.nombre}`;
-})
-.catch(error => console.error('Error al obtener el nombre:', error));
-obtenerFechaHoraActual();
+    console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
 
-//Variables
-let marker = null;
-let ruta = null; // Polilínea que representa el recorrido histórico
-let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
-let coordenadas = []; // Guarda el historial de coordenadas
-let liveCoords = [];
-let currentIntervalId = null;
-let historicoHasSearch = false;
-let realtimeHasSearch = false;
-let searchResults = []; // Para almacenar resultados de búsqueda por ubicación
-let searchResultsMarkers = []; // Para almacenar marcadores de resultados
-let searchCircle = null; // para mantener referencia al círculo
-let lastSearchLatLng = null;
-let lastSearchRadius = null;
-let marcadorSeleccionado;
-
-const tiempoRealBtn = document.getElementById('tiempo-real-btn');
-const tiemporealControls = document.getElementById('tiempo-real-controls');
-const historicoBtn = document.getElementById('historico-btn');
-const reiniciarBtn = document.getElementById('reiniciar-btn');
-const switchHistoricoBtn = document.getElementById('switch-historico-btn');
-const inicioInput = document.getElementById('inicio');
-const finInput = document.getElementById('fin');
-const historicoControlsInput = document.getElementById('historico-controls');
-const buscadorBtn = document.getElementById('buscador-btn');
-const busquedaBtn =document.getElementById('busqueda-btn');
-const buscadorControls = document.getElementById('buscador-controls');
-const radioSlider = document.getElementById('radioSlider');
-const radioValor = document.getElementById('radioValor');
-const infoBtn = document.getElementById('info-btn');
-const modal = document.getElementById('infoModal');
-const closeBtn = document.getElementById('closeModal');
+    if (!data || data.error) return error;
+    return data;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}
 
 (async () => {
   'use-strict';
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
@@ -336,7 +367,7 @@ const closeBtn = document.getElementById('closeModal');
 
   // -------------------------------- FUNCION PARA BUSCAR COORDENADAS DENTRO DEL CIRCULO -----------------------------------
 
-// Buscar ubicaciones en el área del círculo
+  // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
     if (!lastSearchLatLng) {
       messageEl.classList.remove('hidden');
@@ -469,16 +500,6 @@ const closeBtn = document.getElementById('closeModal');
 
   // -----------------------------------------------------------------------------------------------------------------------
 
-  // Función para guardar las coordenadas en localStorage
-  function saveLiveCoords() {
-    try {
-      localStorage.setItem('liveCoords', JSON.stringify(liveCoords));
-      localStorage.setItem('lastSaveTime', new Date().toISOString());
-    } catch (e) {
-      console.error('Error al guardar coordenadas:', e);
-    }
-  }
-
   // Función para cargar las coordenadas desde localStorage
   function loadLiveCoords() {
     try {
@@ -503,11 +524,6 @@ const closeBtn = document.getElementById('closeModal');
     }
   } 
 
-  let lastPopupContent = "";
-  const infoDiv = document.getElementById("tiempoRealInfo");
-  const checkbox = document.getElementById("toggleUbicacion");
-  
-  
   // Evento al cambiar el checkbox de ultima ubicación
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
@@ -519,22 +535,8 @@ const closeBtn = document.getElementById('closeModal');
     }
   });
 
-  const messageEl = document.getElementById('message');
 
-  async function obtenerUltimaCoordenada() {
-    try {
-      const response = await fetch('/ultima-coordenada');
-      const data = await response.json();
-
-      console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
-
-      if (!data || data.error) return error;
-      return data;
-    } catch (e) {
-      console.log(e);
-      return e;
-    }
-  }
+  
 
   // Función para obtener recorrido histórico
   async function obtenerRecorridoHistorico(inicio, fin) {
