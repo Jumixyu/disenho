@@ -1,4 +1,26 @@
 
+function obtenerFechaHoraActual() {
+  const ahora = new Date();
+
+  // Obtener la fecha en formato YYYY-MM-DD
+  const año = ahora.getFullYear();
+  const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+  const dia = String(ahora.getDate()).padStart(2, '0');
+
+  // Formato para el campo datetime-local
+  const fechaHoy = `${año}-${mes}-${dia}`;
+  const inicioDefecto = `${fechaHoy}T00:00`;
+
+  // Obtener la hora actual en formato HH:MM
+  const hora = String(ahora.getHours()).padStart(2, '0');
+  const minutos = String(ahora.getMinutes()).padStart(2, '0');
+  const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
+
+  document.getElementById('inicio').value = inicioDefecto;
+  document.getElementById('fin').value = finDefecto;
+  document.getElementById('inicioSearch').value = inicioDefecto;
+  document.getElementById('finSearch').value = finDefecto;
+}
 
 // menus desplegables
 
@@ -45,6 +67,23 @@ let lastSearchLatLng = null;
 let lastSearchRadius = null;
 let marcadorSeleccionado;
 
+const tiempoRealBtn = document.getElementById('tiempo-real-btn');
+const tiemporealControls = document.getElementById('tiempo-real-controls');
+const historicoBtn = document.getElementById('historico-btn');
+const reiniciarBtn = document.getElementById('reiniciar-btn');
+const switchHistoricoBtn = document.getElementById('switch-historico-btn');
+const inicioInput = document.getElementById('inicio');
+const finInput = document.getElementById('fin');
+const historicoControlsInput = document.getElementById('historico-controls');
+const buscadorBtn = document.getElementById('buscador-btn');
+const busquedaBtn =document.getElementById('busqueda-btn');
+const buscadorControls = document.getElementById('buscador-controls');
+const radioSlider = document.getElementById('radioSlider');
+const radioValor = document.getElementById('radioValor');
+const infoBtn = document.getElementById('info-btn');
+const modal = document.getElementById('infoModal');
+const closeBtn = document.getElementById('closeModal');
+
 (async () => {
   'use-strict';
 
@@ -69,28 +108,7 @@ let marcadorSeleccionado;
   const modal = document.getElementById('infoModal');
   const closeBtn = document.getElementById('closeModal');
 
-  function obtenerFechaHoraActual() {
-    const ahora = new Date();
 
-    // Obtener la fecha en formato YYYY-MM-DD
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-
-    // Formato para el campo datetime-local
-    const fechaHoy = `${año}-${mes}-${dia}`;
-    const inicioDefecto = `${fechaHoy}T00:00`;
-
-    // Obtener la hora actual en formato HH:MM
-    const hora = String(ahora.getHours()).padStart(2, '0');
-    const minutos = String(ahora.getMinutes()).padStart(2, '0');
-    const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
-
-    document.getElementById('inicio').value = inicioDefecto;
-    document.getElementById('fin').value = finDefecto;
-    document.getElementById('inicioSearch').value = inicioDefecto;
-    document.getElementById('finSearch').value = finDefecto;
-  }
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
