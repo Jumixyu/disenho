@@ -89,27 +89,6 @@ const closeBtn = document.getElementById('closeModal');
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-  
-
-  const tiempoRealBtn = document.getElementById('tiempo-real-btn');
-  const tiemporealControls = document.getElementById('tiempo-real-controls');
-  const historicoBtn = document.getElementById('historico-btn');
-  const reiniciarBtn = document.getElementById('reiniciar-btn');
-  const switchHistoricoBtn = document.getElementById('switch-historico-btn');
-  const inicioInput = document.getElementById('inicio');
-  const finInput = document.getElementById('fin');
-  const historicoControlsInput = document.getElementById('historico-controls');
-  const buscadorBtn = document.getElementById('buscador-btn');
-  const busquedaBtn =document.getElementById('busqueda-btn');
-  const buscadorControls = document.getElementById('buscador-controls');
-  const radioSlider = document.getElementById('radioSlider');
-  const radioValor = document.getElementById('radioValor');
-  const infoBtn = document.getElementById('info-btn');
-  const modal = document.getElementById('infoModal');
-  const closeBtn = document.getElementById('closeModal');
-
-
-
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
 
