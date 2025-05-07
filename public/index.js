@@ -234,11 +234,15 @@ function substractArrayEvenly(arr, maxLength) {
   
       console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
   
-      if (!data || data.error) return error;
+      if (!data || data.error) {
+        console.error('Error en datos:', data);
+        return null;
+      }
+
       return data;
     } catch (e) {
-      console.log(e);
-      return e;
+      console.error('Error en fetch:', e);
+      return null;
     }
   }
 
