@@ -342,25 +342,25 @@ async function obtenerUltimaCoordenada() {
   'use-strict';
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
-function updateMarker(lat, lon, fecha, hora, rpm) {
+  function updateMarker(lat, lon, fecha, hora, rpm) {
 
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
+    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
 
-  if (!marker) {
-    marker = L.marker([lat, lon]).addTo(map);
-  } else {
-    marker.setLatLng([lat, lon]);
+    if (!marker) {
+      marker = L.marker([lat, lon]).addTo(map);
+    } else {
+      marker.setLatLng([lat, lon]);
+    }
+
+    // Mostrar contenido si la casilla está activada
+    if (checkbox.checked) {
+      infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+      infoDiv.style.display = "block";
+    }
+
+    // Asegúrate de que no salga popup en el mapa
+    if (marker.getPopup()) marker.closePopup();
   }
-
-  // Mostrar contenido si la casilla está activada
-  if (checkbox.checked) {
-    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
-    infoDiv.style.display = "block";
-  }
-
-  // Asegúrate de que no salga popup en el mapa
-  if (marker.getPopup()) marker.closePopup();
-}
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
