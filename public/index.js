@@ -51,10 +51,11 @@ fetch('/config')
 .catch(error => console.error('Error al obtener el nombre:', error));
 obtenerFechaHoraActual();
 
-//--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
-function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br> 🚗RPM: ${rpm} Vehiculo: ${vehiculo}`;
+//--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
+function updateMarker(lat, lon, fecha, hora, rpm) {
+
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
@@ -128,6 +129,7 @@ function obtenerFechaHoraActual() {
   document.getElementById('inicioSearch').value = inicioDefecto;
   document.getElementById('finSearch').value = finDefecto;
 }
+
 
 //CIRCULOS
 function mostrarCirculoBuscador() {
@@ -449,23 +451,18 @@ function substractArrayEvenly(arr, maxLength) {
 
       const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-
       //corrigiendo la fecha T00:00:00
       const fechaerror = ultimaCoord.fecha
       const fechacorregida = fechaerror.split("T")[0];
-      const rpm = ultimaCoord.rpm
-      const vehiculo = ultimaCoord.vehiculo
 
-      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, rpm, vehiculo);
-
-
+      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
     
       // Ajustamos el mapa para ver toda la ruta
-      //if (liveRoute) {
-      //  map.fitBounds(liveRoute.getBounds());
-      //} else {
-      //  map.setView([lat, lon], map.getZoom() || 15);
-      //}
+      if (liveRoute) {
+        map.fitBounds(liveRoute.getBounds());
+      } else {
+        map.setView([lat, lon], map.getZoom() || 15);
+      }
 
       // Guardamos la ruta actual en localStorage
       saveLiveCoords();
@@ -476,9 +473,7 @@ function substractArrayEvenly(arr, maxLength) {
       
         const nuevaCoord = await obtenerUltimaCoordenada(); // Obtener la última coordenada
         const nuevaFecha = nuevaCoord.fecha.split("T")[0]; // Corregir la fecha
-        const rpm = nuevaCoord.rpm;
-        const vehiculo = nuevaCoord.vehiculo;
-
+      
         // Actualizar las coordenadas y la ruta
         liveCoords.push([nuevaCoord.latitud, nuevaCoord.longitud]);
         const nuevaRuta = await solicitarRuta(liveCoords);
@@ -489,10 +484,10 @@ function substractArrayEvenly(arr, maxLength) {
         }
 
         // Actualizar el marcador
-        updateMarker(nuevaCoord.latitud, nuevaCoord.longitud, nuevaFecha, nuevaCoord.hora, rpm, vehiculo);
+        updateMarker(nuevaCoord.latitud, nuevaCoord.longitud, nuevaFecha, nuevaCoord.hora);
 
         // Ajustar el mapa
-        //map.setView([nuevaCoord.latitud, nuevaCoord.longitud], map.getZoom() || 15);
+        map.setView([nuevaCoord.latitud, nuevaCoord.longitud], map.getZoom() || 15);
 
         // Guardar las nuevas coordenadas
         saveLiveCoords();
@@ -562,15 +557,13 @@ function substractArrayEvenly(arr, maxLength) {
         }
   
         const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-        const rpm = ultimaCoord.rpm;
-        const vehiculo = vehiculo;
   
         // Actualizar el marcador con la nueva posición
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
-        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, rpm, vehiculo);
+        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora);
   
         // Ajustar el mapa al centro de la nueva coordenada
-        //map.setView([lat, lon], map.getZoom() || 15);
+       map.setView([lat, lon], map.getZoom() || 15);
   
         // Guardar la ruta actualizada en localStorage
         saveLiveCoords();
