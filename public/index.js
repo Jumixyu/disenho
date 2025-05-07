@@ -150,7 +150,7 @@ function reiniciarRuta() {
 async function solicitarRuta(puntos) {
   if (puntos.length < 2) return;
   // Obtener puntos y filtrar los inválidos
-  console.log("📍 Puntos antes del filtro:", puntos);
+  console.log("📍 Puntos antes del filtro:", coordenadasFiltradas);
 
   let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
 
@@ -163,7 +163,7 @@ async function solicitarRuta(puntos) {
     !isNaN(coord[1])
   );
 
-  console.log("✅ Coordenadas válidas tras filtro:", coordenadasFiltradas);
+  console.log("✅ Coordenadas válidas tras filtro:", coordenadas);
 
   // Asegurar que hay suficientes coordenadas válidas
   if (coordenadas.length < 2) {
