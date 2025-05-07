@@ -51,6 +51,59 @@ fetch('/config')
 .catch(error => console.error('Error al obtener el nombre:', error));
 obtenerFechaHoraActual();
 
+//--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
+function updateMarker(lat, lon, fecha, hora, rpm) {
+
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
+
+  if (!marker) {
+    marker = L.marker([lat, lon]).addTo(map);
+  } else {
+    marker.setLatLng([lat, lon]);
+  }
+
+  // Mostrar contenido si la casilla está activada
+  if (checkbox.checked) {
+    infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
+    infoDiv.style.display = "block";
+  }
+
+  // Asegúrate de que no salga popup en el mapa
+  if (marker.getPopup()) marker.closePopup();
+}
+
+//------------------------------------------BOTONES-------------------------------------------------------------------------
+
+// Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
+function resaltarBotonActivo(btn) {
+  // Quitar la clase active de todos los botones
+  const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
+  botones.forEach(b => {
+    if (btn.textContent === 'Histórico') {
+      historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
+    }else if (btn.textContent === 'Tiempo real'){
+      console.log("Tiempo real");
+      realtimeHasSearch = document.getElementById('tiempo-real-controls').classList.contains('hidden') ? false : true;
+    }else if (btn.textContent === 'Buscador'){
+      console.log("Buscador");
+      realtimeHasSearch = document.getElementById('buscador-controls').classList.contains('hidden') ? false : true;
+    }
+    b.classList.remove('active'); // Solo eliminamos active
+  });
+  // Agregar la clase active al botón clickeado
+  btn.classList.add('active');
+}
+
+function resaltarBotonActuador(btn) {
+  // Quitar la clase active de todos los botones
+  const botones = document.querySelectorAll('#historico-btn');
+  botones.forEach(b => {
+    b.classList.remove('active'); // Solo eliminamos active
+  });
+  // Agregar la clase active al botón clickeado
+  btn.classList.add('active');
+}
+
 // Obtener fecha y hora actual
 
 function obtenerFechaHoraActual() {
@@ -395,59 +448,6 @@ function substractArrayEvenly(arr, maxLength) {
     } catch (error) {
       console.error("❌ Error en actualizarMapa:", error);
     }
-  }
-
-  //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
-  function updateMarker(lat, lon, fecha, hora, rpm) {
-
-    lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
-
-    if (!marker) {
-      marker = L.marker([lat, lon]).addTo(map);
-    } else {
-      marker.setLatLng([lat, lon]);
-    }
-
-    // Mostrar contenido si la casilla está activada
-    if (checkbox.checked) {
-      infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
-      infoDiv.style.display = "block";
-    }
-
-    // Asegúrate de que no salga popup en el mapa
-    if (marker.getPopup()) marker.closePopup();
-  }
-
-  //------------------------------------------BOTONES-------------------------------------------------------------------------
-
-  // Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
-  function resaltarBotonActivo(btn) {
-    // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
-    botones.forEach(b => {
-      if (btn.textContent === 'Histórico') {
-        historicoHasSearch = document.getElementById('historico-controls').classList.contains('hidden') ? false : true;
-      }else if (btn.textContent === 'Tiempo real'){
-        console.log("Tiempo real");
-        realtimeHasSearch = document.getElementById('tiempo-real-controls').classList.contains('hidden') ? false : true;
-      }else if (btn.textContent === 'Buscador'){
-        console.log("Buscador");
-        realtimeHasSearch = document.getElementById('buscador-controls').classList.contains('hidden') ? false : true;
-      }
-      b.classList.remove('active'); // Solo eliminamos active
-    });
-    // Agregar la clase active al botón clickeado
-    btn.classList.add('active');
-  }
-
-  function resaltarBotonActuador(btn) {
-    // Quitar la clase active de todos los botones
-    const botones = document.querySelectorAll('#historico-btn');
-    botones.forEach(b => {
-      b.classList.remove('active'); // Solo eliminamos active
-    });
-    // Agregar la clase active al botón clickeado
-    btn.classList.add('active');
   }
 
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
