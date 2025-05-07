@@ -218,6 +218,87 @@ function loadLiveCoords() {
   }
 }
 
+/// Función para mostrar los resultados de búsqueda solo en el panel lateral
+function mostrarResultadosBusqueda(resultados) {
+  // Limpiamos marcadores anteriores por si acaso
+  searchResultsMarkers.forEach(m => map.removeLayer(m));
+  searchResultsMarkers = [];
+  
+  // No creamos marcadores, solo el panel de resultados
+  crearPanelResultados(resultados);
+}
+
+// Función para crear el panel de resultados
+function crearPanelResultados(resultados) {
+  // Verificamos si ya existe el panel
+  let resultsPanel = document.getElementById('search-results-panel');
+  
+  if (!resultsPanel) {
+    resultsPanel = document.createElement('div');
+    resultsPanel.id = 'search-results-panel';
+    resultsPanel.className = 'search-results-panel';
+    
+    // Creamos el encabezado del panel
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+      <h3>Resultados de búsqueda (${resultados.length})</h3>
+      <button id="close-results">×</button>
+    `;
+    
+    const content = document.createElement('div');
+    content.id = 'results-content';
+    
+    resultsPanel.appendChild(header);
+    resultsPanel.appendChild(content);
+    document.body.appendChild(resultsPanel);
+    
+    // Evento para cerrar el panel
+    document.getElementById('close-results').addEventListener('click', () => {
+      resultsPanel.classList.add('hidden');
+    });
+  } else {
+    // Si ya existe, actualizamos el título y lo mostramos
+    resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length})`;
+    resultsPanel.classList.remove('hidden');
+    const content = document.getElementById('results-content');
+    content.innerHTML = '';
+  }
+  
+  // Crear la lista de resultados
+  const resultsList = document.createElement('ul');
+  resultsList.className = 'results-list';
+  
+  resultados.slice().reverse().forEach((resultado, index) => {
+    const fecha = resultado.fecha.split('T')[0];
+    const item = document.createElement('li');
+    item.className = 'result-item';
+    item.innerHTML = `
+      <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
+      <small>Latitud: ${resultado.latitud}</small><br>
+      <small>Longitud: ${resultado.longitud}</small>
+    `;
+    
+    // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
+    item.addEventListener('click', () => {
+      map.setView([resultado.latitud, resultado.longitud], 18);
+
+      // Eliminar marcador anterior si existe
+      if (marcadorSeleccionado) {
+        map.removeLayer(marcadorSeleccionado);
+      }
+      
+      // Crear y agregar el nuevo marcador
+      marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+    });
+    
+    resultsList.appendChild(item);
+  });
+  
+  document.getElementById('results-content').appendChild(resultsList);
+
+}
+
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
   // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
@@ -691,87 +772,6 @@ function substractArrayEvenly(arr, maxLength) {
       messageEl.textContent = 'Error al realizar la búsqueda';
     }
   });
-
-  /// Función para mostrar los resultados de búsqueda solo en el panel lateral
-  function mostrarResultadosBusqueda(resultados) {
-    // Limpiamos marcadores anteriores por si acaso
-    searchResultsMarkers.forEach(m => map.removeLayer(m));
-    searchResultsMarkers = [];
-    
-    // No creamos marcadores, solo el panel de resultados
-    crearPanelResultados(resultados);
-  }
-
-  // Función para crear el panel de resultados
-  function crearPanelResultados(resultados) {
-    // Verificamos si ya existe el panel
-    let resultsPanel = document.getElementById('search-results-panel');
-    
-    if (!resultsPanel) {
-      resultsPanel = document.createElement('div');
-      resultsPanel.id = 'search-results-panel';
-      resultsPanel.className = 'search-results-panel';
-      
-      // Creamos el encabezado del panel
-      const header = document.createElement('div');
-      header.className = 'results-header';
-      header.innerHTML = `
-        <h3>Resultados de búsqueda (${resultados.length})</h3>
-        <button id="close-results">×</button>
-      `;
-      
-      const content = document.createElement('div');
-      content.id = 'results-content';
-      
-      resultsPanel.appendChild(header);
-      resultsPanel.appendChild(content);
-      document.body.appendChild(resultsPanel);
-      
-      // Evento para cerrar el panel
-      document.getElementById('close-results').addEventListener('click', () => {
-        resultsPanel.classList.add('hidden');
-      });
-    } else {
-      // Si ya existe, actualizamos el título y lo mostramos
-      resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length})`;
-      resultsPanel.classList.remove('hidden');
-      const content = document.getElementById('results-content');
-      content.innerHTML = '';
-    }
-    
-    // Crear la lista de resultados
-    const resultsList = document.createElement('ul');
-    resultsList.className = 'results-list';
-    
-    resultados.slice().reverse().forEach((resultado, index) => {
-      const fecha = resultado.fecha.split('T')[0];
-      const item = document.createElement('li');
-      item.className = 'result-item';
-      item.innerHTML = `
-        <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
-        <small>Latitud: ${resultado.latitud}</small><br>
-        <small>Longitud: ${resultado.longitud}</small>
-      `;
-      
-      // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
-      item.addEventListener('click', () => {
-        map.setView([resultado.latitud, resultado.longitud], 18);
-
-        // Eliminar marcador anterior si existe
-        if (marcadorSeleccionado) {
-          map.removeLayer(marcadorSeleccionado);
-        }
-        
-        // Crear y agregar el nuevo marcador
-        marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-      });
-      
-      resultsList.appendChild(item);
-    });
-    
-    document.getElementById('results-content').appendChild(resultsList);
-
-  }
 
   // ----------------------------------------------------------------------------------------------------------------------- 
 
