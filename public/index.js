@@ -329,34 +329,65 @@ function substractArrayEvenly(arr, maxLength) {
   }
 
   async function actualizarMapa() {
+
     if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
+    try {
+      // Obtener la última coordenada
+    const ultimaCoord = await obtenerUltimaCoordenada();
+    
+    // Verificar si tenemos coordenadas válidas
+    if (!ultimaCoord || !ultimaCoord.latitud || !ultimaCoord.longitud) {
+      console.warn("⚠️ Coordenadas inválidas recibidas:", ultimaCoord);
+      return;
+    }
+    
+    // Obtener la última coordenada que tenemos almacenada
+    const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
+    
+    // Verificar si la nueva coordenada es diferente de la última
+    const esNuevaCoordenada = !ultimaAlmacenada || 
+                             ultimaAlmacenada[0] !== ultimaCoord.latitud || 
+                             ultimaAlmacenada[1] !== ultimaCoord.longitud;
+    
+    // Si la coordenada es nueva, actualizamos todo
+    if (esNuevaCoordenada) {
+      console.log("🆕 Nueva coordenada detectada:", ultimaCoord.latitud, ultimaCoord.longitud);
+      
 
     // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
+    
+    // Actualizar la ruta
+    if (liveCoords.length > 1) {
+      const rutaPlacement = await solicitarRuta(liveCoords);
+            // Actualizamos la ruta existente con las nuevas coordenadas
 
-    if (rutaPlacement && liveRoute) {  
-      // Actualizamos la ruta existente con las nuevas coordenadas
-      liveRoute.setLatLngs(rutaPlacement);
+      if (rutaPlacement && liveRoute) {  
+        liveRoute.setLatLngs(rutaPlacement);
+      }
     }
 
     const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
 
-    //corrigiendo la fecha T00:00:00
-    const fechaerror2 = ultimaCoord.fecha
-    const fechacorregida2 = fechaerror2.split("T")[0];
-
-    updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora);
-
-    map.setView([lat, lon], map.getZoom());
-
-    // Guardamos la ruta actualizada en localStorage
+    // Actualizar el marcador con la nueva posición
+    const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
+    updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora);
+    
+    // Centrar el mapa en la nueva posición
+    map.panTo([lat, lon]);
+    
+    // Guardar en localStorage
     saveLiveCoords();
-    console.log("🔄 Ejecutando actualizarMapa en tiempo real...");
+  } else {
+    console.log("ℹ️ Misma coordenada, no se actualiza el mapa");
   }
-
+} catch (error) {
+  console.error("❌ Error en actualizarMapa:", error);
+}
+}
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
 
