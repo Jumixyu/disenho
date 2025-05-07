@@ -147,46 +147,6 @@ function reiniciarRuta() {
   if (resultsPanel) resultsPanel.classList.add('hidden');
 }
 
-async function solicitarRuta(puntos) {
-  if (puntos.length < 2) return;
-  // Obtener puntos y filtrar los inválidos
-  let coordenadasCrudas = substractArrayEvenly(puntos, 300);
-
-  let coordenadas = coordenadasCrudas.filter(coord =>
-    Array.isArray(coord) &&
-    coord.length === 2 &&
-    typeof coord[0] === 'number' &&
-    typeof coord[1] === 'number' &&
-    !isNaN(coord[0]) &&
-    !isNaN(coord[1])
-  );
-
-  // Asegurar que hay suficientes coordenadas válidas
-  if (coordenadas.length < 2) {
-    console.warn('⚠ No hay suficientes coordenadas válidas para trazar ruta.');
-    return;
-  }
-
-  let coordenadasStr = substractArrayEvenly(puntos, 300)
-    .map((coord) => `${coord[1]},${coord[0]}`)
-    .join(';');
-  let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!data.routes || data.routes.length === 0) {
-      console.warn('⚠ No se encontró una ruta válida.');
-      return;
-    }
-
-    return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
-  } catch (e) {
-    console.error('❌ Error al solicitar la ruta:', e);
-  }
-} 
-
 function formatearFecha(fromServer, fecha, hora) {
   return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
 }
@@ -254,6 +214,46 @@ function substractArrayEvenly(arr, maxLength) {
     }
   }
 
+  async function solicitarRuta(puntos) {
+    if (puntos.length < 2) return;
+    // Obtener puntos y filtrar los inválidos
+    let coordenadasCrudas = substractArrayEvenly(puntos, 300);
+  
+    let coordenadas = coordenadasCrudas.filter(coord =>
+      Array.isArray(coord) &&
+      coord.length === 2 &&
+      typeof coord[0] === 'number' &&
+      typeof coord[1] === 'number' &&
+      !isNaN(coord[0]) &&
+      !isNaN(coord[1])
+    );
+  
+    // Asegurar que hay suficientes coordenadas válidas
+    if (coordenadas.length < 2) {
+      console.warn('⚠ No hay suficientes coordenadas válidas para trazar ruta.');
+      return;
+    }
+  
+    let coordenadasStr = substractArrayEvenly(puntos, 300)
+      .map((coord) => `${coord[1]},${coord[0]}`)
+      .join(';');
+    let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
+  
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+  
+      if (!data.routes || data.routes.length === 0) {
+        console.warn('⚠ No se encontró una ruta válida.');
+        return;
+      }
+  
+      return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
+    } catch (e) {
+      console.error('❌ Error al solicitar la ruta:', e);
+    }
+  } 
+  
   // TIEMPO REAL
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
