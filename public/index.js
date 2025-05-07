@@ -461,11 +461,11 @@ function substractArrayEvenly(arr, maxLength) {
 
     
       // Ajustamos el mapa para ver toda la ruta
-      if (liveRoute) {
-        map.fitBounds(liveRoute.getBounds());
-      } else {
-        map.setView([lat, lon], map.getZoom() || 15);
-      }
+      //if (liveRoute) {
+      //  map.fitBounds(liveRoute.getBounds());
+      //} else {
+      //  map.setView([lat, lon], map.getZoom() || 15);
+      //}
 
       // Guardamos la ruta actual en localStorage
       saveLiveCoords();
@@ -492,7 +492,7 @@ function substractArrayEvenly(arr, maxLength) {
         updateMarker(nuevaCoord.latitud, nuevaCoord.longitud, nuevaFecha, nuevaCoord.hora, rpm, vehiculo);
 
         // Ajustar el mapa
-        map.setView([nuevaCoord.latitud, nuevaCoord.longitud], map.getZoom() || 15);
+        //map.setView([nuevaCoord.latitud, nuevaCoord.longitud], map.getZoom() || 15);
 
         // Guardar las nuevas coordenadas
         saveLiveCoords();
@@ -570,7 +570,7 @@ function substractArrayEvenly(arr, maxLength) {
         updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, rpm, vehiculo);
   
         // Ajustar el mapa al centro de la nueva coordenada
-        map.setView([lat, lon], map.getZoom() || 15);
+        //map.setView([lat, lon], map.getZoom() || 15);
   
         // Guardar la ruta actualizada en localStorage
         saveLiveCoords();
