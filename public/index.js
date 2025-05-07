@@ -341,6 +341,93 @@ async function obtenerUltimaCoordenada() {
 (async () => {
   'use-strict';
 
+    // TIEMPO REAL
+  async function iniciarTiempoReal() {
+    historicoControlsInput.classList.add('hidden');
+    buscadorControls.classList.add('hidden');
+
+    if (currentIntervalId) clearInterval(currentIntervalId);
+
+    const ultimaCoord = await obtenerUltimaCoordenada();
+
+    // Intentamos cargar las coordenadas guardadas
+    const savedCoords = loadLiveCoords();
+
+    if (savedCoords && savedCoords.length > 0) {
+      console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
+      liveCoords = savedCoords;
+    } else if (!liveCoords.length) {
+      // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
+      liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
+    }
+
+    // Añadimos la última coordenada obtenida (la actual)
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
+    const rutaPlacement = await solicitarRuta(liveCoords);
+
+    if (rutaPlacement) {
+      if (liveRoute) {
+        // Actualizamos la ruta existente
+        liveRoute.setLatLngs(rutaPlacement);
+        liveRoute.setStyle({ opacity: 1 });
+      } else {
+        // Creamos una nueva ruta
+        liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+      }
+    }
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    //corrigiendo la fecha T00:00:00
+    const fechaerror = ultimaCoord.fecha
+    const fechacorregida = fechaerror.split("T")[0];
+
+    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
+
+    // Ajustamos el mapa para ver toda la ruta
+    if (liveRoute) {
+      map.fitBounds(liveRoute.getBounds());
+    } else {
+      map.setView([lat, lon], map.getZoom() || 15);
+    }
+
+    // Guardamos la ruta actual en localStorage
+    saveLiveCoords();
+
+    currentIntervalId = setInterval(actualizarMapa, 5000);
+  }
+
+  async function actualizarMapa() {
+
+    if (!liveRoute) return;
+    const ultimaCoord = await obtenerUltimaCoordenada();
+
+    // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
+
+    if (rutaPlacement && liveRoute) {  
+      // Actualizamos la ruta existente con las nuevas coordenadas
+      liveRoute.setLatLngs(rutaPlacement);
+    }
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    //corrigiendo la fecha T00:00:00
+    const fechaerror2 = ultimaCoord.fecha
+    const fechacorregida2 = fechaerror2.split("T")[0];
+
+    updateMarker(lat, lon, fechacorregida2, ultimaCoord.hora);
+
+    map.setView([lat, lon], map.getZoom());
+
+    // Guardamos la ruta actualizada en localStorage
+    saveLiveCoords();
+  }
+
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
 
