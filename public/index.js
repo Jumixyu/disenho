@@ -150,6 +150,8 @@ function reiniciarRuta() {
 async function solicitarRuta(puntos) {
   if (puntos.length < 2) return;
   // Obtener puntos y filtrar los inválidos
+  console.log("📍 Puntos antes del filtro:", coordenadasFiltradas);
+
   let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
 
   let coordenadas = coordenadasFiltradas.filter(coord =>
@@ -160,6 +162,8 @@ async function solicitarRuta(puntos) {
     !isNaN(coord[0]) &&
     !isNaN(coord[1])
   );
+
+  console.log("✅ Coordenadas válidas tras filtro:", coordenadas);
 
   // Asegurar que hay suficientes coordenadas válidas
   if (coordenadas.length < 2) {
@@ -320,7 +324,6 @@ function substractArrayEvenly(arr, maxLength) {
   }
 
   async function actualizarMapa() {
-    console.log("🔄 Ejecutando actualizarMapa en tiempo real...");
     if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
 
@@ -346,6 +349,7 @@ function substractArrayEvenly(arr, maxLength) {
 
     // Guardamos la ruta actualizada en localStorage
     saveLiveCoords();
+    console.log("🔄 Ejecutando actualizarMapa en tiempo real...");
   }
 
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
