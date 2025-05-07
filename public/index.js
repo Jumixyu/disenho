@@ -492,57 +492,51 @@ function substractArrayEvenly(arr, maxLength) {
   }
 
   async function actualizarMapa() {
-
     if (!liveRoute) return;
-    const ultimaCoord = await obtenerUltimaCoordenada();
+  
     try {
       // Obtener la última coordenada
       const ultimaCoord = await obtenerUltimaCoordenada();
-    
+      
       // Verificar si tenemos coordenadas válidas
       if (!ultimaCoord || !ultimaCoord.latitud || !ultimaCoord.longitud) {
         console.warn("⚠️ Coordenadas inválidas recibidas:", ultimaCoord);
         return;
       }
-    
-      // Obtener la última coordenada que tenemos almacenada
+      
+      // Obtener la última coordenada almacenada
       const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
-    
+      
       // Verificar si la nueva coordenada es diferente de la última
       const esNuevaCoordenada = !ultimaAlmacenada || 
       ultimaAlmacenada[0] !== ultimaCoord.latitud || 
       ultimaAlmacenada[1] !== ultimaCoord.longitud;
-    
+      
       // Si la coordenada es nueva, actualizamos todo
       if (esNuevaCoordenada) {
         console.log("🆕 Nueva coordenada detectada:", ultimaCoord.latitud, ultimaCoord.longitud);
-      
-
+        
         // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
         liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-        const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
-
-        // Actualizar la ruta
-        if (liveCoords.length > 1) {
-          const rutaPlacement = await solicitarRuta(liveCoords); 
-          // Actualizamos la ruta existente con las nuevas coordenadas
-      
-          if (rutaPlacement && liveRoute) {  
+  
+        // Actualizar la ruta con las coordenadas en tiempo real
+        const rutaPlacement = await solicitarRuta(liveCoords);
+  
+        // Actualizamos la ruta existente si hay nuevas coordenadas
+        if (rutaPlacement && liveRoute) {
           liveRoute.setLatLngs(rutaPlacement);
-          }
         }
-
+  
         const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
+  
         // Actualizar el marcador con la nueva posición
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
         updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora);
-    
-        // Centrar el mapa en la nueva posición
-        map.panTo([lat, lon]);
-    
-        // Guardar en localStorage
+  
+        // Ajustar el mapa al centro de la nueva coordenada
+        map.setView([lat, lon], map.getZoom() || 15);
+  
+        // Guardar la ruta actualizada en localStorage
         saveLiveCoords();
       } else {
         console.log("ℹ️ Misma coordenada, no se actualiza el mapa");
@@ -551,6 +545,7 @@ function substractArrayEvenly(arr, maxLength) {
       console.error("❌ Error en actualizarMapa:", error);
     }
   }
+  
 
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
