@@ -337,7 +337,11 @@ async function obtenerUltimaCoordenada() {
   }
 }
 
-//--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
+
+(async () => {
+  'use-strict';
+
+  //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm) {
 
   lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
@@ -357,9 +361,6 @@ function updateMarker(lat, lon, fecha, hora, rpm) {
   // Asegúrate de que no salga popup en el mapa
   if (marker.getPopup()) marker.closePopup();
 }
-
-(async () => {
-  'use-strict';
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
