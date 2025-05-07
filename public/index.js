@@ -786,4 +786,6 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
+  tiempoRealBtn.click();
+
 })();
