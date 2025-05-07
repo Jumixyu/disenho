@@ -297,7 +297,9 @@ async function obtenerUltimaCoordenada() {
     const fechaerror = ultimaCoord.fecha
     const fechacorregida = fechaerror.split("T")[0];
 
-    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
+    setInterval(() => {
+      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
+    }, 500);;
 
     // Ajustamos el mapa para ver toda la ruta
     if (liveRoute) {
@@ -310,6 +312,7 @@ async function obtenerUltimaCoordenada() {
     saveLiveCoords();
 
     currentIntervalId = setInterval(actualizarMapa, 500);
+    console.log("")
   }
 
   async function actualizarMapa() {
