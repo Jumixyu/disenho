@@ -165,7 +165,7 @@ async function solicitarRuta(puntos) {
   );
 
   // Luego reducimos el número si es necesario
-  let coordenadasFiltradas = substractArrayEvenly(coordenadasValidas, 300);
+  coordenadasFiltradas = substractArrayEvenly(coordenadasValidas, 300);
 
   console.log("✅ Coordenadas válidas tras filtro:", coordenadasFiltradas);
 
