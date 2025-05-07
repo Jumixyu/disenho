@@ -154,14 +154,18 @@ async function solicitarRuta(puntos) {
 
   let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
 
-  let coordenadas = coordenadasFiltradas.filter(coord =>
+  // Primero filtramos las coordenadas inválidas
+  let coordenadasValidas = puntos.filter(coord =>
     Array.isArray(coord) &&
     coord.length === 2 &&
-    typeof coord[0] === 'number' &&
-    typeof coord[1] === 'number' &&
-    !isNaN(coord[0]) &&
-    !isNaN(coord[1])
+    typeof coord[0] === 'string' && // Cambiado a string si tus coordenadas son strings
+    typeof coord[1] === 'string' &&
+    !isNaN(parseFloat(coord[0])) &&
+    !isNaN(parseFloat(coord[1]))
   );
+
+  // Luego reducimos el número si es necesario
+  let coordenadasFiltradas = substractArrayEvenly(coordenadasValidas, 300);
 
   console.log("✅ Coordenadas válidas tras filtro:", coordenadasFiltradas);
 
@@ -171,7 +175,8 @@ async function solicitarRuta(puntos) {
     return;
   }
 
-  let coordenadasStr = substractArrayEvenly(puntos, 300)
+  // Usamos coordenadasFiltradas para la URL
+  let coordenadasStr = coordenadasFiltradas
     .map((coord) => `${coord[1]},${coord[0]}`)
     .join(';');
   let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
