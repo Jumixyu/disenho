@@ -35,6 +35,7 @@ const infoDiv = document.getElementById("tiempoRealInfo");
 const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
 
+iniciarTiempoReal();
 
 
 // Vista inicial del mapa
@@ -398,7 +399,7 @@ function substractArrayEvenly(arr, maxLength) {
       console.error("❌ Error en actualizarMapa:", error);
     }
   }
-  
+
   //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
   function updateMarker(lat, lon, fecha, hora, rpm) {
 
