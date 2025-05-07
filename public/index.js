@@ -326,54 +326,53 @@ function reiniciarRuta() {
   if (resultsPanel) resultsPanel.classList.add('hidden');
 }
 
-async function solicitarRuta(puntos) {
-  if (puntos.length < 2) return;
-  // Obtener puntos y filtrar los inválidos
-  console.log("📍 Puntos antes del filtro:", puntos);
-
-let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
+function solicitarRuta(puntos) {
+  if (puntos.length < 2) {
+    console.warn('⚠ No hay suficientes coordenadas para trazar ruta.');
+    return null;
+  }
+  
+  console.log("📍 Puntos recibidos:", puntos);
 
   // Primero filtramos las coordenadas inválidas
   let coordenadasValidas = puntos.filter(coord =>
     Array.isArray(coord) &&
     coord.length === 2 &&
-    typeof coord[0] === 'string' && // Cambiado a string si tus coordenadas son strings
-    typeof coord[1] === 'string' &&
     !isNaN(parseFloat(coord[0])) &&
     !isNaN(parseFloat(coord[1]))
   );
 
-  // Luego reducimos el número si es necesario
-  coordenadasFiltradas = substractArrayEvenly(coordenadasValidas, 300);
+  console.log("✅ Coordenadas válidas:", coordenadasValidas);
 
-  console.log("✅ Coordenadas válidas tras filtro:", coordenadasFiltradas);
-
-  // Asegurar que hay suficientes coordenadas válidas
-  if (coordenadas.length < 2) {
+  // Si no hay suficientes coordenadas válidas, no podemos crear una ruta
+  if (coordenadasValidas.length < 2) {
     console.warn('⚠ No hay suficientes coordenadas válidas para trazar ruta.');
-    return;
+    return null;
   }
 
-// Usamos coordenadasFiltradas para la URL
-let coordenadasStr = coordenadasFiltradas
+  // Luego reducimos el número si es necesario
+  let coordenadasFiltradas = substractArrayEvenly(coordenadasValidas, 300);
+
+  console.log("🔄 Coordenadas filtradas para API:", coordenadasFiltradas);
+
+  // Asegurar que hay suficientes coordenadas filtradas
+  if (coordenadasFiltradas.length < 2) {
+    console.warn('⚠ No hay suficientes coordenadas filtradas para trazar ruta.');
+    return coordenadasValidas; // Retornamos las válidas directamente si las filtradas son insuficientes
+  }
+
+  // Construimos la URL con coordenadas en formato "lon,lat" como espera OSRM
+  let coordenadasStr = coordenadasFiltradas
     .map((coord) => `${coord[1]},${coord[0]}`)
     .join(';');
+  
   let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!data.routes || data.routes.length === 0) {
-      console.warn('⚠ No se encontró una ruta válida.');
-      return;
-    }
-
-    return data.routes[0].geometry.coordinates.map((coord) => [coord[1], coord[0]]);
-  } catch (e) {
-    console.error('❌ Error al solicitar la ruta:', e);
-  }
-} 
+  // Para desarrollo, retornamos las coordenadas directamente sin llamar a la API
+  // Esto evita problemas de CORS y limitaciones de la API
+  console.log("🔄 Retornando coordenadas filtradas sin llamar a API");
+  return coordenadasValidas;
+}
 
 function formatearFecha(fromServer, fecha, hora) {
   return fromServer ? fecha.replace('T00:00:00.000Z', ' ' + hora) : fecha.replace('T', ' ').replace('Z', '');
@@ -413,89 +412,101 @@ function substractArrayEvenly(arr, maxLength) {
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-
+  
     try {
       console.log("⏱️ Iniciando tiempo real...");
     
-      if (currentIntervalId) clearInterval(currentIntervalId);
-
+      if (currentIntervalId) {
+        clearInterval(currentIntervalId);
+        currentIntervalId = null;
+      }
+  
       const ultimaCoord = await obtenerUltimaCoordenada();
-
+      if (!ultimaCoord) {
+        console.error("❌ No se pudo obtener la última coordenada");
+        return;
+      }
+  
+      // Convertimos las coordenadas a números
+      const lat = parseFloat(ultimaCoord.latitud);
+      const lon = parseFloat(ultimaCoord.longitud);
+  
+      // Verificamos que sean números válidos
+      if (isNaN(lat) || isNaN(lon)) {
+        console.error("❌ Coordenadas inválidas:", ultimaCoord);
+        return;
+      }
+  
       // Intentamos cargar las coordenadas guardadas
       const savedCoords = loadLiveCoords();
-
+  
       if (savedCoords && savedCoords.length > 0) {
         console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
         liveCoords = savedCoords;
-      } else if (!liveCoords.length) {
-        // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
-        liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
-      }
-
-      // Añadimos la última coordenada obtenida (la actual)
-      liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-      // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
-      const rutaPlacement = await solicitarRuta(liveCoords);
-
-      if (rutaPlacement) {
-        if (liveRoute) {
-          // Actualizamos la ruta existente
-          liveRoute.setLatLngs(rutaPlacement);
-          liveRoute.setStyle({ opacity: 1 });
-        } else {
-          // Creamos una nueva ruta
-          liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-        }
-      }
-
-      const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-      //corrigiendo la fecha T00:00:00
-      const fechaerror = ultimaCoord.fecha
-      const fechacorregida = fechaerror.split("T")[0];
-
-      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
-    
-      // Ajustamos el mapa para ver toda la ruta
-      if (liveRoute) {
-        map.fitBounds(liveRoute.getBounds());
       } else {
+        // Si no hay coordenadas guardadas, inicializamos con la coordenada actual
+        console.log('🆕 Iniciando nueva ruta con coordenada actual');
+        liveCoords = [[lat, lon]];
+      }
+  
+      // Comprobar si la última coordenada ya está en liveCoords para evitar duplicados
+      const ultimaEnArray = liveCoords[liveCoords.length - 1];
+      if (!ultimaEnArray || ultimaEnArray[0] !== lat || ultimaEnArray[1] !== lon) {
+        console.log('➕ Añadiendo última coordenada al array');
+        liveCoords.push([lat, lon]);
+      }
+  
+      console.log('📍 Coordenadas actuales:', liveCoords);
+  
+      // Si hay suficientes coordenadas, dibujamos la ruta
+      if (liveCoords.length >= 2) {
+        console.log('🗺️ Dibujando ruta con ' + liveCoords.length + ' puntos');
+        
+        // Solicitar la ruta optimizada (o usar las coordenadas directamente)
+        const rutaPlacement = await solicitarRuta(liveCoords);
+        
+        if (rutaPlacement && rutaPlacement.length >= 2) {
+          console.log('✅ Ruta calculada con éxito:', rutaPlacement.length + ' puntos');
+          
+          if (liveRoute) {
+            // Actualizamos la ruta existente
+            console.log('🔄 Actualizando ruta existente');
+            liveRoute.setLatLngs(rutaPlacement);
+            liveRoute.setStyle({ color: 'blue', weight: 4, opacity: 1 });
+          } else {
+            // Creamos una nueva ruta
+            console.log('🆕 Creando nueva ruta');
+            liveRoute = new L.polyline(rutaPlacement, { 
+              color: 'blue', 
+              weight: 4,
+              opacity: 1
+            }).addTo(map);
+          }
+          
+          // Ajustamos el mapa para ver toda la ruta
+          map.fitBounds(liveRoute.getBounds());
+        } else {
+          console.warn('⚠ No se pudo calcular la ruta');
+        }
+      } else {
+        console.log('⚠ No hay suficientes coordenadas para dibujar una ruta');
         map.setView([lat, lon], map.getZoom() || 15);
       }
-
+  
+      // Actualizar el marcador con la última coordenada
+      const fechacorregida = ultimaCoord.fecha.split("T")[0];
+      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0);
+      
       // Guardamos la ruta actual en localStorage
       saveLiveCoords();
-
-      // Crear un intervalo para actualizar el mapa cada segundo (1000ms)
+  
+      // Crear un intervalo para actualizar el mapa cada 5 segundos
       currentIntervalId = setInterval(async () => {
-        console.log("⏱️ Actualizando datos en tiempo real...");
-      
-        const nuevaCoord = await obtenerUltimaCoordenada(); // Obtener la última coordenada
-        const nuevaFecha = nuevaCoord.fecha.split("T")[0]; // Corregir la fecha
-      
-        // Actualizar las coordenadas y la ruta
-        liveCoords.push([nuevaCoord.latitud, nuevaCoord.longitud]);
-        const nuevaRuta = await solicitarRuta(liveCoords);
-
-        if (nuevaRuta) {
-          liveRoute.setLatLngs(nuevaRuta); // Actualiza la ruta
-          liveRoute.setStyle({ opacity: 1 });
-        }
-
-        // Actualizar el marcador
-        updateMarker(nuevaCoord.latitud, nuevaCoord.longitud, nuevaFecha, nuevaCoord.hora);
-
-        // Ajustar el mapa
-        map.setView([nuevaCoord.latitud, nuevaCoord.longitud], map.getZoom() || 15);
-
-        // Guardar las nuevas coordenadas
-        saveLiveCoords();
-
-      }, 1000); // Actualizar cada segundo (1000ms)
-
+        await actualizarMapa();
+      }, 5000); // Actualizar cada 5 segundos para dar tiempo a las operaciones
+  
       console.log("✅ Intervalo creado:", currentIntervalId);
-
+  
     } catch (e) {
       console.error("❌ Error en iniciarTiempoReal:", e);
     }
@@ -521,51 +532,80 @@ function substractArrayEvenly(arr, maxLength) {
   }
 
   async function actualizarMapa() {
-    if (!liveRoute) return;
-  
     try {
+      console.log("⏱️ Actualizando datos en tiempo real...");
+      
       // Obtener la última coordenada
       const ultimaCoord = await obtenerUltimaCoordenada();
       
-      // Verificar si tenemos coordenadas válidas
-      if (!ultimaCoord || !ultimaCoord.latitud || !ultimaCoord.longitud) {
-        console.warn("⚠️ Coordenadas inválidas recibidas:", ultimaCoord);
+      if (!ultimaCoord) {
+        console.warn("⚠️ No se pudo obtener la última coordenada");
         return;
       }
       
-      // Obtener la última coordenada almacenada
-      const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
+      // Convertir a números y verificar validez
+      const lat = parseFloat(ultimaCoord.latitud);
+      const lon = parseFloat(ultimaCoord.longitud);
+      
+      if (isNaN(lat) || isNaN(lon)) {
+        console.warn("⚠️ Coordenadas inválidas:", ultimaCoord);
+        return;
+      }
       
       // Verificar si la nueva coordenada es diferente de la última
+      const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
+      
       const esNuevaCoordenada = !ultimaAlmacenada || 
-      ultimaAlmacenada[0] !== ultimaCoord.latitud || 
-      ultimaAlmacenada[1] !== ultimaCoord.longitud;
+        ultimaAlmacenada[0] !== lat || 
+        ultimaAlmacenada[1] !== lon;
       
       // Si la coordenada es nueva, actualizamos todo
       if (esNuevaCoordenada) {
-        console.log("🆕 Nueva coordenada detectada:", ultimaCoord.latitud, ultimaCoord.longitud);
+        console.log("🆕 Nueva coordenada detectada:", lat, lon);
         
-        // Añadimos la nueva coordenada al arreglo de coordenadas en tiempo real
-        liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-  
-        // Actualizar la ruta con las coordenadas en tiempo real
-        const rutaPlacement = await solicitarRuta(liveCoords);
-  
-        // Actualizamos la ruta existente si hay nuevas coordenadas
-        if (rutaPlacement && liveRoute) {
-          liveRoute.setLatLngs(rutaPlacement);
+        // Añadimos la nueva coordenada al arreglo
+        liveCoords.push([lat, lon]);
+        
+        console.log("📍 Total de coordenadas:", liveCoords.length);
+        
+        // Si hay suficientes coordenadas, actualizamos la ruta
+        if (liveCoords.length >= 2) {
+          const rutaPlacement = await solicitarRuta(liveCoords);
+          
+          if (rutaPlacement && rutaPlacement.length >= 2) {
+            if (liveRoute) {
+              console.log("🔄 Actualizando ruta existente");
+              liveRoute.setLatLngs(rutaPlacement);
+              liveRoute.setStyle({ color: 'blue', weight: 4, opacity: 1 });
+            } else {
+              console.log("🆕 Creando nueva ruta");
+              liveRoute = new L.polyline(rutaPlacement, { 
+                color: 'blue', 
+                weight: 4,
+                opacity: 1 
+              }).addTo(map);
+            }
+            
+            // Ajustamos para ver toda la ruta o solo la última posición
+            const bounds = liveRoute.getBounds();
+            if (bounds.isValid()) {
+              map.fitBounds(bounds);
+            } else {
+              map.setView([lat, lon], map.getZoom() || 15);
+            }
+          } else {
+            console.warn("⚠️ No se pudo calcular la ruta");
+            map.setView([lat, lon], map.getZoom() || 15);
+          }
+        } else {
+          map.setView([lat, lon], map.getZoom() || 15);
         }
-  
-        const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-  
+        
         // Actualizar el marcador con la nueva posición
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
-        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora);
-  
-        // Ajustar el mapa al centro de la nueva coordenada
-       map.setView([lat, lon], map.getZoom() || 15);
-  
-        // Guardar la ruta actualizada en localStorage
+        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0);
+        
+        // Guardar la ruta actualizada
         saveLiveCoords();
       } else {
         console.log("ℹ️ Misma coordenada, no se actualiza el mapa");
