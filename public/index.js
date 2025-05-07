@@ -105,21 +105,6 @@ function saveLiveCoords() {
   }
 }
 
-async function obtenerUltimaCoordenada() {
-  try {
-    const response = await fetch('/ultima-coordenada');
-    const data = await response.json();
-
-    console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
-
-    if (!data || data.error) return error;
-    return data;
-  } catch (e) {
-    console.log(e);
-    return e;
-  }
-}
-
 // Función para obtener recorrido histórico
 async function obtenerRecorridoHistorico(inicio, fin) {
   if (!inicio || !fin) {
@@ -251,24 +236,24 @@ function reiniciarRuta() {
 
 async function solicitarRuta(puntos) {
   if (puntos.length < 2) return;
-   // Obtener puntos y filtrar los inválidos
-   let coordenadasCrudas = substractArrayEvenly(puntos, 300);
+  // Obtener puntos y filtrar los inválidos
+  let coordenadasCrudas = substractArrayEvenly(puntos, 300);
 
-   let coordenadas = coordenadasCrudas.filter(coord =>
-     Array.isArray(coord) &&
-     coord.length === 2 &&
-     typeof coord[0] === 'number' &&
-     typeof coord[1] === 'number' &&
-     !isNaN(coord[0]) &&
-     !isNaN(coord[1])
-   );
- 
-   // Asegurar que hay suficientes coordenadas válidas
-   if (coordenadas.length < 2) {
-     console.warn('⚠ No hay suficientes coordenadas válidas para trazar ruta.');
-     return;
-   }
- 
+  let coordenadas = coordenadasCrudas.filter(coord =>
+    Array.isArray(coord) &&
+    coord.length === 2 &&
+    typeof coord[0] === 'number' &&
+    typeof coord[1] === 'number' &&
+    !isNaN(coord[0]) &&
+    !isNaN(coord[1])
+  );
+
+  // Asegurar que hay suficientes coordenadas válidas
+  if (coordenadas.length < 2) {
+    console.warn('⚠ No hay suficientes coordenadas válidas para trazar ruta.');
+    return;
+  }
+
   let coordenadasStr = substractArrayEvenly(puntos, 300)
     .map((coord) => `${coord[1]},${coord[0]}`)
     .join(';');
@@ -360,6 +345,21 @@ function updateMarker(lat, lon, fecha, hora, rpm) {
 
 (async () => {
   'use-strict';
+
+  async function obtenerUltimaCoordenada() {
+    try {
+      const response = await fetch('/ultima-coordenada');
+      const data = await response.json();
+  
+      console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
+  
+      if (!data || data.error) return error;
+      return data;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  }
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
