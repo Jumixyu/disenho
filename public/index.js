@@ -129,6 +129,27 @@ function obtenerFechaHoraActual() {
   document.getElementById('finSearch').value = finDefecto;
 }
 
+//CIRCULOS
+function mostrarCirculoBuscador() {
+  if (lastSearchLatLng && lastSearchRadius) {
+    if (searchCircle) {
+      map.removeLayer(searchCircle); // Evita duplicados
+    }
+    searchCircle = L.circle(lastSearchLatLng, {
+      color: '#007bff',
+      fillColor: '#cce5ff',
+      fillOpacity: 0.4,
+      radius: lastSearchRadius
+    }).addTo(map);
+  }
+}
+
+function ocultarCirculoBuscador() {
+  if (searchCircle) {
+    map.removeLayer(searchCircle);
+  }
+}
+
 // menus desplegables
 
 function toggleHistorico() {
@@ -618,25 +639,6 @@ function substractArrayEvenly(arr, maxLength) {
     }).addTo(map);
   });
   
-  function mostrarCirculoBuscador() {
-    if (lastSearchLatLng && lastSearchRadius) {
-      if (searchCircle) {
-        map.removeLayer(searchCircle); // Evita duplicados
-      }
-      searchCircle = L.circle(lastSearchLatLng, {
-        color: '#007bff',
-        fillColor: '#cce5ff',
-        fillOpacity: 0.4,
-        radius: lastSearchRadius
-      }).addTo(map);
-    }
-  }
-  
-  function ocultarCirculoBuscador() {
-    if (searchCircle) {
-      map.removeLayer(searchCircle);
-    }
-  }
 
   // -------------------------------- FUNCION PARA BUSCAR COORDENADAS DENTRO DEL CIRCULO -----------------------------------
 
