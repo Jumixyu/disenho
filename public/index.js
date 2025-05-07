@@ -35,9 +35,6 @@ const infoDiv = document.getElementById("tiempoRealInfo");
 const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
 
-iniciarTiempoReal();
-
-
 // Vista inicial del mapa
 
 const map = L.map('map');
