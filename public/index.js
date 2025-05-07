@@ -322,6 +322,21 @@ function loadLiveCoords() {
   }
 }
 
+async function obtenerUltimaCoordenada() {
+  try {
+    const response = await fetch('/ultima-coordenada');
+    const data = await response.json();
+
+    console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
+
+    if (!data || data.error) return error;
+    return data;
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
+}
+
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm) {
 
@@ -345,21 +360,6 @@ function updateMarker(lat, lon, fecha, hora, rpm) {
 
 (async () => {
   'use-strict';
-
-  async function obtenerUltimaCoordenada() {
-    try {
-      const response = await fetch('/ultima-coordenada');
-      const data = await response.json();
-  
-      console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
-  
-      if (!data || data.error) return error;
-      return data;
-    } catch (e) {
-      console.log(e);
-      return e;
-    }
-  }
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
