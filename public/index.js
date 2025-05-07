@@ -150,9 +150,9 @@ function reiniciarRuta() {
 async function solicitarRuta(puntos) {
   if (puntos.length < 2) return;
   // Obtener puntos y filtrar los inválidos
-  let coordenadasCrudas = substractArrayEvenly(puntos, 300);
+  let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
 
-  let coordenadas = coordenadasCrudas.filter(coord =>
+  let coordenadas = coordenadasFiltradas.filter(coord =>
     Array.isArray(coord) &&
     coord.length === 2 &&
     typeof coord[0] === 'number' &&
@@ -258,6 +258,8 @@ function substractArrayEvenly(arr, maxLength) {
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
+    try {
+      console.log("⏱️ Iniciando tiempo real...");
 
     if (currentIntervalId) clearInterval(currentIntervalId);
 
@@ -310,6 +312,9 @@ function substractArrayEvenly(arr, maxLength) {
     saveLiveCoords();
 
     currentIntervalId = setInterval(actualizarMapa, 500);
+  } catch (e) {
+    console.error("Error en iniciarTiempoReal:", e);
+  }
     console.log("")
   }
 
