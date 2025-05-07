@@ -93,72 +93,6 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
-   
-  // TIEMPO REAL
-  async function iniciarTiempoReal() {
-    historicoControlsInput.classList.add('hidden');
-    buscadorControls.classList.add('hidden');
-
-    try {
-      console.log("⏱️ Iniciando tiempo real...");
-    
-    if (currentIntervalId) clearInterval(currentIntervalId);
-
-    const ultimaCoord = await obtenerUltimaCoordenada();
-
-    // Intentamos cargar las coordenadas guardadas
-    const savedCoords = loadLiveCoords();
-
-    if (savedCoords && savedCoords.length > 0) {
-      console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
-      liveCoords = savedCoords;
-    } else if (!liveCoords.length) {
-      // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
-      liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
-    }
-
-    // Añadimos la última coordenada obtenida (la actual)
-    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
-
-    // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
-    const rutaPlacement = await solicitarRuta(liveCoords);
-
-    if (rutaPlacement) {
-      if (liveRoute) {
-        // Actualizamos la ruta existente
-        liveRoute.setLatLngs(rutaPlacement);
-        liveRoute.setStyle({ opacity: 1 });
-      } else {
-        // Creamos una nueva ruta
-        liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
-      }
-    }
-
-    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
-
-    //corrigiendo la fecha T00:00:00
-    const fechaerror = ultimaCoord.fecha
-    const fechacorregida = fechaerror.split("T")[0];
-
-    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
-    
-    // Ajustamos el mapa para ver toda la ruta
-    if (liveRoute) {
-      map.fitBounds(liveRoute.getBounds());
-    } else {
-      map.setView([lat, lon], map.getZoom() || 15);
-    }
-
-    // Guardamos la ruta actual en localStorage
-    saveLiveCoords();
-
-    currentIntervalId = setInterval(actualizarMapa, 500);
-    console.log("✅ Intervalo creado:", currentIntervalId);
-    } catch (e) {
-    console.error("❌ Error en iniciarTiempoReal:", e);
-    }
-  }
-
 // Función para guardar las coordenadas en localStorage
 function saveLiveCoords() {
   try {
@@ -293,6 +227,71 @@ function substractArrayEvenly(arr, maxLength) {
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
+
+  // TIEMPO REAL
+  async function iniciarTiempoReal() {
+    historicoControlsInput.classList.add('hidden');
+    buscadorControls.classList.add('hidden');
+
+    try {
+      console.log("⏱️ Iniciando tiempo real...");
+    
+    if (currentIntervalId) clearInterval(currentIntervalId);
+
+    const ultimaCoord = await obtenerUltimaCoordenada();
+
+    // Intentamos cargar las coordenadas guardadas
+    const savedCoords = loadLiveCoords();
+
+    if (savedCoords && savedCoords.length > 0) {
+      console.log('🔄 Restaurando ruta guardada con ' + savedCoords.length + ' puntos');
+      liveCoords = savedCoords;
+    } else if (!liveCoords.length) {
+      // Si no hay coordenadas guardadas ni coordenadas actuales, inicializamos
+      liveCoords = [[ultimaCoord.latitud, ultimaCoord.longitud]];
+    }
+
+    // Añadimos la última coordenada obtenida (la actual)
+    liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
+
+    // Dibujamos la ruta con todas las coordenadas (históricas + actuales)
+    const rutaPlacement = await solicitarRuta(liveCoords);
+
+    if (rutaPlacement) {
+      if (liveRoute) {
+        // Actualizamos la ruta existente
+        liveRoute.setLatLngs(rutaPlacement);
+        liveRoute.setStyle({ opacity: 1 });
+      } else {
+        // Creamos una nueva ruta
+        liveRoute = new L.polyline(rutaPlacement, { color: 'blue', weight: 4 }).addTo(map);
+      }
+    }
+
+    const [lat, lon] = [ultimaCoord.latitud, ultimaCoord.longitud];
+
+    //corrigiendo la fecha T00:00:00
+    const fechaerror = ultimaCoord.fecha
+    const fechacorregida = fechaerror.split("T")[0];
+
+    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
+    
+    // Ajustamos el mapa para ver toda la ruta
+    if (liveRoute) {
+      map.fitBounds(liveRoute.getBounds());
+    } else {
+      map.setView([lat, lon], map.getZoom() || 15);
+    }
+
+    // Guardamos la ruta actual en localStorage
+    saveLiveCoords();
+
+    currentIntervalId = setInterval(actualizarMapa, 500);
+    console.log("✅ Intervalo creado:", currentIntervalId);
+    } catch (e) {
+    console.error("❌ Error en iniciarTiempoReal:", e);
+    }
+  }
 
   async function obtenerUltimaCoordenada() {
     try {
