@@ -309,7 +309,7 @@ async function obtenerUltimaCoordenada() {
     // Guardamos la ruta actual en localStorage
     saveLiveCoords();
 
-    currentIntervalId = setInterval(actualizarMapa, 5000);
+    currentIntervalId = setInterval(actualizarMapa, 500);
   }
 
   async function actualizarMapa() {
