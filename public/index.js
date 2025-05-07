@@ -235,26 +235,27 @@ function loadLiveCoords() {
   }
 }
 
-async function obtenerUltimaCoordenada() {
-  try {
-    const response = await fetch('/ultima-coordenada');
-    const data = await response.json();
-
-    console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
-
-    if (!data || data.error) return error;
-    return data;
-  } catch (e) {
-    console.log(e);
-    return e;
-  }
-}
 
 
 (async () => {
   'use-strict';
 
-    // TIEMPO REAL
+  async function obtenerUltimaCoordenada() {
+    try {
+      const response = await fetch('/ultima-coordenada');
+      const data = await response.json();
+  
+      console.log('Datos recibidos:', data); // 👈 Esto te muestra lo que llega
+  
+      if (!data || data.error) return error;
+      return data;
+    } catch (e) {
+      console.log(e);
+      return e;
+    }
+  }
+
+  // TIEMPO REAL
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
@@ -297,10 +298,8 @@ async function obtenerUltimaCoordenada() {
     const fechaerror = ultimaCoord.fecha
     const fechacorregida = fechaerror.split("T")[0];
 
-    setInterval(() => {
-      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
-    }, 500);;
-
+    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora);
+    
     // Ajustamos el mapa para ver toda la ruta
     if (liveRoute) {
       map.fitBounds(liveRoute.getBounds());
