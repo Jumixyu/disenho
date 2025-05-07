@@ -258,25 +258,10 @@ function substractArrayEvenly(arr, maxLength) {
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-
+    
     try {
       console.log("⏱️ Iniciando tiempo real...");
-      if (currentIntervalId) {
-        clearInterval(currentIntervalId);
-        console.log("🧹 Intervalo anterior limpiado");
-      }
-  
-      currentIntervalId = setInterval(() => {
-        console.log("📡 Ejecutando actualizarMapa()");
-        actualizarMapa();
-      }, 500);
-  
-      console.log("✅ Intervalo creado:", currentIntervalId);
-    } catch (e) {
-      console.error("❌ Error en iniciarTiempoReal:", e);
-    }
-  }
-
+    
     if (currentIntervalId) clearInterval(currentIntervalId);
 
     const ultimaCoord = await obtenerUltimaCoordenada();
@@ -328,12 +313,14 @@ function substractArrayEvenly(arr, maxLength) {
     saveLiveCoords();
 
     currentIntervalId = setInterval(actualizarMapa, 500);
-    console.log("")
+    console.log("✅ Intervalo creado:", currentIntervalId);
+  } catch (e) {
+    console.error("❌ Error en iniciarTiempoReal:", e);
+  }
   }
 
   async function actualizarMapa() {
 
-    console.log("📍 Entró a actualizarMapa");
     if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
 
