@@ -314,13 +314,13 @@ function substractArrayEvenly(arr, maxLength) {
 
     currentIntervalId = setInterval(actualizarMapa, 500);
     console.log("✅ Intervalo creado:", currentIntervalId);
-  } catch (e) {
+    } catch (e) {
     console.error("❌ Error en iniciarTiempoReal:", e);
-  }
+    }
   }
 
   async function actualizarMapa() {
-
+    console.log("🔄 Ejecutando actualizarMapa en tiempo real...");
     if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
 
