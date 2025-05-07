@@ -152,7 +152,7 @@ async function solicitarRuta(puntos) {
   // Obtener puntos y filtrar los inválidos
   console.log("📍 Puntos antes del filtro:", puntos);
 
-  let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
+let coordenadasFiltradas = substractArrayEvenly(puntos, 300);
 
   // Primero filtramos las coordenadas inválidas
   let coordenadasValidas = puntos.filter(coord =>
@@ -175,8 +175,8 @@ async function solicitarRuta(puntos) {
     return;
   }
 
-  // Usamos coordenadasFiltradas para la URL
-  let coordenadasStr = coordenadasFiltradas
+// Usamos coordenadasFiltradas para la URL
+let coordenadasStr = coordenadasFiltradas
     .map((coord) => `${coord[1]},${coord[0]}`)
     .join(';');
   let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
@@ -224,6 +224,9 @@ function substractArrayEvenly(arr, maxLength) {
 (async () => {
   'use-strict';
 
+  // Iniciamos el modo tiempo real cuando carga la página
+  await iniciarTiempoReal();
+
   async function obtenerUltimaCoordenada() {
     try {
       const response = await fetch('/ultima-coordenada');
@@ -262,12 +265,12 @@ function substractArrayEvenly(arr, maxLength) {
       return null;
     }
   }
-
+     
   // TIEMPO REAL
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-    
+
     try {
       console.log("⏱️ Iniciando tiempo real...");
     
@@ -359,14 +362,14 @@ function substractArrayEvenly(arr, maxLength) {
     liveCoords.push([ultimaCoord.latitud, ultimaCoord.longitud]);
 
     const rutaPlacement = await solicitarRuta(liveCoords.length <= 1 ? [liveCoords[0], liveCoords[0]] : liveCoords);
-    
+
     // Actualizar la ruta
     if (liveCoords.length > 1) {
-      const rutaPlacement = await solicitarRuta(liveCoords);
-            // Actualizamos la ruta existente con las nuevas coordenadas
-
+      const rutaPlacement = await solicitarRuta(liveCoords); 
+      // Actualizamos la ruta existente con las nuevas coordenadas
+      
       if (rutaPlacement && liveRoute) {  
-        liveRoute.setLatLngs(rutaPlacement);
+      liveRoute.setLatLngs(rutaPlacement);
       }
     }
 
@@ -408,9 +411,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Asegúrate de que no salga popup en el mapa
     if (marker.getPopup()) marker.closePopup();
   }
-
-  // Iniciamos el modo tiempo real cuando carga la página
-  await iniciarTiempoReal();
 
   //------------------------------------------BOTONES-------------------------------------------------------------------------
 
