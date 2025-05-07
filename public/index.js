@@ -224,6 +224,9 @@ function substractArrayEvenly(arr, maxLength) {
 (async () => {
   'use-strict';
 
+
+  resaltarBotonActivo(tiempoRealBtn);
+  
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
 
