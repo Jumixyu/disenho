@@ -120,6 +120,30 @@ async function obtenerRecorridoHistorico(inicio, fin) {
   }
 }
 
+// Función para cargar las coordenadas desde localStorage
+function loadLiveCoords() {
+  try {
+    const savedCoords = localStorage.getItem('liveCoords');
+    const lastSaveTime = localStorage.getItem('lastSaveTime');
+
+    if (savedCoords) {
+      // Verificamos si los datos guardados son recientes (menos de 24 horas)
+      const now = new Date();
+      const saveTime = new Date(lastSaveTime || 0);
+      const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+
+      // Solo cargamos si los datos son recientes
+      if (hoursDiff < 24) {
+        return JSON.parse(savedCoords);
+      }
+    }
+    return null;
+  } catch (e) {
+    console.error('Error al cargar coordenadas:', e);
+    return null;
+  }
+}
+
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
   // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
@@ -308,30 +332,6 @@ function substractArrayEvenly(arr, maxLength) {
       return data;
     } catch (e) {
       console.error('Error en fetch:', e);
-      return null;
-    }
-  }
-
-  // Función para cargar las coordenadas desde localStorage
-  function loadLiveCoords() {
-    try {
-      const savedCoords = localStorage.getItem('liveCoords');
-      const lastSaveTime = localStorage.getItem('lastSaveTime');
-
-      if (savedCoords) {
-        // Verificamos si los datos guardados son recientes (menos de 24 horas)
-        const now = new Date();
-        const saveTime = new Date(lastSaveTime || 0);
-        const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
-
-        // Solo cargamos si los datos son recientes
-        if (hoursDiff < 24) {
-          return JSON.parse(savedCoords);
-        }
-      }
-      return null;
-    } catch (e) {
-      console.error('Error al cargar coordenadas:', e);
       return null;
     }
   }
