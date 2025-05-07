@@ -258,7 +258,7 @@ function substractArrayEvenly(arr, maxLength) {
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-    
+
     try {
       console.log("⏱️ Iniciando tiempo real...");
       if (currentIntervalId) {
@@ -333,6 +333,7 @@ function substractArrayEvenly(arr, maxLength) {
 
   async function actualizarMapa() {
 
+    console.log("📍 Entró a actualizarMapa");
     if (!liveRoute) return;
     const ultimaCoord = await obtenerUltimaCoordenada();
 
