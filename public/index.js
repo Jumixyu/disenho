@@ -54,7 +54,7 @@ obtenerFechaHoraActual();
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br> RPM: ${rpm} Vehiculo: ${vehiculo}`;
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br> 🚗RPM: ${rpm} Vehiculo: ${vehiculo}`;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
