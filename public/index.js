@@ -211,31 +211,6 @@ function substractArrayEvenly(arr, maxLength) {
   return result;
 }
 
-// Función para cargar las coordenadas desde localStorage
-function loadLiveCoords() {
-  try {
-    const savedCoords = localStorage.getItem('liveCoords');
-    const lastSaveTime = localStorage.getItem('lastSaveTime');
-
-    if (savedCoords) {
-      // Verificamos si los datos guardados son recientes (menos de 24 horas)
-      const now = new Date();
-      const saveTime = new Date(lastSaveTime || 0);
-      const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
-
-      // Solo cargamos si los datos son recientes
-      if (hoursDiff < 24) {
-        return JSON.parse(savedCoords);
-      }
-    }
-    return null;
-  } catch (e) {
-    console.error('Error al cargar coordenadas:', e);
-    return null;
-  }
-}
-
-
 
 (async () => {
   'use-strict';
@@ -252,6 +227,30 @@ function loadLiveCoords() {
     } catch (e) {
       console.log(e);
       return e;
+    }
+  }
+
+  // Función para cargar las coordenadas desde localStorage
+  function loadLiveCoords() {
+    try {
+      const savedCoords = localStorage.getItem('liveCoords');
+      const lastSaveTime = localStorage.getItem('lastSaveTime');
+
+      if (savedCoords) {
+        // Verificamos si los datos guardados son recientes (menos de 24 horas)
+        const now = new Date();
+        const saveTime = new Date(lastSaveTime || 0);
+        const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+
+        // Solo cargamos si los datos son recientes
+        if (hoursDiff < 24) {
+          return JSON.parse(savedCoords);
+        }
+      }
+      return null;
+    } catch (e) {
+      console.error('Error al cargar coordenadas:', e);
+      return null;
     }
   }
 
