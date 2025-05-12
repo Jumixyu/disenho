@@ -460,6 +460,9 @@ input[type="range"]::-moz-range-track {
     font-size: 1rem;
 }
 
+.hidden {
+    display: none;
+  }
 #map {
     position: relative; /* Necesario para posicionar el slider dentro */
   }
