@@ -247,7 +247,7 @@ function stopRealTime() {
   }
 }
 
-// Función para mostrar los resultados de búsqueda solo en el panel lateral
+/// Función para mostrar los resultados de búsqueda solo en el panel lateral
 function mostrarResultadosBusqueda(resultados) {
   // Limpiamos marcadores anteriores por si acaso
   searchResultsMarkers.forEach(m => map.removeLayer(m));
@@ -255,11 +255,6 @@ function mostrarResultadosBusqueda(resultados) {
   
   // No creamos marcadores, solo el panel de resultados
   crearPanelResultados(resultados);
-  
-  // Inicializamos el slider con los resultados (solo si estamos en la pestaña Buscador)
-  if (document.querySelector('.tab-content.active').id === 'tab-buscador') {
-    inicializarSliderUbicaciones(resultados);
-  }
 }
 
 // Función para crear el panel de resultados
@@ -307,232 +302,31 @@ function crearPanelResultados(resultados) {
     const fecha = resultado.fecha.split('T')[0];
     const item = document.createElement('li');
     item.className = 'result-item';
-    item.dataset.index = index; // Guardamos el índice para el slider
     item.innerHTML = `
       <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
       <small>Latitud: ${resultado.latitud}</small><br>
       <small>Longitud: ${resultado.longitud}</small>
     `;
     
-    // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
+    // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
     item.addEventListener('click', () => {
-      mostrarUbicacionEnMapa(resultado, index);
+      map.setView([resultado.latitud, resultado.longitud], 18);
+
+      // Eliminar marcador anterior si existe
+      if (marcadorSeleccionado) {
+        map.removeLayer(marcadorSeleccionado);
+      }
+      
+      // Crear y agregar el nuevo marcador
+      marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
     });
     
     resultsList.appendChild(item);
   });
   
   document.getElementById('results-content').appendChild(resultsList);
+
 }
-
-// Función para inicializar el slider de ubicaciones
-function inicializarSliderUbicaciones(resultados) {
-  // Verificamos si ya existe el slider
-  let sliderContainer = document.getElementById('time-slider-container');
-  
-  if (!sliderContainer) {
-    // Creamos el contenedor del slider
-    sliderContainer = document.createElement('div');
-    sliderContainer.id = 'time-slider-container';
-    sliderContainer.className = 'time-slider-container';
-    
-    sliderContainer.innerHTML = `
-      <div class="slider-wrapper">
-        <input type="range" min="0" max="${resultados.length - 1}" value="0" class="time-slider" id="locationSlider">
-        <div class="slider-labels">
-          <span>Más antiguo</span>
-          <span>Más reciente</span>
-        </div>
-      </div>
-      <div class="current-timestamp" id="currentTimestamp"></div>
-    `;
-    
-    // Buscamos la pestaña del buscador para insertar el slider después del botón de búsqueda
-    const buscadorTab = document.getElementById('tab-buscador');
-    const searchButton = buscadorTab.querySelector('.btn-busqueda') || buscadorTab.querySelector('button');
-    
-    if (searchButton) {
-      // Insertamos el slider después del botón de búsqueda
-      searchButton.parentNode.insertBefore(sliderContainer, searchButton.nextSibling);
-    } else {
-      // Si no encontramos el botón, lo añadimos al final del tab
-      buscadorTab.appendChild(sliderContainer);
-    }
-    
-    // Configuramos los eventos del slider
-    configEventosSlider(resultados);
-  } else {
-    // Actualizamos el slider con los nuevos resultados
-    const slider = document.getElementById('locationSlider');
-    slider.max = resultados.length - 1;
-    slider.value = 0;
-    
-    // Eliminamos los listeners antiguos y configuramos nuevos
-    const newSlider = slider.cloneNode(true);
-    slider.parentNode.replaceChild(newSlider, slider);
-    
-    configEventosSlider(resultados);
-  }
-  
-  // Mostramos la primera ubicación por defecto
-  if (resultados.length > 0) {
-    mostrarUbicacionEnMapa(resultados[resultados.length - 1], 0);
-    actualizarTimestamp(resultados[resultados.length - 1]);
-  }
-}
-
-// Función para configurar los eventos del slider
-function configEventosSlider(resultados) {
-  const slider = document.getElementById('locationSlider');
-  
-  // Evento para el slider
-  slider.addEventListener('input', function() {
-    const index = parseInt(this.value);
-    const resultadoIndex = resultados.length - 1 - index; // Invertimos el índice ya que los mostramos en orden inverso
-    
-    mostrarUbicacionEnMapa(resultados[resultadoIndex], index);
-    actualizarTimestamp(resultados[resultadoIndex]);
-    
-    // Resaltamos el elemento en la lista
-    resaltarElementoLista(index);
-  });
-}
-
-// Función para mostrar la ubicación en el mapa
-function mostrarUbicacionEnMapa(resultado, index) {
-  map.setView([resultado.latitud, resultado.longitud], 18);
-
-  // Eliminar marcador anterior si existe
-  if (marcadorSeleccionado) {
-    map.removeLayer(marcadorSeleccionado);
-  }
-  
-  // Crear y agregar el nuevo marcador
-  marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-}
-
-// Función para actualizar el timestamp mostrado
-function actualizarTimestamp(resultado) {
-  const timestampElement = document.getElementById('currentTimestamp');
-  if (timestampElement) {
-    const fecha = resultado.fecha.split('T')[0];
-    timestampElement.textContent = `${fecha} ${resultado.hora}`;
-  }
-}
-
-// Función para resaltar el elemento en la lista
-function resaltarElementoLista(index) {
-  const items = document.querySelectorAll('.result-item');
-  
-  // Quitamos la clase activa de todos los items
-  items.forEach(item => item.classList.remove('active'));
-  
-  // Buscamos el item con el índice correspondiente y lo resaltamos
-  const item = document.querySelector(`.result-item[data-index="${index}"]`);
-  if (item) {
-    item.classList.add('active');
-    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-}
-
-// Añadir estilos CSS para el slider
-function agregarEstilosSlider() {
-  const styles = `
-    .time-slider-container {
-      width: 100%;
-      max-width: 400px;
-      margin: 20px auto;
-      padding: 15px;
-      background-color: rgba(40, 44, 52, 0.9);
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-      color: white;
-      text-align: center;
-    }
-    
-    .slider-wrapper {
-      width: 90%;
-      margin: 0 auto;
-    }
-    
-    .time-slider {
-      width: 100%;
-      margin: 10px 0;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 10px;
-      background: #444;
-      outline: none;
-      border-radius: 5px;
-    }
-    
-    .time-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      background: #4CAF50;
-      cursor: pointer;
-      border-radius: 50%;
-    }
-    
-    .time-slider::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      background: #4CAF50;
-      cursor: pointer;
-      border-radius: 50%;
-    }
-    
-    .slider-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin: 5px auto;
-      font-size: 0.8rem;
-    }
-    
-    .current-timestamp {
-      margin: 10px 0;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
-    
-    .result-item.active {
-      background-color: rgba(76, 175, 80, 0.3);
-      border-left: 3px solid #4CAF50;
-    }
-  `;
-  
-  const styleElement = document.createElement('style');
-  styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
-}
-
-// Llamamos a la función para agregar los estilos cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-  agregarEstilosSlider();
-  
-  // Si hay cambios en las pestañas, verificamos si debemos mostrar/ocultar el slider
-  const tabs = document.querySelectorAll('.tab');
-  if (tabs.length > 0) {
-    tabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-tab');
-        
-        // Mostramos u ocultamos el slider según la pestaña activa
-        const sliderContainer = document.getElementById('time-slider-container');
-        if (sliderContainer) {
-          if (tabId === 'tab-buscador') {
-            sliderContainer.style.display = 'block';
-          } else {
-            sliderContainer.style.display = 'none';
-          }
-        }
-      });
-    });
-  }
-});
 
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
