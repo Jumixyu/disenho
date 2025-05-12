@@ -34,7 +34,6 @@ const closeBtn = document.getElementById('closeModal');
 const infoDiv = document.getElementById("tiempoRealInfo");
 const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
-const sliderWrapper = document.getElementById('slider-wrapper');
 
 // Vista inicial del mapa
 
@@ -765,42 +764,6 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
-  ///////////////////////////////////////////////////////////////////////////////prueba
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const sliderContainer = document.querySelector('.slider-container');
-    if (sliderContainer) {
-      L.DomEvent.disableClickPropagation(sliderContainer);
-      L.DomEvent.disableScrollPropagation(sliderContainer);
-    }
-  });
-
-  buscadorBtn.addEventListener('click', () => {
-    // Mostrar controles del buscador
-    buscadorBtn.classList.remove('hidden');
-    // Ocultar otros controles
-    historicoControls.classList.add('hidden');
-    tiempoRealControls.classList.add('hidden');
-    
-    // Mostrar slider solo en modo buscador
-    sliderWrapper.classList.remove('hidden');
-  });
-
-  document.getElementById('tiempo-real-btn').addEventListener('click', () => {
-    tiempoRealControls.classList.remove('hidden');
-    buscadorBtn.classList.add('hidden');
-    historicoControls.classList.add('hidden');
-    sliderWrapper.classList.add('hidden');
-  });
-  
-  document.getElementById('switch-historico-btn').addEventListener('click', () => {
-    historicoControls.classList.remove('hidden');
-    buscadorBtn.classList.add('hidden');
-    tiempoRealControls.classList.add('hidden');
-    sliderWrapper.classList.add('hidden');
-  });
-
-  ///////////////////////////////////////////////////////////////////////////////
   //--------------------------------------------------- CIRCULO ----------------------------------------------------
 
   map.on('click', async (e) => {
