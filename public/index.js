@@ -764,6 +764,13 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
+  ////////////////////////////////////////////////////////////////// prueba
+  const slider = document.getElementById('velocidad-slider');
+  const sliderContainer = document.querySelector('.slider-container');
+
+  L.DomEvent.disableClickPropagation(sliderContainer);
+  L.DomEvent.disableScrollPropagation(sliderContainer);
+  //////////////////////////////////////////////////////////////////
   //--------------------------------------------------- CIRCULO ----------------------------------------------------
 
   map.on('click', async (e) => {
