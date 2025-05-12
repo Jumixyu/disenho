@@ -53,9 +53,9 @@ obtenerFechaHoraActual();
 
 
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
-function updateMarker(lat, lon, fecha, hora, rpm) {
+function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} RPM: ${rpm}`;
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm}  Vehiculo${vehiculo}`;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
@@ -220,8 +220,6 @@ function loadLiveCoords() {
   }
 }
 
-// ----------------------------------------------------------------------------------------------
-
 // FUNCION PARA PARAR EL REAL TIME CUANDO PASAMOS A HISTORICO Y BUSCADOR
 function stopRealTime() {
   // Verificar si existe un intervalo activo
@@ -248,8 +246,6 @@ function stopRealTime() {
     return false;
   }
 }
-
-// -------------------------------------------------------------------------------------------------
 
 /// Función para mostrar los resultados de búsqueda solo en el panel lateral
 function mostrarResultadosBusqueda(resultados) {
@@ -312,7 +308,7 @@ function crearPanelResultados(resultados) {
       <small>Longitud: ${resultado.longitud}</small>
     `;
     
-    // Al hacer clic en un resultado, centra el mapa en ese punto sin abrir popup
+    // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
     item.addEventListener('click', () => {
       map.setView([resultado.latitud, resultado.longitud], 18);
 
@@ -400,7 +396,7 @@ function solicitarRuta(puntos) {
   let url = `https://router.project-osrm.org/route/v1/driving/${coordenadasStr}?overview=full&geometries=geojson`;
 
   // Para desarrollo, retornamos las coordenadas directamente sin llamar a la API
-  // Esto evita problemas de CORS y limitaciones de la API
+  // Esto evita problemas de CORS y limitaciones de la API   
   console.log("🔄 Retornando coordenadas filtradas sin llamar a API");
   return coordenadasValidas;
 }
@@ -428,6 +424,8 @@ function substractArrayEvenly(arr, maxLength) {
 
   return result;
 }
+
+//-----------------------------------------------------------MAINFUNTION--------------------------------------------
 
 
 (async () => {
@@ -525,8 +523,9 @@ function substractArrayEvenly(arr, maxLength) {
       }
   
       // Actualizar el marcador con la última coordenada
+      const car = ultimaCoord.vehiculo;
       const fechacorregida = ultimaCoord.fecha.split("T")[0];
-      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0);
+      updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
       
       // Guardamos la ruta actual en localStorage
       saveLiveCoords();
@@ -633,8 +632,9 @@ function substractArrayEvenly(arr, maxLength) {
         }
         
         // Actualizar el marcador con la nueva posición
+        const car = ultimaCoord.vehiculo;
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
-        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0);
+        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
         
         // Guardar la ruta actualizada
         saveLiveCoords();
@@ -650,30 +650,30 @@ function substractArrayEvenly(arr, maxLength) {
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   switchHistoricoBtn.addEventListener('click', () => {
-    // Detener tiempo real
-    stopRealTime();
-    
+      // Detener tiempo real
+      stopRealTime();
+
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-  
+
     ocultarCirculoBuscador(); // <- Ocultar círculo
   });
 
   buscadorBtn.addEventListener('click', () => {
-    // Detener tiempo real
-    stopRealTime();
-  
+        // Detener tiempo real
+        stopRealTime();
+
     tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-  
+
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
-  
+
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
@@ -693,56 +693,56 @@ function substractArrayEvenly(arr, maxLength) {
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-  
+
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
     }
-  
+
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
-  
+
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
   });
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-  
+
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-  
+
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-  
+
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-  
+
     // Eliminamos solo la ruta histórica anterior
     if (ruta) map.removeLayer(ruta);
-  
+
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value)
     );
-  
+
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-  
+
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
-  
+
     if (rutaPlacement) {
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
