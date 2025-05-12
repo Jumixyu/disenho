@@ -220,6 +220,37 @@ function loadLiveCoords() {
   }
 }
 
+// ----------------------------------------------------------------------------------------------
+
+// FUNCION PARA PARAR EL REAL TIME CUANDO PASAMOS A HISTORICO Y BUSCADOR
+function stopRealTime() {
+  // Verificar si existe un intervalo activo
+  if (currentIntervalId) {
+    console.log("⏹️ Deteniendo actualización en tiempo real...");
+    clearInterval(currentIntervalId);
+    currentIntervalId = null;
+    
+    // Ocultar el marcador de tiempo real si existe
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+    
+    // Ocultar la ruta de tiempo real si existe
+    if (liveRoute) {
+      map.removeLayer(liveRoute);
+      liveRoute = null;
+    }
+    
+    return true;
+  } else {
+    console.log("ℹ️ No hay actualización en tiempo real activa");
+    return false;
+  }
+}
+
+// -------------------------------------------------------------------------------------------------
+
 /// Función para mostrar los resultados de búsqueda solo en el panel lateral
 function mostrarResultadosBusqueda(resultados) {
   // Limpiamos marcadores anteriores por si acaso
@@ -619,45 +650,35 @@ function substractArrayEvenly(arr, maxLength) {
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   switchHistoricoBtn.addEventListener('click', () => {
-
+    // Detener tiempo real
+    stopRealTime();
+    
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-
+  
     ocultarCirculoBuscador(); // <- Ocultar círculo
-
-    // quitar marcador
-    if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
-
   });
 
   buscadorBtn.addEventListener('click', () => {
-
+    // Detener tiempo real
+    stopRealTime();
+  
     tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-
+  
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
-
+  
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
     }
-
-    // quitar marcador
-    if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
-
   });
 
   radioSlider.addEventListener('input', () => {
@@ -672,71 +693,56 @@ function substractArrayEvenly(arr, maxLength) {
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-
+  
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
     }
-
+  
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
-
+  
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
-
   });
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-
-    if (currentIntervalId) {
-      clearInterval(currentIntervalId);
-      currentIntervalId = null;
-    }
-
-    // Ocultamos completamente la ruta en tiempo real cuando estamos en modo histórico
-    if (liveRoute) { 
-      map.removeLayer(liveRoute);
-      liveRoute = null;  
-    }
-
-    // quitar marcador
-    if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
-
+  
+    // Asegurarse de que tiempo real esté detenido
+    stopRealTime();
+  
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-
+  
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-
+  
     // Eliminamos solo la ruta histórica anterior
     if (ruta) map.removeLayer(ruta);
-
+  
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value)
     );
-
+  
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-
+  
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
-
+  
     if (rutaPlacement) {
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
