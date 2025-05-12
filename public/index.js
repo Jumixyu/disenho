@@ -766,6 +766,15 @@ function substractArrayEvenly(arr, maxLength) {
   });
 
   ///////////////////////////////////////////////////////////////////////////////prueba
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const sliderContainer = document.querySelector('.slider-container');
+    if (sliderContainer) {
+      L.DomEvent.disableClickPropagation(sliderContainer);
+      L.DomEvent.disableScrollPropagation(sliderContainer);
+    }
+  });
+  
   buscadorBtn.addEventListener('click', () => {
     // Mostrar controles del buscador
     buscadorControls.classList.remove('hidden');
