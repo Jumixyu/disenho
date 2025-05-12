@@ -519,7 +519,7 @@ function substractArrayEvenly(arr, maxLength) {
         }
       } else {
         console.log('⚠ No hay suficientes coordenadas para dibujar una ruta');
-        map.setView([lat, lon], map.getZoom() || 15);
+        map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
       }
   
       // Actualizar el marcador con la última coordenada
