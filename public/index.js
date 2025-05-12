@@ -774,10 +774,10 @@ function substractArrayEvenly(arr, maxLength) {
       L.DomEvent.disableScrollPropagation(sliderContainer);
     }
   });
-  
+
   buscadorBtn.addEventListener('click', () => {
     // Mostrar controles del buscador
-    buscadorControls.classList.remove('hidden');
+    buscadorBtn.classList.remove('hidden');
     // Ocultar otros controles
     historicoControls.classList.add('hidden');
     tiempoRealControls.classList.add('hidden');
@@ -788,14 +788,14 @@ function substractArrayEvenly(arr, maxLength) {
 
   document.getElementById('tiempo-real-btn').addEventListener('click', () => {
     tiempoRealControls.classList.remove('hidden');
-    buscadorControls.classList.add('hidden');
+    buscadorBtn.classList.add('hidden');
     historicoControls.classList.add('hidden');
     sliderWrapper.classList.add('hidden');
   });
   
   document.getElementById('switch-historico-btn').addEventListener('click', () => {
     historicoControls.classList.remove('hidden');
-    buscadorControls.classList.add('hidden');
+    buscadorBtn.classList.add('hidden');
     tiempoRealControls.classList.add('hidden');
     sliderWrapper.classList.add('hidden');
   });
