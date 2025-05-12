@@ -461,6 +461,18 @@ input[type="range"]::-moz-range-track {
 }
 
 /* slider de posiciones encontradas*/
+
+#slider-container {
+    position: fixed; /* O absolute si prefieres relativo a un contenedor */
+    bottom: 20px;     /* Distancia desde el borde inferior */
+    left: 20px;       /* Distancia desde el borde izquierdo */
+    z-index: 1000;    /* Asegura que esté por encima de otros elementos */
+    background-color: rgba(0, 0, 0, 0.6); /* Opcional: para destacar */
+    padding: 10px;
+    border-radius: 10px;
+    color: white;     /* Si usas texto */
+  }
+  
 .slider-container {
     width: 80%;
     max-width: 400px;
