@@ -14,6 +14,7 @@ let lastSearchLatLng = null;
 let lastSearchRadius = null;
 let marcadorSeleccionado;
 let lastPopupContent = "";
+let currentZoom = 15;
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -764,13 +765,13 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
-  ////////////////////////////////////////////////////////////////// prueba
-  const slider = document.getElementById('velocidad-slider');
-  const sliderContainer = document.querySelector('.slider-container');
-
-  L.DomEvent.disableClickPropagation(sliderContainer);
-  L.DomEvent.disableScrollPropagation(sliderContainer);
-  //////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////// prueba
+    const slider = document.getElementById('velocidad-slider');
+    const sliderContainer = document.querySelector('.slider-container');
+  
+    L.DomEvent.disableClickPropagation(sliderContainer);
+    L.DomEvent.disableScrollPropagation(sliderContainer);
+    //////////////////////////////////////////////////////////////////  
   //--------------------------------------------------- CIRCULO ----------------------------------------------------
 
   map.on('click', async (e) => {
