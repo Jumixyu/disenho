@@ -520,7 +520,7 @@ input[type="range"]::-moz-range-track {
 
 
 select {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: 6px;
     background-color: #2e2e3a;
     color: white;
