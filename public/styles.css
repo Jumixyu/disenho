@@ -472,7 +472,7 @@ input[type="range"]::-moz-range-track {
     left: 20px;
     z-index: 1000;
     width: 80%;
-    max-width: 400px;
+    max-width: 200px;
     padding: 12px 15px;
     text-align: center;
     background-color: rgba(46, 46, 58, 0.9);/* Fondo oscuro con transparencia */
