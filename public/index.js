@@ -69,6 +69,9 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
     marker.setLatLng([lat, lon]);
   }
 
+   // Mostrar el popup en el marcador
+   marker.bindPopup(lastPopupContent).openPopup();
+   
   // Mostrar contenido si la casilla está activada
   if (checkbox.checked) {
     infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
@@ -340,17 +343,8 @@ function crearPanelResultados(resultados) {
       // Crear y agregar el nuevo marcador
       marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
       
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-      const vehiculoreal = parseInt(resultado.vehiculo) + 1;
-      const popupContent = `
-      📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}<br>
-      📅 ${resultado.fecha} ${resultado.hora}<br>
-      🚗 RPM: ${resultado.rpm || 0}, Vehículo: ${vehiculoreal}
-      `;
-      marcadorSeleccionado.bindPopup(popupContent).openPopup();
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      });
+  });
     
     resultsList.appendChild(item);
   });
