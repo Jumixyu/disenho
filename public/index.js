@@ -68,10 +68,9 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
   } else {
     marker.setLatLng([lat, lon]);
   }
+  // Mostrar el popup en el marcador
+  marker.bindPopup(lastPopupContent).openPopup();
 
-   // Mostrar el popup en el marcador
-   marker.bindPopup(lastPopupContent).openPopup();
-   
   // Mostrar contenido si la casilla está activada
   if (checkbox.checked) {
     infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
@@ -890,6 +889,11 @@ function substractArrayEvenly(arr, maxLength) {
       fillOpacity: 0.4,
       radius: lastSearchRadius
     }).addTo(map);
+
+    // Actualizar el marcador con la última coordenada
+     const car = ultimaCoord.vehiculo;
+     const fechacorregida = ultimaCoord.fecha.split("T")[0];
+     updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
   });
   
 
