@@ -14,6 +14,7 @@ let lastSearchLatLng = null;
 let lastSearchRadius = null;
 let marcadorSeleccionado;
 let lastPopupContent = "";
+let currentZoom = 15;
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
