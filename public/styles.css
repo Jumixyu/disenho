@@ -459,11 +459,12 @@ input[type="range"]::-moz-range-track {
     resize: none;
     font-size: 1rem;
 }
-/* ocultar panel de resultados*/
+/* ocultar panel de resultados
 
 #search-results-panel {
     display: none !important;
   }
+*/
 
 /* SLIDER POSICIONES ENCONTRADAS*/
 
