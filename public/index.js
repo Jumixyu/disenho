@@ -383,6 +383,18 @@ sliderInput.addEventListener('input', () => {
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
 });
 
+//mostrar valores del panel debajo del slider
+const valorVelocidad = document.getElementById('valor-velocidad');
+
+sliderInput.addEventListener('input', () => {
+  const index = parseInt(sliderInput.value, 10) - 1;
+  const resultado = resultadosGlobales[index];
+
+  if (!resultado) return;
+
+  valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
+});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
