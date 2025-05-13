@@ -332,19 +332,6 @@ function crearPanelResultados(resultados) {
     item.addEventListener('click', () => {
       map.setView([resultado.latitud, resultado.longitud], 18);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Configurar el slider
-    resultadosGlobales = resultados.slice(); // guardar para el slider
-    const slidermap = document.getElementById('slider-map');
-    const sliderInput = document.getElementById('velocidad-slider');
-
-    sliderInput.min = 1;
-    sliderInput.max = resultadosGlobales.length;
-    sliderInput.value = 1;
-
-    slidermap.classList.remove('hidden');
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
       // Eliminar marcador anterior si existe
       if (marcadorSeleccionado) {
         map.removeLayer(marcadorSeleccionado);
@@ -358,7 +345,19 @@ function crearPanelResultados(resultados) {
   });
   
   document.getElementById('results-content').appendChild(resultsList);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Configurar el slider
+    resultadosGlobales = resultados.slice(); // guardar para el slider
+    const slidermap = document.getElementById('slider-map');
+    const sliderInput = document.getElementById('velocidad-slider');
 
+    sliderInput.min = 1;
+    sliderInput.max = resultadosGlobales.length;
+    sliderInput.value = 1;
+
+    slidermap.classList.remove('hidden');
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
