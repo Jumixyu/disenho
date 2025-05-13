@@ -345,6 +345,7 @@ function crearPanelResultados(resultados) {
   });
   
   document.getElementById('results-content').appendChild(resultsList);
+  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     // Configurar el slider
     resultadosGlobales = resultados.slice(); // guardar para el slider
