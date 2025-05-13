@@ -318,12 +318,13 @@ function crearPanelResultados(resultados) {
   resultados.slice().reverse().forEach((resultado, index) => {
     const fecha = resultado.fecha.split('T')[0];
     const item = document.createElement('li');
+    const vehiculoresult = resultado.vehiculo;
     item.className = 'result-item';
     item.innerHTML = `
       <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
       <small>Latitud: ${resultado.latitud}</small><br>
       <small>Longitud: ${resultado.longitud}</small><br>
-      <small>Vehiculo: ${resultado.vehiculo+1}</small>
+      <small>Vehiculo: ${vehiculoresult}</small>
     `;
     
     // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
