@@ -620,16 +620,16 @@ function substractArrayEvenly(arr, maxLength) {
             // Ajustamos para ver toda la ruta o solo la última posición
             const bounds = liveRoute.getBounds();
             if (bounds.isValid()) {
-              map.fitBounds(bounds);
+              map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
             } else {
-              map.setView([lat, lon], map.getZoom() || 15);
+              map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
             }
           } else {
             console.warn("⚠️ No se pudo calcular la ruta");
-            map.setView([lat, lon], map.getZoom() || 15);
+            map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
           }
         } else {
-          map.setView([lat, lon], map.getZoom() || 15);
+          map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
         }
         
         // Actualizar el marcador con la nueva posición
