@@ -36,6 +36,7 @@ const closeBtn = document.getElementById('closeModal');
 const infoDiv = document.getElementById("tiempoRealInfo");
 const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
+const slidermap = document.getElementById('slider-map');
 
 // Vista inicial del mapa
 
@@ -666,9 +667,10 @@ function substractArrayEvenly(arr, maxLength) {
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   switchHistoricoBtn.addEventListener('click', () => {
-      // Detener tiempo real
-      stopRealTime();
+    // Detener tiempo real
+    stopRealTime();
 
+    slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
@@ -679,9 +681,10 @@ function substractArrayEvenly(arr, maxLength) {
   });
 
   buscadorBtn.addEventListener('click', () => {
-        // Detener tiempo real
-        stopRealTime();
+    // Detener tiempo real
+    stopRealTime();
 
+    slidermap.classList.remove('hidden');
     tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
@@ -719,6 +722,7 @@ function substractArrayEvenly(arr, maxLength) {
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
 
+    slidermap.classList.add('hidden');
     buscadorControls.classList.add('hidden');
     ocultarCirculoBuscador(); // <- Ocultar círculo
   });
