@@ -514,7 +514,7 @@ function substractArrayEvenly(arr, maxLength) {
           }
           
           // Ajustamos el mapa para ver toda la ruta
-          map.fitBounds(liveRoute.getBounds());
+          map.setView([lat, lon], map.getZoom() || currentZoom !== undefined ? currentZoom : 15);
         } else {
           console.warn('⚠ No se pudo calcular la ruta');
         }
