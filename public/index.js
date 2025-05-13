@@ -322,7 +322,8 @@ function crearPanelResultados(resultados) {
     item.innerHTML = `
       <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
       <small>Latitud: ${resultado.latitud}</small><br>
-      <small>Longitud: ${resultado.longitud}</small>
+      <small>Longitud: ${resultado.longitud}</small><br>
+      <small>Vehiculo: ${resultado.vehiculo+1}</small>
     `;
     
     // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
