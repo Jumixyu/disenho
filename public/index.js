@@ -76,7 +76,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
   }
 
   // Asegúrate de que no salga popup en el mapa
-  //if (marker.getPopup()) marker.closePopup();
+  if (marker.getPopup()) marker.closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
@@ -339,7 +339,18 @@ function crearPanelResultados(resultados) {
       
       // Crear y agregar el nuevo marcador
       marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-    });
+      
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+      const vehiculoreal = parseInt(resultado.vehiculo) + 1;
+      const popupContent = `
+      📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}<br>
+      📅 ${resultado.fecha} ${resultado.hora}<br>
+      🚗 RPM: ${resultado.rpm || 0}, Vehículo: ${vehiculoreal}
+      `;
+      marcadorSeleccionado.bindPopup(popupContent).openPopup();
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      });
     
     resultsList.appendChild(item);
   });
