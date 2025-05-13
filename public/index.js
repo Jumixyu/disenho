@@ -76,7 +76,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
   }
 
   // Asegúrate de que no salga popup en el mapa
-  if (marker.getPopup()) marker.closePopup();
+  //if (marker.getPopup()) marker.closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
