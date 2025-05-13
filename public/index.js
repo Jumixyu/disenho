@@ -15,6 +15,7 @@ let lastSearchRadius = null;
 let marcadorSeleccionado;
 let lastPopupContent = "";
 let currentZoom = 15;
+let vehiculoreal;
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -56,7 +57,9 @@ obtenerFechaHoraActual();
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculo}`;
+  vehiculoreal= vehiculo+1
+
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculoreal}`;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
