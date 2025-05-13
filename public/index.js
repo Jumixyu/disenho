@@ -170,6 +170,18 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
+//SELECTOR VEHICULO
+
+function mostrarDatosFiltrados(grupo) {
+  console.log("Filtrando por:", grupo);
+  // aquí haces tu consulta o filtrado de datos
+}
+
+function mostrarTodosLosDatos() {
+  console.log("Mostrando todos los datos");
+  // aquí muestras todos
+}
+
 // Función para guardar las coordenadas en localStorage
 function saveLiveCoords() {
   try {
@@ -756,6 +768,25 @@ function substractArrayEvenly(arr, maxLength) {
 
   closeBtn.addEventListener('click', () => {
     modal.style.display = 'none';
+  });
+
+  document.getElementById("filtro").addEventListener("change", function () {
+    const seleccion = this.value;
+  
+    switch (seleccion) {
+      case "opcion1":
+        // Filtra la base de datos para mostrar ciertos datos
+        mostrarDatosFiltrados("grupo1");
+        break;
+      case "opcion2":
+        // Filtra para otros
+        mostrarDatosFiltrados("grupo2");
+        break;
+      case "todos":
+        // Muestra todo
+        mostrarTodosLosDatos();
+        break;
+    }
   });
 
   // Opcional: cerrar al hacer clic fuera del contenido
