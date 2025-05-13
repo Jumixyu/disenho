@@ -16,6 +16,7 @@ let marcadorSeleccionado;
 let lastPopupContent = "";
 let currentZoom = 15;
 let vehiculoreal;
+let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -331,6 +332,19 @@ function crearPanelResultados(resultados) {
     item.addEventListener('click', () => {
       map.setView([resultado.latitud, resultado.longitud], 18);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Configurar el slider
+    resultadosGlobales = resultados.slice().reverse(); // guardar para el slider
+    const slidermap = document.getElementById('slider-map');
+    const sliderInput = document.getElementById('velocidad-slider');
+
+    sliderInput.min = 1;
+    sliderInput.max = resultadosGlobales.length;
+    sliderInput.value = 1;
+
+    slidermap.classList.remove('hidden');
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
       // Eliminar marcador anterior si existe
       if (marcadorSeleccionado) {
         map.removeLayer(marcadorSeleccionado);
@@ -347,6 +361,29 @@ function crearPanelResultados(resultados) {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//Manejador del Slider
+const sliderInput = document.getElementById('velocidad-slider');
+
+sliderInput.addEventListener('input', () => {
+  const index = parseInt(sliderInput.value, 10) - 1;
+  const resultado = resultadosGlobales[index];
+
+  if (!resultado) return;
+
+  // Mover el mapa
+  map.setView([resultado.latitud, resultado.longitud], 18);
+
+  // Quitar el marcador anterior
+  if (marcadorSeleccionado) {
+    map.removeLayer(marcadorSeleccionado);
+  }
+
+  // Agregar nuevo marcador
+  marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
   // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
