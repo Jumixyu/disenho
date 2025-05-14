@@ -58,10 +58,13 @@ obtenerFechaHoraActual();
 
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
+  const vehiculoreal = parseInt(vehiculo) + 1;
 
-  vehiculoreal= vehiculo+1
-
-  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculoreal}`;
+  const lastPopupContent = `
+    📍 Lat: ${lat}, Long: ${lon}<br>
+    📅 ${fecha} ${hora}<br>
+    🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
+  `;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
@@ -69,14 +72,14 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
     marker.setLatLng([lat, lon]);
   }
 
-  // Mostrar contenido si la casilla está activada
+  // Mostrar el popup en el marcador
+  marker.bindPopup(lastPopupContent).openPopup();
+
+  // Mostrar también en el panel superior si está activado
   if (checkbox.checked) {
     infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
     infoDiv.style.display = "block";
   }
-
-  // Asegúrate de que no salga popup en el mapa
-  if (marker.getPopup()) marker.closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
