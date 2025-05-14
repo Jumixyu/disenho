@@ -268,11 +268,21 @@ function stopRealTime() {
 
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
-  // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
-  if (ruta) map.removeLayer(ruta); 
-  coordenadas = []; // Reiniciar historial de coordenadas históricos
 
-  // Opción para reiniciar también el seguimiento en tiempo real
+  // Verificar en qué pestaña estamos actualmente
+  const estaEnHistorico = switchHistoricoBtn.classList.contains('active');
+
+  // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
+  if (ruta && !estaEnHistorico) {
+    map.removeLayer(ruta);
+  } else if (ruta && estaEnHistorico) {
+    // Si se esta en historico y hay ruta, solo se reinicia si se presiona el boton de reiniciar
+    map.removeLayer(ruta);
+    ruta = null;
+    coordenadas = [];
+  }
+
+  // Opción para reiniciar el seguimiento en tiempo real
   if (liveRoute) {
     map.removeLayer(liveRoute);
     liveRoute = null;
@@ -604,7 +614,17 @@ function substractArrayEvenly(arr, maxLength) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
-
+    
+    // Si hay una ruta histórica guardada, la volvemos a mostrar
+    if (ruta) {
+      if (!map.hasLayer(ruta)) {
+        map.addLayer(ruta);
+        // Si la ruta tiene bounds válidos, ajustamos la vista
+        if (ruta.getBounds && ruta.getBounds().isValid()) {
+          map.fitBounds(ruta.getBounds());
+        }
+      }
+    }
   });
 
   buscadorBtn.addEventListener('click', () => {
@@ -623,7 +643,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
-      ruta = null;
     }
   });
 
@@ -698,16 +717,22 @@ function substractArrayEvenly(arr, maxLength) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
-    
+
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
 
     if (rutaPlacement) {
+      // Si ya teníamos una ruta, la removemos primero
+      if (ruta) {
+        map.removeLayer(ruta);
+      }
+      
+      // Creamos la nueva ruta
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
     }
   });
-
+  
   infoBtn.addEventListener('click', () => {
     modal.style.display = 'flex';
   });
