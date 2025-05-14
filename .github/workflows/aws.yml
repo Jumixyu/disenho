@@ -1,11 +1,10 @@
-name: Deploy to Server
-
 on:
   push:
-    branches: [main]
+    branches: [main, juan, andrea, brayan, steeven]
 
 jobs:
   deployjuan:
+    if: github.ref == 'refs/heads/juan'
     runs-on: juan
     steps:
       - uses: actions/checkout@v2
@@ -17,14 +16,18 @@ jobs:
         run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
 
       - name: run server
+        env:
+          PORT: 3001
+          NOMBRE: Juan
         run: |
           npm install
-          pm2 restart server
+          pm2 start server.js --name juan-app --watch
 
       - name: verify all services are running
         run: pm2 list
 
   deployandrea:
+    if: github.ref == 'refs/heads/andrea'
     runs-on: andrea
     steps:
       - uses: actions/checkout@v2
@@ -36,14 +39,18 @@ jobs:
         run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
 
       - name: run server
+        env:
+          PORT: 3002
+          NOMBRE: Andrea
         run: |
           npm install
-          pm2 restart server
+          pm2 start server.js --name andrea-app --watch
 
       - name: verify all services are running
         run: pm2 list
 
   deploybrayan:
+    if: github.ref == 'refs/heads/brayan'
     runs-on: brayan
     steps:
       - uses: actions/checkout@v2
@@ -55,14 +62,18 @@ jobs:
         run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
 
       - name: run server
+        env:
+          PORT: 3003
+          NOMBRE: Brayan
         run: |
           npm install
-          pm2 restart server
+          pm2 start server.js --name brayan-app --watch
 
       - name: verify all services are running
         run: pm2 list
 
   deploysteeven:
+    if: github.ref == 'refs/heads/steeven'
     runs-on: steeven
     steps:
       - uses: actions/checkout@v2
@@ -74,9 +85,12 @@ jobs:
         run:  cp /home/ubuntu/my-server/actions-runner/.env /home/ubuntu/my-server/actions-runner/_work/disenho/disenho/
 
       - name: run server
+        env:
+          PORT: 3004
+          NOMBRE: Steeven
         run: |
           npm install
-          pm2 restart server
+          pm2 start server.js --name steeven-app --watch
 
       - name: verify all services are running
         run: pm2 list
