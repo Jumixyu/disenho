@@ -364,6 +364,26 @@ function crearPanelResultados(resultados) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+function popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm) {
+  // Crear el contenido del popup
+  const contenido = `
+    📍 Lat: ${lat}, Long: ${lon}<br>
+    📅 ${fecha} ${hora}<br>
+    🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
+  `;
+
+  // Crear un marcador temporal con popup
+  const popupMarker = L.marker([lat, lon]).addTo(map);
+
+  // Asociar el popup y abrirlo
+  popupMarker.bindPopup(contenido).openPopup();
+
+  // Opcional: guardar el marcador si luego lo quieres eliminar o reutilizar
+  return popupMarker;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //Manejador del Slider
 const sliderInput = document.getElementById('velocidad-slider');
 
@@ -383,6 +403,7 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+  const marcadorBuscador = mostrarPopupEnMapa();
 });
 
 //mostrar valores del panel debajo del slider
