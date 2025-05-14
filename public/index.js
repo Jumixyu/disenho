@@ -19,6 +19,8 @@ let currentZoom = 15;
 let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
 
+let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
+
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
 const historicoBtn = document.getElementById('historico-btn');
@@ -55,6 +57,84 @@ fetch('/config')
 })
 .catch(error => console.error('Error al obtener el nombre:', error));
 obtenerFechaHoraActual();
+
+// --------------------- FUCNIONES PARA FILTRAR VEHICULOS Y DIBUJAR LINEAS -------------------------------------
+
+function filtrarCoordenadasPorVehiculo(coordsData) {
+  // Si mostramos ambos vehículos, devolvemos todas las coordenadas
+  if (vehiculoFiltro === "todos") {
+    return coordsData;
+  }
+  
+  // Determinamos el valor numérico del vehículo a filtrar (0 para vehículo 1, 1 para vehículo 2)
+  const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
+  
+  // Filtramos las coordenadas que corresponden al vehículo seleccionado
+  return coordsData.filter(coord => coord.vehiculo === vehiculoNumero);
+}
+
+function dibujarRutaFiltrada(coords) {
+  // Si no hay coordenadas o son insuficientes, no hacemos nada
+  if (!coords || coords.length < 2) {
+    console.warn('⚠ No hay suficientes coordenadas para trazar ruta.');
+    return;
+  }
+  
+  // Si estamos mostrando ambos vehículos
+  if (vehiculoFiltro === "todos") {
+    // Separamos las coordenadas por vehículo
+    const coordsVehiculo1 = coords.filter(coord => coord.vehiculo === 0);
+    const coordsVehiculo2 = coords.filter(coord => coord.vehiculo === 1);
+    
+    // Dibujamos la ruta para el vehículo 1 si hay suficientes coordenadas
+    if (coordsVehiculo1.length >= 2) {
+      const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      const rutaPlacement1 = solicitarRuta(rutaVehiculo1);
+      
+      if (rutaPlacement1 && rutaPlacement1.length >= 2) {
+        const rutaV1 = new L.polyline(rutaPlacement1, { 
+          color: 'blue', 
+          weight: 4, 
+          opacity: 1 
+        }).addTo(map);
+      }
+    }
+    
+    // Dibujamos la ruta para el vehículo 2 si hay suficientes coordenadas
+    if (coordsVehiculo2.length >= 2) {
+      const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      const rutaPlacement2 = solicitarRuta(rutaVehiculo2);
+      
+      if (rutaPlacement2 && rutaPlacement2.length >= 2) {
+        const rutaV2 = new L.polyline(rutaPlacement2, { 
+          color: 'green', 
+          weight: 4, 
+          opacity: 1 
+        }).addTo(map);
+      }
+    }
+  } else {
+    // Si estamos mostrando solo un vehículo
+    const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
+    const coordsVehiculo = coords.filter(coord => coord.vehiculo === vehiculoNumero);
+    
+    if (coordsVehiculo.length >= 2) {
+      const rutaVehiculo = coordsVehiculo.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      const rutaPlacement = solicitarRuta(rutaVehiculo);
+      
+      if (rutaPlacement && rutaPlacement.length >= 2) {
+        // Color azul para vehículo 1, verde para vehículo 2
+        const color = vehiculoNumero === 0 ? 'blue' : 'green';
+        
+        liveRoute = new L.polyline(rutaPlacement, { 
+          color: color, 
+          weight: 4, 
+          opacity: 1 
+        }).addTo(map);
+      }
+    }
+  }
+}
 
 
 //-------------------------------- RECUADRO ULTIMA UBICACION -------------------------------------------------------
@@ -283,15 +363,30 @@ function reiniciarRuta() {
     coordenadas = [];
   }
 
-  // Opción para reiniciar el seguimiento en tiempo real
-  if (liveRoute) {
-    map.removeLayer(liveRoute);
-    liveRoute = null;
-    liveCoords = [];
-    // Eliminamos también los datos guardados
-    localStorage.removeItem('liveCoords');
-    localStorage.removeItem('lastSaveTime');
-  }
+  // Eliminar todas las rutas en tiempo real (pueden ser múltiples por vehículo)
+  map.eachLayer(function(layer) {
+    if (layer instanceof L.Polyline && layer !== ruta) {
+      map.removeLayer(layer);
+    }
+  });
+  
+  liveRoute = null;
+  // Desde
+  liveCoords = [[lat, lon]];
+
+  // A:
+  liveCoords = [{
+    latitud: lat,
+    longitud: lon,
+    vehiculo: ultimaCoord.vehiculo,
+    fecha: ultimaCoord.fecha,
+    hora: ultimaCoord.hora,
+    rpm: ultimaCoord.rpm || 0
+  }];
+  
+  // Eliminamos también los datos guardados
+  localStorage.removeItem('liveCoords');
+  localStorage.removeItem('lastSaveTime');
 
   // Eliminamos los marcadores de resultados de búsqueda
   searchResultsMarkers.forEach(m => map.removeLayer(m));
@@ -428,7 +523,14 @@ function substractArrayEvenly(arr, maxLength) {
       } else {
         // Si no hay coordenadas guardadas, inicializamos con la coordenada actual
         console.log('🆕 Iniciando nueva ruta con coordenada actual');
-        liveCoords = [[lat, lon]];
+        liveCoords = [{
+          latitud: lat,
+          longitud: lon,
+          vehiculo: ultimaCoord.vehiculo,
+          fecha: ultimaCoord.fecha,
+          hora: ultimaCoord.hora,
+          rpm: ultimaCoord.rpm || 0
+        }];
       }
   
       // Comprobar si la última coordenada ya está en liveCoords para evitar duplicados
@@ -444,32 +546,17 @@ function substractArrayEvenly(arr, maxLength) {
       if (liveCoords.length >= 2) {
         console.log('🗺️ Dibujando ruta con ' + liveCoords.length + ' puntos');
         
-        // Solicitar la ruta optimizada (o usar las coordenadas directamente)
-        const rutaPlacement = await solicitarRuta(liveCoords);
-        
-        if (rutaPlacement && rutaPlacement.length >= 2) {
-          console.log('✅ Ruta calculada con éxito:', rutaPlacement.length + ' puntos');
-          
-          if (liveRoute) {
-            // Actualizamos la ruta existente
-            console.log('🔄 Actualizando ruta existente');
-            liveRoute.setLatLngs(rutaPlacement);
-            liveRoute.setStyle({ color: 'blue', weight: 4, opacity: 1 });
-          } else {
-            // Creamos una nueva ruta
-            console.log('🆕 Creando nueva ruta');
-            liveRoute = new L.polyline(rutaPlacement, { 
-              color: 'blue', 
-              weight: 4,
-              opacity: 1
-            }).addTo(map);
-          }
-          
-          // Ajustamos el mapa para ver toda la ruta
-          map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
-        } else {
-          console.warn('⚠ No se pudo calcular la ruta');
+        // Limpiar rutas previas
+        if (liveRoute) {
+          map.removeLayer(liveRoute);
+          liveRoute = null;
         }
+        
+        // Dibujar ruta filtrada por vehículo
+        dibujarRutaFiltrada(liveCoords);
+        
+        // Ajustamos el mapa para ver toda la ruta
+        map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
       } else {
         console.log('⚠ No hay suficientes coordenadas para dibujar una ruta');
         map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
@@ -518,12 +605,22 @@ function substractArrayEvenly(arr, maxLength) {
     try {
       console.log("⏱️ Actualizando datos en tiempo real...");
       
-      // Obtener la última coordenada
+      // Obtener las coordenadas filtradas según el vehículo seleccionado
       const ultimaCoord = await obtenerUltimaCoordenada();
       
       if (!ultimaCoord) {
         console.warn("⚠️ No se pudo obtener la última coordenada");
         return;
+      }
+      
+      // Si el filtro actual no coincide con el vehículo de la última coordenada y no es "todos",
+      // no actualizamos el marcador
+      if (vehiculoFiltro !== "todos") {
+        const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
+        if (ultimaCoord.vehiculo !== vehiculoNumero) {
+          console.log(`ℹ️ Filtro activo para vehículo ${vehiculoNumero+1}, ignorando actualización para vehículo ${ultimaCoord.vehiculo+1}`);
+          return;
+        }
       }
       
       // Convertir a números y verificar validez
@@ -539,55 +636,34 @@ function substractArrayEvenly(arr, maxLength) {
       const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
       
       const esNuevaCoordenada = !ultimaAlmacenada || 
-        ultimaAlmacenada[0] !== lat || 
-        ultimaAlmacenada[1] !== lon;
+        ultimaAlmacenada.latitud !== lat || 
+        ultimaAlmacenada.longitud !== lon;
       
       // Si la coordenada es nueva, actualizamos todo
       if (esNuevaCoordenada) {
         console.log("🆕 Nueva coordenada detectada:", lat, lon);
         
-        // Añadimos la nueva coordenada al arreglo
-        liveCoords.push([lat, lon]);
+        // Añadimos la nueva coordenada completa (incluyendo info del vehículo)
+        liveCoords.push(ultimaCoord);
         
         console.log("📍 Total de coordenadas:", liveCoords.length);
         
-        // Si hay suficientes coordenadas, actualizamos la ruta
-        if (liveCoords.length >= 2) {
-          const rutaPlacement = await solicitarRuta(liveCoords);
-          
-          if (rutaPlacement && rutaPlacement.length >= 2) {
-            if (liveRoute) {
-              console.log("🔄 Actualizando ruta existente");
-              liveRoute.setLatLngs(rutaPlacement);
-              liveRoute.setStyle({ color: 'blue', weight: 4, opacity: 1 });
-            } else {
-              console.log("🆕 Creando nueva ruta");
-              liveRoute = new L.polyline(rutaPlacement, { 
-                color: 'blue', 
-                weight: 4,
-                opacity: 1 
-              }).addTo(map);
-            }
-            
-            // Ajustamos para ver toda la ruta o solo la última posición
-            const bounds = liveRoute.getBounds();
-            if (bounds.isValid()) {
-              map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
-            } else {
-              map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
-            }
-          } else {
-            console.warn("⚠️ No se pudo calcular la ruta");
-            map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
-          }
-        } else {
-          map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
+        // Limpiar rutas previas
+        if (liveRoute) {
+          map.removeLayer(liveRoute);
+          liveRoute = null;
         }
+        
+        // Dibujar ruta filtrada por vehículo
+        dibujarRutaFiltrada(liveCoords);
         
         // Actualizar el marcador con la nueva posición
         const car = ultimaCoord.vehiculo;
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
         updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+        
+        // Ajustar vista del mapa
+        map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
         
         // Guardar la ruta actualizada
         saveLiveCoords();
@@ -753,21 +829,20 @@ function substractArrayEvenly(arr, maxLength) {
   });
 
   document.getElementById("filtro").addEventListener("change", function () {
-    const seleccion = this.value;
-  
-    switch (seleccion) {
-      case "opcion1":
-        // Filtra la base de datos para mostrar ciertos datos
-        mostrarDatosFiltrados("grupo1");
-        break;
-      case "opcion2":
-        // Filtra para otros
-        mostrarDatosFiltrados("grupo2");
-        break;
-      case "todos":
-        // Muestra todo
-        mostrarTodosLosDatos();
-        break;
+    vehiculoFiltro = this.value;
+    
+    // Si estamos en tiempo real, actualizamos la vista inmediatamente
+    if (currentIntervalId) {
+      // Limpiar las rutas actuales
+      if (liveRoute) {
+        map.removeLayer(liveRoute);
+        liveRoute = null;
+      }
+      
+      // Redibujamos la ruta con el nuevo filtro
+      if (liveCoords && liveCoords.length >= 2) {
+        dibujarRutaFiltrada(liveCoords);
+      }
     }
   });
 
