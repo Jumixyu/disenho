@@ -73,26 +73,37 @@ function filtrarCoordenadasPorVehiculo(coordsData) {
   return coordsData.filter(coord => coord.vehiculo === vehiculoNumero);
 }
 
+// Update this function to properly clear all existing routes before drawing new ones
 function dibujarRutaFiltrada(coords) {
-  // Si no hay coordenadas o son insuficientes, no hacemos nada
+  // Remove ALL existing polylines first
+  map.eachLayer(function(layer) {
+    if (layer instanceof L.Polyline && layer !== ruta) {
+      map.removeLayer(layer);
+    }
+  });
+  
+  // Reset liveRoute
+  liveRoute = null;
+
+  // If no coordinates or insufficient, don't proceed
   if (!coords || coords.length < 2) {
     console.warn('⚠ No hay suficientes coordenadas para trazar ruta.');
     return;
   }
   
-  // Si estamos mostrando ambos vehículos
+  // If showing both vehicles
   if (vehiculoFiltro === "todos") {
     // Separamos las coordenadas por vehículo
     const coordsVehiculo1 = coords.filter(coord => coord.vehiculo === 0);
     const coordsVehiculo2 = coords.filter(coord => coord.vehiculo === 1);
     
-    // Dibujamos la ruta para el vehículo 1 si hay suficientes coordenadas
+    // Draw route for vehicle 1 if enough coordinates
     if (coordsVehiculo1.length >= 2) {
       const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
       const rutaPlacement1 = solicitarRuta(rutaVehiculo1);
       
       if (rutaPlacement1 && rutaPlacement1.length >= 2) {
-        const rutaV1 = new L.polyline(rutaPlacement1, { 
+        new L.polyline(rutaPlacement1, { 
           color: 'blue', 
           weight: 4, 
           opacity: 1 
@@ -100,13 +111,13 @@ function dibujarRutaFiltrada(coords) {
       }
     }
     
-    // Dibujamos la ruta para el vehículo 2 si hay suficientes coordenadas
+    // Draw route for vehicle 2 if enough coordinates
     if (coordsVehiculo2.length >= 2) {
       const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
       const rutaPlacement2 = solicitarRuta(rutaVehiculo2);
       
       if (rutaPlacement2 && rutaPlacement2.length >= 2) {
-        const rutaV2 = new L.polyline(rutaPlacement2, { 
+        new L.polyline(rutaPlacement2, { 
           color: 'green', 
           weight: 4, 
           opacity: 1 
@@ -114,7 +125,7 @@ function dibujarRutaFiltrada(coords) {
       }
     }
   } else {
-    // Si estamos mostrando solo un vehículo
+    // If showing only one vehicle
     const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
     const coordsVehiculo = coords.filter(coord => coord.vehiculo === vehiculoNumero);
     
@@ -833,11 +844,14 @@ function substractArrayEvenly(arr, maxLength) {
     
     // Si estamos en tiempo real, actualizamos la vista inmediatamente
     if (currentIntervalId) {
-      // Limpiar las rutas actuales
-      if (liveRoute) {
-        map.removeLayer(liveRoute);
-        liveRoute = null;
-      }
+      // Clear ALL polylines (not just liveRoute)
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.Polyline && layer !== ruta) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      liveRoute = null;
       
       // Redibujamos la ruta con el nuevo filtro
       if (liveCoords && liveCoords.length >= 2) {
