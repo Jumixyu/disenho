@@ -662,7 +662,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Ocultamos la ruta histórica
     if (ruta) {
       map.removeLayer(ruta);
-      ruta = null;
     }
 
     // Eliminar el marcadorSeleccionado si existe
