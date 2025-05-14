@@ -341,9 +341,7 @@ function crearPanelResultados(resultados) {
       
       // Crear y agregar el nuevo marcador
       marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-      popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm);
-
-
+      popup_buscador(resultado.latitud, resultado.longitud, resultado.fecha, resultado.hora, resultado.rpm, resultado.vehiculo);
   });
     
     resultsList.appendChild(item);
@@ -367,7 +365,10 @@ function crearPanelResultados(resultados) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-function popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm) {
+function popup_buscador(lat, lon, fecha, hora, vehiculo, rpm) {
+  // Aumentar el número del vehículo (si es necesario)
+  const vehiculoreal = vehiculo + 1;
+
   // Eliminar el marcador anterior si existe
   if (marcadorBuscador) {
     map.removeLayer(marcadorBuscador);
@@ -380,7 +381,7 @@ function popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm) {
     🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
   `;
 
-  // Crear y agregar el nuevo marcador
+  // Crear y agregar el nuevo marcador con popup
   marcadorBuscador = L.marker([lat, lon]).addTo(map);
   marcadorBuscador.bindPopup(contenido).openPopup();
 }
