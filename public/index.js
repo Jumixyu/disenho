@@ -373,8 +373,9 @@ sliderInput.addEventListener('input', () => {
 
   if (!resultado) return;
 
-  // Mover el mapa
-  map.setView([resultado.latitud, resultado.longitud], 18);
+  // Mover el mapa manteniendo el nivel de zoom actual
+  const currentZoomLevel = map.getZoom();
+  map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
 
   // Quitar el marcador anterior
   if (marcadorSeleccionado) {
