@@ -398,12 +398,13 @@ sliderInput.addEventListener('input', () => {
 
   // Quitar el marcador anterior
   if (marcadorSeleccionado) {
+
     map.removeLayer(marcadorSeleccionado);
   }
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  const marcadorBuscador = popup_buscador();
+  const marcadorSeleccionado = popup_buscador();
 });
 
 //mostrar valores del panel debajo del slider
