@@ -301,7 +301,7 @@ function saveLiveCoords() {
 }
 
 // Función para obtener recorrido histórico
-async function obtenerRecorridoHistorico(inicio, fin) {
+async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
   if (!inicio || !fin) {
     throw new TypeError('"inicio" y "fin" son parámetros requeridos');
   }
@@ -311,6 +311,13 @@ async function obtenerRecorridoHistorico(inicio, fin) {
     const data = await response.json();
 
     if (!data.length) return;
+    
+    // Filter data if a specific vehicle is requested
+    if (vehiculo !== "todos") {
+      const vehiculoNumero = vehiculo === "vehiculo1" ? 0 : 1;
+      return data.filter(coord => coord.vehiculo === vehiculoNumero);
+    }
+    
     return data;
   } catch (e) {
     console.error('❌ Error al obtener recorrido histórico:', e);
@@ -813,54 +820,66 @@ function substractArrayEvenly(arr, maxLength) {
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-
+  
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-
+  
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-
+  
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-
+  
     // Eliminamos solo la ruta histórica anterior
     if (ruta) map.removeLayer(ruta);
-
+    
+    // Get the selected vehicle filter
+    const filtroHistorico = document.getElementById('filtroHistorico').value;
+  
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
-      formatearFecha(false, finInput.value)
+      formatearFecha(false, finInput.value),
+      filtroHistorico // Pass the vehicle filter to the function
     );
-
+  
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-
+  
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
-
+  
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
-
+  
     if (rutaPlacement) {
       // Si ya teníamos una ruta, la removemos primero
       if (ruta) {
         map.removeLayer(ruta);
       }
       
+      // Color selection based on vehicle filter
+      let color = 'red'; // Default for "todos"
+      if (filtroHistorico === "vehiculo1") {
+        color = 'blue';
+      } else if (filtroHistorico === "vehiculo2") {
+        color = 'green';
+      }
+      
       // Creamos la nueva ruta
-      ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
+      ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
     }
   });

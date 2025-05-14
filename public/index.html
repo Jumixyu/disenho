@@ -73,6 +73,11 @@
       <div class="contenedor"><label for="fin">Fin:</label>
         <input type="datetime-local" id="fin" step="1" class="datetime-input"/>
       </div>
+      <select id="filtroHistorico" class="select-filter">
+        <option value="todos">Ambos vehículos</option>
+        <option value="vehiculo1">Vehículo 1</option>
+        <option value="vehiculo2">Vehículo 2</option>
+      </select>
       <div class="contenedor ">
         <button id="historico-btn" onclick="document.getElementById('final').scrollIntoView({ behavior: 'smooth' })">📌 Ver Recorrido Histórico</button>
       </div>
