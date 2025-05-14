@@ -366,11 +366,15 @@ function stopRealTime() {
     // Reset marker references
     markers = { 0: null, 1: null };
     
-    // Ocultar la ruta de tiempo real si existe
-    if (liveRoute) {
-      map.removeLayer(liveRoute);
-      liveRoute = null;
-    }
+    // Remove ALL polylines that aren't the historical route (ruta)
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.Polyline && layer !== ruta) {
+        map.removeLayer(layer);
+      }
+    });
+    
+    // Reset liveRoute reference
+    liveRoute = null;
     
     return true;
   } else {
@@ -385,6 +389,7 @@ function reiniciarRuta() {
   // Verificar en qué pestaña estamos actualmente
   const estaEnHistorico = switchHistoricoBtn.classList.contains('active');
   const estaEnBuscador = buscadorBtn.classList.contains('active');
+  const estaEnTiempoReal = tiempoRealBtn.classList.contains('active');
 
   // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
   if (ruta && !estaEnHistorico) {
@@ -412,19 +417,9 @@ function reiniciarRuta() {
   markers = { 0: null, 1: null };
   
   liveRoute = null;
-  // Reset liveCoords to current position
-  if (ultimaCoord) {
-    liveCoords = [{
-      latitud: ultimaCoord.latitud,
-      longitud: ultimaCoord.longitud,
-      vehiculo: ultimaCoord.vehiculo,
-      fecha: ultimaCoord.fecha,
-      hora: ultimaCoord.hora,
-      rpm: ultimaCoord.rpm || 0
-    }];
-  } else {
-    liveCoords = [];
-  }
+  
+  // Completely reset liveCoords to prevent redrawing previous paths
+  liveCoords = [];
   
   // Eliminamos también los datos guardados
   localStorage.removeItem('liveCoords');
@@ -439,6 +434,38 @@ function reiniciarRuta() {
     map.removeLayer(marcadorSeleccionado);
     marcadorSeleccionado = null;
   }
+  
+  // Si estamos en tiempo real, necesitamos obtener la última coordenada
+  // para iniciar un nuevo trazado desde el punto actual
+  if (estaEnTiempoReal) {
+    // This will restart tracking from current point only
+    obtenerUltimaCoordenada().then(ultimaCoord => {
+      if (ultimaCoord) {
+        liveCoords = [{
+          latitud: ultimaCoord.latitud,
+          longitud: ultimaCoord.longitud,
+          vehiculo: ultimaCoord.vehiculo,
+          fecha: ultimaCoord.fecha,
+          hora: ultimaCoord.hora,
+          rpm: ultimaCoord.rpm || 0
+        }];
+        
+        // Update the marker for the current position
+        const lat = parseFloat(ultimaCoord.latitud);
+        const lon = parseFloat(ultimaCoord.longitud);
+        const car = ultimaCoord.vehiculo;
+        const fechacorregida = ultimaCoord.fecha.split("T")[0];
+        
+        // Only show marker if it passes the vehicle filter
+        if (vehiculoFiltro === "todos" || 
+            (vehiculoFiltro === "vehiculo1" && car === 0) || 
+            (vehiculoFiltro === "vehiculo2" && car === 1)) {
+          updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+        }
+      }
+    });
+  }
+  
   // Ocultamos el panel de resultados
   const resultsPanel = document.getElementById('search-results-panel');
   if (resultsPanel) resultsPanel.classList.add('hidden');
@@ -679,6 +706,23 @@ function substractArrayEvenly(arr, maxLength) {
         return;
       }
       
+      // If liveCoords is empty (after reset), just add the current position without drawing route
+      if (liveCoords.length === 0) {
+        liveCoords.push(ultimaCoord);
+        
+        // Update the marker with the new position
+        const car = ultimaCoord.vehiculo;
+        const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
+        
+        if (vehiculoFiltro === "todos" || 
+          (vehiculoFiltro === "vehiculo1" && car === 0) || 
+          (vehiculoFiltro === "vehiculo2" && car === 1)) {
+          updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+        }
+        
+        return;
+      }
+      
       // Verificar si la nueva coordenada es diferente de la última
       const ultimaAlmacenada = liveCoords.length > 0 ? liveCoords[liveCoords.length - 1] : null;
       
@@ -695,14 +739,17 @@ function substractArrayEvenly(arr, maxLength) {
         
         console.log("📍 Total de coordenadas:", liveCoords.length);
         
-        // Limpiar rutas previas
-        if (liveRoute) {
-          map.removeLayer(liveRoute);
-          liveRoute = null;
+        // If we have at least 2 coordinates, draw the route
+        if (liveCoords.length >= 2) {
+          // Limpiar rutas previas
+          if (liveRoute) {
+            map.removeLayer(liveRoute);
+            liveRoute = null;
+          }
+          
+          // Dibujar ruta filtrada por vehículo
+          dibujarRutaFiltrada(liveCoords);
         }
-        
-        // Dibujar ruta filtrada por vehículo
-        dibujarRutaFiltrada(liveCoords);
         
         // Actualizar el marcador con la nueva posición
         const car = ultimaCoord.vehiculo;
@@ -711,7 +758,7 @@ function substractArrayEvenly(arr, maxLength) {
         if (vehiculoFiltro === "todos" || 
           (vehiculoFiltro === "vehiculo1" && car === 0) || 
           (vehiculoFiltro === "vehiculo2" && car === 1)) {
-        updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+          updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
         }
         
         // Ajustar vista del mapa
