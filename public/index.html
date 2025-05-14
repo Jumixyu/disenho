@@ -67,17 +67,17 @@
   
   <div class="contenedor hidden" id="historico-controls">
     <div class="contenedor flex-column">
+      <select id="filtroHistorico" class="select-filter">
+        <option value="todos">Ambos vehículos</option>
+        <option value="vehiculo1">Vehículo 1</option>
+        <option value="vehiculo2">Vehículo 2</option>
+      </select>
       <div class="contenedor"><label for="inicio">Inicio:</label>
         <input type="datetime-local" id="inicio" step="1" class="datetime-input"/>
       </div>
       <div class="contenedor"><label for="fin">Fin:</label>
         <input type="datetime-local" id="fin" step="1" class="datetime-input"/>
       </div>
-      <select id="filtroHistorico" class="select-filter">
-        <option value="todos">Ambos vehículos</option>
-        <option value="vehiculo1">Vehículo 1</option>
-        <option value="vehiculo2">Vehículo 2</option>
-      </select>
       <div class="contenedor ">
         <button id="historico-btn" onclick="document.getElementById('final').scrollIntoView({ behavior: 'smooth' })">📌 Ver Recorrido Histórico</button>
       </div>
@@ -86,6 +86,11 @@
 
   <div class="contenedor hidden" id="buscador-controls">
     <div class="contenedor flex-column">
+      <select id="filtroBuscador" class="form-control">
+        <option value="todos">Ambos vehículos</option>
+        <option value="vehiculo1">Vehículo 1</option>
+        <option value="vehiculo2">Vehículo 2</option>
+      </select>
       <div class="contenedor"><label for="inicioSearch">Inicio:</label>
         <input type="datetime-local" id="inicioSearch" step="1" class="datetime-input"/>
       </div>
