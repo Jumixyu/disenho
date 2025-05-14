@@ -277,6 +277,28 @@ function mostrarResultadosBusqueda(resultados) {
   crearPanelResultados(resultados);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function popup_buscador(lat, lon, fecha, hora, vehiculo, rpm) {
+
+  // Eliminar el marcador anterior si existe
+  if (marcadorBuscador) {
+    map.removeLayer(marcadorBuscador);
+  }
+
+  // Crear contenido del popup
+  const contenido = `
+    📍 Lat: ${lat}, Long: ${lon}<br>
+    📅 ${fecha} ${hora}<br>
+    🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
+  `;
+
+  // Crear y agregar el nuevo marcador con popup
+  marcadorBuscador = L.marker([lat, lon]).addTo(map);
+  marcadorBuscador.bindPopup(contenido).openPopup();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Función para crear el panel de resultados
 function crearPanelResultados(resultados) {
   // Verificamos si ya existe el panel
@@ -341,7 +363,7 @@ function crearPanelResultados(resultados) {
       
       // Crear y agregar el nuevo marcador
       marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-      popup_buscador(resultado.latitud, resultado.longitud, resultado.fecha, resultado.hora, resultado.rpm, resultado.vehiculo);
+      popup_buscador(resultado.lat, resultado.lon, resultado.fecha, resultado.hora, resultado.rpm, resultado.vehiculo);
   });
     
     resultsList.appendChild(item);
@@ -363,30 +385,6 @@ function crearPanelResultados(resultados) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-function popup_buscador(lat, lon, fecha, hora, vehiculo, rpm) {
-  // Aumentar el número del vehículo (si es necesario)
-  const vehiculoreal = vehiculo + 1;
-
-  // Eliminar el marcador anterior si existe
-  if (marcadorBuscador) {
-    map.removeLayer(marcadorBuscador);
-  }
-
-  // Crear contenido del popup
-  const contenido = `
-    📍 Lat: ${lat}, Long: ${lon}<br>
-    📅 ${fecha} ${hora}<br>
-    🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
-  `;
-
-  // Crear y agregar el nuevo marcador con popup
-  marcadorBuscador = L.marker([lat, lon]).addTo(map);
-  marcadorBuscador.bindPopup(contenido).openPopup();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //Manejador del Slider
