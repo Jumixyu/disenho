@@ -387,10 +387,12 @@ sliderInput.addEventListener('input', () => {
   // Crear contenido del popup
   const fecha = resultado.fecha.split('T')[0];
   const popupContent = `
-    <strong>Fecha:</strong> ${fecha} ${resultado.hora}<br>
-    <strong>Vehiculo:</strong> ${resultado.vehiculo + 1}<br>
-    <strong>Latitud:</strong> ${resultado.latitud}<br>
-    <strong>Longitud:</strong> ${resultado.longitud}
+    <div style="font-family: Arial, sans-serif; font-size: 12px;">
+      <div><strong>Última ubicación:</strong></div>
+      <div>📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}</div>
+      <div>📅 ${fecha} ${resultado.hora}</div>
+      <div>🚗 Vehiculo: ${resultado.vehiculo + 1}</div>
+    </div>
   `;
   
   // Añadir y abrir el popup
