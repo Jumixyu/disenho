@@ -58,13 +58,10 @@ obtenerFechaHoraActual();
 
 //--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
-  const vehiculoreal = parseInt(vehiculo) + 1;
 
-  const lastPopupContent = `
-    📍 Lat: ${lat}, Long: ${lon}<br>
-    📅 ${fecha} ${hora}<br>
-    🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
-  `;
+  vehiculoreal= vehiculo+1
+
+  lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculoreal}`;
 
   if (!marker) {
     marker = L.marker([lat, lon]).addTo(map);
@@ -72,14 +69,14 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
     marker.setLatLng([lat, lon]);
   }
 
-  // Mostrar el popup en el marcador
-  marker.bindPopup(lastPopupContent).openPopup();
-
-  // Mostrar también en el panel superior si está activado
+  // Mostrar contenido si la casilla está activada
   if (checkbox.checked) {
     infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
     infoDiv.style.display = "block";
   }
+
+  // Asegúrate de que no salga popup en el mapa
+  if (marker.getPopup()) marker.closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
@@ -375,6 +372,7 @@ sliderInput.addEventListener('input', () => {
   const resultado = resultadosGlobales[index];
 
   if (!resultado) return;
+
   // Mover el mapa
   map.setView([resultado.latitud, resultado.longitud], 18);
 
@@ -385,13 +383,6 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  // Actualizar el marcador con la última coordenada
-  const car = ultimaCoord.vehiculo;
-  const fechacorregida = ultimaCoord.fecha.split("T")[0];
-  updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
-  
-  // Guardamos la ruta actual en localStorage
-  saveLiveCoords();
 });
 
 //mostrar valores del panel debajo del slider
