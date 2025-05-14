@@ -341,7 +341,8 @@ function crearPanelResultados(resultados) {
       
       // Crear y agregar el nuevo marcador
       marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-      
+      popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm);
+
 
   });
     
