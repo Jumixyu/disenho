@@ -1043,9 +1043,18 @@ function substractArrayEvenly(arr, maxLength) {
     const { lat, lng } = lastSearchLatLng;
     const radio = parseInt(radioSlider.value, 10);
     
+    // Get the selected vehicle filter
+    const filtroBuscador = document.getElementById('filtroBuscador').value;
+    
     try {
       const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
-      searchResults = await response.json();
+      let searchResults = await response.json();
+      
+      // Filter results based on selected vehicle
+      if (filtroBuscador !== "todos") {
+        const vehiculoNumero = filtroBuscador === "vehiculo1" ? 0 : 1;
+        searchResults = searchResults.filter(resultado => resultado.vehiculo === vehiculoNumero);
+      }
       
       if (!searchResults || searchResults.length === 0) {
         messageEl.classList.remove('hidden');
@@ -1074,6 +1083,18 @@ function mostrarResultadosBusqueda(resultados) {
   
   // No creamos marcadores, solo el panel de resultados
   crearPanelResultados(resultados);
+  
+  // Add this to display which filter is active
+  const filtroBuscador = document.getElementById('filtroBuscador').value;
+  let filterText = "Ambos vehículos";
+  if (filtroBuscador === "vehiculo1") filterText = "Vehículo 1";
+  if (filtroBuscador === "vehiculo2") filterText = "Vehículo 2";
+  
+  // You can show the active filter in the results panel title if you want
+  const resultsPanel = document.getElementById('search-results-panel');
+  if (resultsPanel) {
+    resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length}) - ${filterText}`;
+  }
 }
 
 // Función para crear el panel de resultados
