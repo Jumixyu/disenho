@@ -385,9 +385,6 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  const car = ultimaCoord.vehiculo;
-  const fechacorregida = ultimaCoord.fecha.split("T")[0];
-  updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
 });
 
 //mostrar valores del panel debajo del slider
