@@ -385,6 +385,13 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+  // Actualizar el marcador con la última coordenada
+  const car = ultimaCoord.vehiculo;
+  const fechacorregida = ultimaCoord.fecha.split("T")[0];
+  updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+  
+  // Guardamos la ruta actual en localStorage
+  saveLiveCoords();
 });
 
 //mostrar valores del panel debajo del slider
