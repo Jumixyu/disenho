@@ -68,8 +68,6 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
   } else {
     marker.setLatLng([lat, lon]);
   }
-  // Mostrar el popup en el marcador
-  marker.bindPopup(lastPopupContent).openPopup();
 
   // Mostrar contenido si la casilla está activada
   if (checkbox.checked) {
@@ -78,7 +76,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
   }
 
   // Asegúrate de que no salga popup en el mapa
-  //if (marker.getPopup()) marker.closePopup();
+  if (marker.getPopup()) marker.closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
@@ -870,6 +868,7 @@ function substractArrayEvenly(arr, maxLength) {
   map.on('click', async (e) => {
     // Solo activar si el modo Buscador está visible
     if (buscadorControls.classList.contains('hidden')) return;
+  
       const { lat, lng } = e.latlng;
       
       // Guarda latlng y radio
@@ -888,6 +887,7 @@ function substractArrayEvenly(arr, maxLength) {
       fillOpacity: 0.4,
       radius: lastSearchRadius
     }).addTo(map);
+    
   });
   
 
