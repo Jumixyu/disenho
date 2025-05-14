@@ -589,7 +589,7 @@ function substractArrayEvenly(arr, maxLength) {
   switchHistoricoBtn.addEventListener('click', () => {
     // Detener tiempo real
     stopRealTime();
-
+    
     slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
@@ -620,6 +620,12 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
+    }
+
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
   });
@@ -637,6 +643,12 @@ function substractArrayEvenly(arr, maxLength) {
     if (ruta) {
       map.removeLayer(ruta);
       ruta = null;
+    }
+
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
     }
 
     // Activamos la ruta en tiempo real
@@ -686,6 +698,12 @@ function substractArrayEvenly(arr, maxLength) {
     if (rutaPlacement) {
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
+    }
+
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
     }
   });
 
