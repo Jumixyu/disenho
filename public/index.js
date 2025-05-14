@@ -1,6 +1,9 @@
 //----------------------------- VARIABLES ----------------------------------------
 
-let marker = null;
+let markers = {
+  0: null,  // Vehiculo 1 marker 
+  1: null   // Vehiculo 2 marker 
+};
 let ruta = null; // Polilínea que representa el recorrido histórico
 let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
 let coordenadas = []; // Guarda el historial de coordenadas
@@ -150,25 +153,33 @@ function dibujarRutaFiltrada(coords) {
 
 //-------------------------------- RECUADRO ULTIMA UBICACION -------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
-
-  vehiculoreal= vehiculo+1
+  vehiculoreal = vehiculo + 1;
 
   lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculoreal}`;
 
-  if (!marker) {
-    marker = L.marker([lat, lon]).addTo(map);
+  // Create or update the marker for this specific vehicle
+  if (!markers[vehiculo]) {
+    const iconColor = vehiculo === 0 ? 'blue' : 'green';
+    const vehicleIcon = L.divIcon({
+      className: 'vehicle-marker',
+      html: `<div style="background-color: ${iconColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+    
+    markers[vehiculo] = L.marker([lat, lon], {icon: vehicleIcon}).addTo(map);
   } else {
-    marker.setLatLng([lat, lon]);
+    markers[vehiculo].setLatLng([lat, lon]);
   }
 
-  // Mostrar contenido si la casilla está activada
+  // Show content in info box if checkbox is checked
   if (checkbox.checked) {
     infoDiv.innerHTML = `<strong>Última ubicación:</strong><br>${lastPopupContent}`;
     infoDiv.style.display = "block";
   }
 
-  // Asegúrate de que no salga popup en el mapa
-  if (marker.getPopup()) marker.closePopup();
+  // No popups
+  if (markers[vehiculo].getPopup()) markers[vehiculo].closePopup();
 }
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
@@ -338,11 +349,15 @@ function stopRealTime() {
     clearInterval(currentIntervalId);
     currentIntervalId = null;
     
-    // Ocultar el marcador de tiempo real si existe
-    if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
+    // Ocultar los marcadores de tiempo real si existen
+    Object.values(markers).forEach(marker => {
+      if (marker && map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    
+    // Reset marker references
+    markers = { 0: null, 1: null };
     
     // Ocultar la ruta de tiempo real si existe
     if (liveRoute) {
@@ -381,19 +396,28 @@ function reiniciarRuta() {
     }
   });
   
+  // Clear markers
+  Object.values(markers).forEach(marker => {
+    if (marker && map.hasLayer(marker)) {
+      map.removeLayer(marker);
+    }
+  });
+  markers = { 0: null, 1: null };
+  
   liveRoute = null;
-  // Desde
-  liveCoords = [[lat, lon]];
-
-  // A:
-  liveCoords = [{
-    latitud: lat,
-    longitud: lon,
-    vehiculo: ultimaCoord.vehiculo,
-    fecha: ultimaCoord.fecha,
-    hora: ultimaCoord.hora,
-    rpm: ultimaCoord.rpm || 0
-  }];
+  // Reset liveCoords to current position
+  if (ultimaCoord) {
+    liveCoords = [{
+      latitud: ultimaCoord.latitud,
+      longitud: ultimaCoord.longitud,
+      vehiculo: ultimaCoord.vehiculo,
+      fecha: ultimaCoord.fecha,
+      hora: ultimaCoord.hora,
+      rpm: ultimaCoord.rpm || 0
+    }];
+  } else {
+    liveCoords = [];
+  }
   
   // Eliminamos también los datos guardados
   localStorage.removeItem('liveCoords');
@@ -576,7 +600,12 @@ function substractArrayEvenly(arr, maxLength) {
       // Actualizar el marcador con la última coordenada
       const car = ultimaCoord.vehiculo;
       const fechacorregida = ultimaCoord.fecha.split("T")[0];
+      
+      if (vehiculoFiltro === "todos" || 
+        (vehiculoFiltro === "vehiculo1" && car === 0) || 
+        (vehiculoFiltro === "vehiculo2" && car === 1)) {
       updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+      }
       
       // Guardamos la ruta actual en localStorage
       saveLiveCoords();
@@ -671,7 +700,12 @@ function substractArrayEvenly(arr, maxLength) {
         // Actualizar el marcador con la nueva posición
         const car = ultimaCoord.vehiculo;
         const fechaCorrregida = ultimaCoord.fecha.split("T")[0];
+        
+        if (vehiculoFiltro === "todos" || 
+          (vehiculoFiltro === "vehiculo1" && car === 0) || 
+          (vehiculoFiltro === "vehiculo2" && car === 1)) {
         updateMarker(lat, lon, fechaCorrregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+        }
         
         // Ajustar vista del mapa
         map.setView([lat, lon], map.getZoom() ?? (currentZoom ?? 15));
@@ -841,6 +875,23 @@ function substractArrayEvenly(arr, maxLength) {
 
   document.getElementById("filtro").addEventListener("change", function () {
     vehiculoFiltro = this.value;
+    
+    // Update marker visibility based on the selected filter
+    if (markers[0]) {
+      if (vehiculoFiltro === "todos" || vehiculoFiltro === "vehiculo1") {
+        if (!map.hasLayer(markers[0])) map.addLayer(markers[0]);
+      } else {
+        if (map.hasLayer(markers[0])) map.removeLayer(markers[0]);
+      }
+    }
+    
+    if (markers[1]) {
+      if (vehiculoFiltro === "todos" || vehiculoFiltro === "vehiculo2") {
+        if (!map.hasLayer(markers[1])) map.addLayer(markers[1]);
+      } else {
+        if (map.hasLayer(markers[1])) map.removeLayer(markers[1]);
+      }
+    }
     
     // Si estamos en tiempo real, actualizamos la vista inmediatamente
     if (currentIntervalId) {
