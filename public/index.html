@@ -13,7 +13,7 @@
 <body>
   <div class="contenedor2">
     <button id="info-btn">?</button>
-    <h1 id="titulo">MyCoords - Seguimiento de vehículo</h1>
+    <h1 id="titulo">MyCoords 3- Seguimiento de vehículos</h1>
   </div>
 
   <!-- Ventana flotante (modal) -->
@@ -47,7 +47,7 @@
   </div>
 
   <div class="contenedor">
-    <button id="tiempo-real-btn">Tiempo real</button>
+    <button id="tiempo-real-btn" >Tiempo real</button>
     <button id="switch-historico-btn">Histórico</button>
     <button id="buscador-btn">Buscador</button>
   </div>
@@ -56,6 +56,11 @@
     <div class="contenedor flex-column">
       <div class="contenedor">
         <button id="reiniciar-btn">🔄 Limpiar Trazo</button>
+        <select id="filtro">
+          <option value="todos">Ambos vehículos</option>
+          <option value="vehiculo1">Vehículo 1</option>
+          <option value="vehiculo2">Vehículo 2</option>
+        </select>
       </div>
     </div>
   </div>
@@ -68,8 +73,13 @@
       <div class="contenedor"><label for="fin">Fin:</label>
         <input type="datetime-local" id="fin" step="1" class="datetime-input"/>
       </div>
+      <select id="filtroHistorico" class="select-filter">
+        <option value="todos">Ambos vehículos</option>
+        <option value="vehiculo1">Vehículo 1</option>
+        <option value="vehiculo2">Vehículo 2</option>
+      </select>
       <div class="contenedor ">
-        <button id="historico-btn">📌 Ver Recorrido Histórico</button>
+        <button id="historico-btn" onclick="document.getElementById('final').scrollIntoView({ behavior: 'smooth' })">📌 Ver Recorrido Histórico</button>
       </div>
     </div>
   </div>
@@ -83,8 +93,8 @@
         <input type="datetime-local" id="finSearch" step="1" class="datetime-input"/>
       </div>
       <div class="contenedor ">
-        <label for="radioSlider">Radio de busqueda: <br><span id="radioValor">500</span> m</label>
-        <input type="range" id="radioSlider" min="10" max="1000" step="10" value="500" />
+        <label for="radioSlider">Radio de busqueda: <br><span id="radioValor">1000</span> m</label>
+        <input type="range" id="radioSlider" min="10" max="2000" step="10" value="1000" />
       </div>
       <div class="contenedor ">
         <button id="busqueda-btn">🔎 Busqueda</button>
@@ -92,12 +102,22 @@
     </div>
   </div>
 
+
   <div class="contenedor">
     <p id="message" class="message hidden"></p>
   </div>
 
-  <div id="map"></div>
+  <div id="map">
+    <div class="slider-container hidden" id="slider-map">
+      <label for="velocidad-slider">Slider Posiciones Encontradas</label>
+      <input type="range" id="velocidad-slider" min="1" max="10" step="1" value="1" class="slider" />
+      <span id="valor-velocidad"></span>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch@latest/dist/bundle.min.js"></script>
   <script src="./index.js"></script>
+
+  <div id="final"></div>
 </body>
