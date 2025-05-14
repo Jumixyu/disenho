@@ -1,4 +1,5 @@
-//Variables
+//----------------------------- VARIABLES ----------------------------------------
+
 let marker = null;
 let ruta = null; // Polilínea que representa el recorrido histórico
 let liveRoute = null; // Polilínea que representa el recorrido en tiempo real
@@ -56,7 +57,7 @@ fetch('/config')
 obtenerFechaHoraActual();
 
 
-//--------------------------------COORDS ULTIMA UBICACION POPUP-------------------------------------------------------
+//-------------------------------- RECUADRO ULTIMA UBICACION -------------------------------------------------------
 function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
   vehiculoreal= vehiculo+1
@@ -137,7 +138,7 @@ function obtenerFechaHoraActual() {
 }
 
 
-//CIRCULOS
+// CIRCULOS
 function mostrarCirculoBuscador() {
   if (lastSearchLatLng && lastSearchRadius) {
     if (searchCircle) {
@@ -175,7 +176,7 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
-//SELECTOR VEHICULO
+// SELECTOR VEHICULO
 
 function mostrarDatosFiltrados(grupo) {
   console.log("Filtrando por:", grupo);
@@ -265,154 +266,6 @@ function stopRealTime() {
   }
 }
 
-/// Función para mostrar los resultados de búsqueda solo en el panel lateral
-function mostrarResultadosBusqueda(resultados) {
-  // Limpiamos marcadores anteriores por si acaso
-  searchResultsMarkers.forEach(m => map.removeLayer(m));
-  searchResultsMarkers = [];
-  
-  // No creamos marcadores, solo el panel de resultados
-  crearPanelResultados(resultados);
-}
-
-// Función para crear el panel de resultados
-function crearPanelResultados(resultados) {
-  // Verificamos si ya existe el panel
-  let resultsPanel = document.getElementById('search-results-panel');
-  
-  if (!resultsPanel) {
-    resultsPanel = document.createElement('div');
-    resultsPanel.id = 'search-results-panel';
-    resultsPanel.className = 'search-results-panel';
-    
-    // Creamos el encabezado del panel
-    const header = document.createElement('div');
-    header.className = 'results-header';
-    header.innerHTML = `
-      <h3>Resultados de búsqueda (${resultados.length})</h3>
-      <button id="close-results">×</button>
-    `;
-    
-    const content = document.createElement('div');
-    content.id = 'results-content';
-    
-    resultsPanel.appendChild(header);
-    resultsPanel.appendChild(content);
-    document.body.appendChild(resultsPanel);
-    
-    // Evento para cerrar el panel
-    document.getElementById('close-results').addEventListener('click', () => {
-      resultsPanel.classList.add('hidden');
-    });
-  } else {
-    // Si ya existe, actualizamos el título y lo mostramos
-    resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length})`;
-    resultsPanel.classList.remove('hidden');
-    const content = document.getElementById('results-content');
-    content.innerHTML = '';
-  }
-  
-  // Crear la lista de resultados
-  const resultsList = document.createElement('ul');
-  resultsList.className = 'results-list';
-  
-  resultados.slice().reverse().forEach((resultado, index) => {
-    const fecha = resultado.fecha.split('T')[0];
-    const item = document.createElement('li');
-    const vehiculoresult = resultado.vehiculo;
-    item.className = 'result-item';
-    item.innerHTML = `
-      <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
-      <small>Latitud: ${resultado.latitud}</small><br>
-      <small>Longitud: ${resultado.longitud}</small><br>
-      <small>Vehiculo: ${vehiculoresult}</small>
-    `;
-    
-    // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
-    item.addEventListener('click', () => {
-      map.setView([resultado.latitud, resultado.longitud], 18);
-
-      // Eliminar marcador anterior si existe
-      if (marcadorSeleccionado) {
-        map.removeLayer(marcadorSeleccionado);
-      }
-      
-      // Crear y agregar el nuevo marcador
-      marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-      
-
-  });
-    
-    resultsList.appendChild(item);
-  });
-  
-  document.getElementById('results-content').appendChild(resultsList);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Configurar el slider
-    resultadosGlobales = resultados.slice(); // guardar para el slider
-    const slidermap = document.getElementById('slider-map');
-    const sliderInput = document.getElementById('velocidad-slider');
-
-    sliderInput.min = 1;
-    sliderInput.max = resultadosGlobales.length;
-    sliderInput.value = 1;
-
-    slidermap.classList.remove('hidden');
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//Manejador del Slider
-const sliderInput = document.getElementById('velocidad-slider');
-
-sliderInput.addEventListener('input', () => {
-  const index = parseInt(sliderInput.value, 10) - 1;
-  const resultado = resultadosGlobales[index];
-
-  if (!resultado) return;
-
-  // Mover el mapa manteniendo el nivel de zoom actual
-  const currentZoomLevel = map.getZoom();
-  map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
-
-  // Quitar el marcador anterior
-  if (marcadorSeleccionado) {
-    map.removeLayer(marcadorSeleccionado);
-  }
-
-  // Agregar nuevo marcador
-  marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  
-  // Crear contenido del popup
-  const fecha = resultado.fecha.split('T')[0];
-  const popupContent = `
-    <div style="font-family: Arial, sans-serif; font-size: 12px;">
-      <div><strong>Última ubicación:</strong></div>
-      <div>📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}</div>
-      <div>📅 ${fecha} ${resultado.hora}</div>
-      <div>🚗 Vehiculo: ${resultado.vehiculo + 1}</div>
-    </div>
-  `;
-  
-  // Añadir y abrir el popup
-  marcadorSeleccionado.bindPopup(popupContent).openPopup();
-});
-
-//Actualizar el texto debajo del slider
-const valorVelocidad = document.getElementById('valor-velocidad');
-
-sliderInput.addEventListener('input', () => {
-  const index = parseInt(sliderInput.value, 10) - 1;
-  const resultado = resultadosGlobales[index];
-
-  if (!resultado) return;
-
-  valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
   // Solo eliminamos la ruta histórica, mantenemos la ruta en tiempo real
@@ -510,8 +363,7 @@ function substractArrayEvenly(arr, maxLength) {
   return result;
 }
 
-//-----------------------------------------------------------MAINFUNTION--------------------------------------------
-
+//---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
 (async () => {
   'use-strict';
@@ -522,7 +374,7 @@ function substractArrayEvenly(arr, maxLength) {
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
 
-  // TIEMPO REAL
+  // ------------------------------------------------- TIEMPO REAL ---------------------------------------------------- 
   async function iniciarTiempoReal() {
     historicoControlsInput.classList.add('hidden');
     buscadorControls.classList.add('hidden');
@@ -871,13 +723,6 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
-    ////////////////////////////////////////////////////////////////// prueba
-    const slider = document.getElementById('velocidad-slider');
-    const sliderContainer = document.querySelector('.slider-container');
-  
-    L.DomEvent.disableClickPropagation(sliderContainer);
-    L.DomEvent.disableScrollPropagation(sliderContainer);
-    //////////////////////////////////////////////////////////////////  
   //--------------------------------------------------- CIRCULO ----------------------------------------------------
 
   map.on('click', async (e) => {
@@ -958,7 +803,155 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
-  // ----------------------------------------------------------------------------------------------------------------------- 
+//-------------------------------------- PANEL LATERAL Y SLIDER ----------------------------------------------------------
+
+/// Función para mostrar los resultados de búsqueda solo en el panel lateral
+function mostrarResultadosBusqueda(resultados) {
+  // Limpiamos marcadores anteriores por si acaso
+  searchResultsMarkers.forEach(m => map.removeLayer(m));
+  searchResultsMarkers = [];
+  
+  // No creamos marcadores, solo el panel de resultados
+  crearPanelResultados(resultados);
+}
+
+// Función para crear el panel de resultados
+function crearPanelResultados(resultados) {
+  // Verificamos si ya existe el panel
+  let resultsPanel = document.getElementById('search-results-panel');
+  
+  if (!resultsPanel) {
+    resultsPanel = document.createElement('div');
+    resultsPanel.id = 'search-results-panel';
+    resultsPanel.className = 'search-results-panel';
+    
+    // Creamos el encabezado del panel
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `
+      <h3>Resultados de búsqueda (${resultados.length})</h3>
+      <button id="close-results">×</button>
+    `;
+    
+    const content = document.createElement('div');
+    content.id = 'results-content';
+    
+    resultsPanel.appendChild(header);
+    resultsPanel.appendChild(content);
+    document.body.appendChild(resultsPanel);
+    
+    // Evento para cerrar el panel
+    document.getElementById('close-results').addEventListener('click', () => {
+      resultsPanel.classList.add('hidden');
+    });
+  } else {
+    // Si ya existe, actualizamos el título y lo mostramos
+    resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length})`;
+    resultsPanel.classList.remove('hidden');
+    const content = document.getElementById('results-content');
+    content.innerHTML = '';
+  }
+  
+  // Crear la lista de resultados
+  const resultsList = document.createElement('ul');
+  resultsList.className = 'results-list';
+  
+  resultados.slice().reverse().forEach((resultado, index) => {
+    const fecha = resultado.fecha.split('T')[0];
+    const item = document.createElement('li');
+    const vehiculoresult = resultado.vehiculo;
+    item.className = 'result-item';
+    item.innerHTML = `
+      <strong>#${index + 1}</strong> - ${fecha} ${resultado.hora}<br>
+      <small>Latitud: ${resultado.latitud}</small><br>
+      <small>Longitud: ${resultado.longitud}</small><br>
+      <small>Vehiculo: ${vehiculoresult}</small>
+    `;
+    
+    // Al hacer clic en un resultado, centra el mapa en ese punto y abrir popup
+    item.addEventListener('click', () => {
+      map.setView([resultado.latitud, resultado.longitud], 18);
+
+      // Eliminar marcador anterior si existe
+      if (marcadorSeleccionado) {
+        map.removeLayer(marcadorSeleccionado);
+      }
+      
+      // Crear y agregar el nuevo marcador
+      marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+  });
+    
+    resultsList.appendChild(item);
+  });
+  
+  document.getElementById('results-content').appendChild(resultsList);
+
+    // Configurar el slider
+    resultadosGlobales = resultados.slice(); // guardar para el slider
+    const slidermap = document.getElementById('slider-map');
+    const sliderInput = document.getElementById('velocidad-slider');
+
+    sliderInput.min = 1;
+    sliderInput.max = resultadosGlobales.length;
+    sliderInput.value = 1;
+
+    slidermap.classList.remove('hidden');
+}
+
+// Control del Slider
+const sliderInput = document.getElementById('velocidad-slider');
+
+sliderInput.addEventListener('input', () => {
+  const index = parseInt(sliderInput.value, 10) - 1;
+  const resultado = resultadosGlobales[index];
+
+  if (!resultado) return;
+
+  // Mover el mapa manteniendo el nivel de zoom actual
+  const currentZoomLevel = map.getZoom();
+  map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
+
+  // Quitar el marcador anterior
+  if (marcadorSeleccionado) {
+    map.removeLayer(marcadorSeleccionado);
+  }
+
+  // Agregar nuevo marcador
+  marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+  
+  // Crear contenido del popup
+  const fecha = resultado.fecha.split('T')[0];
+  const popupContent = `
+    <div style="font-family: Arial, sans-serif; font-size: 12px;">
+      <div><strong>Última ubicación:</strong></div>
+      <div>📍 Lat: ${resultado.latitud}, Long: ${resultado.longitud}</div>
+      <div>📅 ${fecha} ${resultado.hora}</div>
+      <div>🚗 Vehiculo: ${resultado.vehiculo + 1}</div>
+    </div>
+  `;
+  
+  // Añadir y abrir el popup
+  marcadorSeleccionado.bindPopup(popupContent).openPopup();
+});
+
+// Actualizar el texto debajo del slider
+const valorVelocidad = document.getElementById('valor-velocidad');
+
+sliderInput.addEventListener('input', () => {
+  const index = parseInt(sliderInput.value, 10) - 1;
+  const resultado = resultadosGlobales[index];
+
+  if (!resultado) return;
+
+  valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
+});
+
+const slider = document.getElementById('velocidad-slider');
+const sliderContainer = document.querySelector('.slider-container');
+
+L.DomEvent.disableClickPropagation(sliderContainer);
+L.DomEvent.disableScrollPropagation(sliderContainer);
+// --------------------------------------------------------------------------------------------------------------------- 
 
   // Evento al cambiar el checkbox de ultima ubicación
   checkbox.addEventListener("change", () => {
