@@ -376,6 +376,10 @@ sliderInput.addEventListener('input', () => {
 
   if (!resultado) return;
 
+  const car = ultimaCoord.vehiculo;
+  const fechacorregida = ultimaCoord.fecha.split("T")[0];
+  updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
+
   // Mover el mapa
   map.setView([resultado.latitud, resultado.longitud], 18);
 
