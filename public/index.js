@@ -17,6 +17,8 @@ let lastPopupContent = "";
 let currentZoom = 15;
 let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
+let marcadorBuscador = null;
+
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -365,22 +367,23 @@ function crearPanelResultados(resultados) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 function popup_buscador(lat, lon, fecha, hora, vehiculoreal, rpm) {
-  // Crear el contenido del popup
+  // Eliminar el marcador anterior si existe
+  if (marcadorBuscador) {
+    map.removeLayer(marcadorBuscador);
+  }
+
+  // Crear contenido del popup
   const contenido = `
     📍 Lat: ${lat}, Long: ${lon}<br>
     📅 ${fecha} ${hora}<br>
     🚗 RPM: ${rpm}, Vehículo: ${vehiculoreal}
   `;
 
-  // Crear un marcador temporal con popup
-  const popupMarker = L.marker([lat, lon]).addTo(map);
-
-  // Asociar el popup y abrirlo
-  popupMarker.bindPopup(contenido).openPopup();
-
-  // Opcional: guardar el marcador si luego lo quieres eliminar o reutilizar
-  return popupMarker;
+  // Crear y agregar el nuevo marcador
+  marcadorBuscador = L.marker([lat, lon]).addTo(map);
+  marcadorBuscador.bindPopup(contenido).openPopup();
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,13 +401,11 @@ sliderInput.addEventListener('input', () => {
 
   // Quitar el marcador anterior
   if (marcadorSeleccionado) {
-
     map.removeLayer(marcadorSeleccionado);
   }
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  const marcadorSeleccionado = popup_buscador();
 });
 
 //mostrar valores del panel debajo del slider
