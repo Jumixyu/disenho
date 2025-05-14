@@ -627,12 +627,6 @@ function substractArrayEvenly(arr, maxLength) {
     }
   });
 
-    // Eliminar el marcadorSeleccionado si existe
-    if (marcadorSeleccionado) {
-      map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
-    }
-
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
   });
@@ -652,6 +646,12 @@ function substractArrayEvenly(arr, maxLength) {
       ruta = null;
     }
 
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
+    }
+
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
 
@@ -665,7 +665,7 @@ function substractArrayEvenly(arr, maxLength) {
 
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-    
+
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
