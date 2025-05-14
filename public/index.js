@@ -403,7 +403,7 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
-  const marcadorBuscador = mostrarPopupEnMapa();
+  const marcadorBuscador = popup_buscador();
 });
 
 //mostrar valores del panel debajo del slider
