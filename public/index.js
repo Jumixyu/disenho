@@ -598,6 +598,13 @@ function substractArrayEvenly(arr, maxLength) {
     obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
 
     ocultarCirculoBuscador(); // <- Ocultar círculo
+
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
+    }
+
   });
 
   buscadorBtn.addEventListener('click', () => {
@@ -645,12 +652,6 @@ function substractArrayEvenly(arr, maxLength) {
       ruta = null;
     }
 
-    // Eliminar el marcadorSeleccionado si existe
-    if (marcadorSeleccionado) {
-      map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
-    }
-
     // Activamos la ruta en tiempo real
     await iniciarTiempoReal();
 
@@ -664,6 +665,12 @@ function substractArrayEvenly(arr, maxLength) {
 
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
+    
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
+    }
 
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
@@ -698,12 +705,6 @@ function substractArrayEvenly(arr, maxLength) {
     if (rutaPlacement) {
       ruta = new L.polyline(rutaPlacement, { color: 'red', weight: 4 }).addTo(map);
       map.fitBounds(ruta.getBounds());
-    }
-
-    // Eliminar el marcadorSeleccionado si existe
-    if (marcadorSeleccionado) {
-      map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
     }
   });
 
