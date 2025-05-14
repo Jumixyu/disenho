@@ -21,7 +21,7 @@ jobs:
           NOMBRE: Juan
         run: |
           npm install
-          pm2 start server.js --name juan-app --watch
+          pm2 restart juan-app --watch || pm2 start server.js --name juan-app --watch
 
       - name: verify all services are running
         run: pm2 list
@@ -44,7 +44,7 @@ jobs:
           NOMBRE: Andrea
         run: |
           npm install
-          pm2 start server.js --name andrea-app --watch
+          pm2 restart andrea-app --watch || pm2 start server.js --name andrea-app --watch
 
       - name: verify all services are running
         run: pm2 list
@@ -67,7 +67,7 @@ jobs:
           NOMBRE: Brayan
         run: |
           npm install
-          pm2 start server.js --name brayan-app --watch
+          pm2 restart brayan-app --watch || pm2 start server.js --name brayan-app --watch
 
       - name: verify all services are running
         run: pm2 list
@@ -90,7 +90,7 @@ jobs:
           NOMBRE: Steeven
         run: |
           npm install
-          pm2 start server.js --name steeven-app --watch
+          pm2 restart steeven-app --watch || pm2 start server.js --name steeven-app --watch
 
       - name: verify all services are running
         run: pm2 list
