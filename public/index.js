@@ -666,12 +666,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
 
-    // Eliminar el marcadorSeleccionado si existe
-    if (marcadorSeleccionado) {
-      map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
-    }
-
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -699,6 +693,12 @@ function substractArrayEvenly(arr, maxLength) {
       return;
     }
 
+    // Eliminar el marcadorSeleccionado si existe
+    if (marcadorSeleccionado) {
+      map.removeLayer(marcadorSeleccionado);
+      marcadorSeleccionado = null;
+    }
+    
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
 
