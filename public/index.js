@@ -870,12 +870,6 @@ function substractArrayEvenly(arr, maxLength) {
   map.on('click', async (e) => {
     // Solo activar si el modo Buscador está visible
     if (buscadorControls.classList.contains('hidden')) return;
-    
-    // Actualizar el marcador con la última coordenada
-    const car = ultimaCoord.vehiculo;
-    const fechacorregida = ultimaCoord.fecha.split("T")[0];
-    updateMarker(lat, lon, fechacorregida, ultimaCoord.hora, ultimaCoord.rpm || 0, car);
-    
       const { lat, lng } = e.latlng;
       
       // Guarda latlng y radio
