@@ -271,6 +271,7 @@ function reiniciarRuta() {
 
   // Verificar en qué pestaña estamos actualmente
   const estaEnHistorico = switchHistoricoBtn.classList.contains('active');
+  const estaEnBuscador = buscadorBtn.classList.contains('active');
 
   // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
   if (ruta && !estaEnHistorico) {
@@ -295,7 +296,12 @@ function reiniciarRuta() {
   // Eliminamos los marcadores de resultados de búsqueda
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
-
+  
+  // Si se esta en buscador, eliminamos el marcador seleccionado
+  if (estaEnBuscador && marcadorSeleccionado) {
+    map.removeLayer(marcadorSeleccionado);
+    marcadorSeleccionado = null;
+  }
   // Ocultamos el panel de resultados
   const resultsPanel = document.getElementById('search-results-panel');
   if (resultsPanel) resultsPanel.classList.add('hidden');
@@ -612,7 +618,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
     }
     
     // Si hay una ruta histórica guardada, la volvemos a mostrar
@@ -644,6 +649,14 @@ function substractArrayEvenly(arr, maxLength) {
     if (ruta) {
       map.removeLayer(ruta);
     }
+      // Restaurar el marcador seleccionado si existe
+    if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
+      map.addLayer(marcadorSeleccionado);
+      // Si el marcador tiene un popup, lo abrimos nuevamente
+      if (marcadorSeleccionado.getPopup()) {
+        marcadorSeleccionado.openPopup();
+      }
+    }
   });
 
   radioSlider.addEventListener('input', () => {
@@ -667,7 +680,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
     }
 
     // Activamos la ruta en tiempo real
