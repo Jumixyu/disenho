@@ -383,9 +383,21 @@ sliderInput.addEventListener('input', () => {
 
   // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
+  
+  // Crear contenido del popup
+  const fecha = resultado.fecha.split('T')[0];
+  const popupContent = `
+    <strong>Fecha:</strong> ${fecha} ${resultado.hora}<br>
+    <strong>Vehiculo:</strong> ${resultado.vehiculo + 1}<br>
+    <strong>Latitud:</strong> ${resultado.latitud}<br>
+    <strong>Longitud:</strong> ${resultado.longitud}
+  `;
+  
+  // Añadir y abrir el popup
+  marcadorSeleccionado.bindPopup(popupContent).openPopup();
 });
 
-//mostrar valores del panel debajo del slider
+//Actualizar el texto debajo del slider
 const valorVelocidad = document.getElementById('valor-velocidad');
 
 sliderInput.addEventListener('input', () => {
