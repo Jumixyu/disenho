@@ -23,10 +23,6 @@ let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
-let searchRoutePolylines = {
-  0: null, // Vehicle 1 polyline (blue)
-  1: null  // Vehicle 2 polyline (green)
-};
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -387,56 +383,30 @@ function stopRealTime() {
   }
 }
 
-function limpiarTodasLasRutas() {
-  console.log('🧹 Limpiando todas las rutas...');
-  
-  // Remove historic route if it exists
-  if (ruta && map.hasLayer(ruta)) {
-    map.removeLayer(ruta);
-    ruta = null;
-  }
-  
-  // Remove live route if it exists
-  if (liveRoute && map.hasLayer(liveRoute)) {
-    map.removeLayer(liveRoute);
-    liveRoute = null;
-  }
-  
-  // Remove search route polyline if it exists
-  if (searchRoutePolyline && map.hasLayer(searchRoutePolyline)) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-  }
-  
-  // Remove all individual vehicle route polylines
-  Object.values(searchRoutePolylines).forEach(polyline => {
-    if (polyline && map.hasLayer(polyline)) {
-      map.removeLayer(polyline);
-    }
-  });
-  searchRoutePolylines = { 0: null, 1: null };
-  
-  // Find and remove ALL polylines from the map (catch-all)
-  map.eachLayer(function(layer) {
-    if (layer instanceof L.Polyline && layer !== circleConnector) {
-      map.removeLayer(layer);
-    }
-  });
-}
-
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
 
-  // Call our polyline cleanup function
-  limpiarTodasLasRutas();
-  
   // Verificar en qué pestaña estamos actualmente
   const estaEnHistorico = switchHistoricoBtn.classList.contains('active');
   const estaEnBuscador = buscadorBtn.classList.contains('active');
   const estaEnTiempoReal = tiempoRealBtn.classList.contains('active');
-  
-  // Reset route arrays
-  coordenadas = [];
+
+  // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
+  if (ruta && !estaEnHistorico) {
+    map.removeLayer(ruta);
+  } else if (ruta && estaEnHistorico) {
+    // Si se esta en historico y hay ruta, solo se reinicia si se presiona el boton de reiniciar
+    map.removeLayer(ruta);
+    ruta = null;
+    coordenadas = [];
+  }
+
+  // Eliminar todas las rutas en tiempo real (pueden ser múltiples por vehículo)
+  map.eachLayer(function(layer) {
+    if (layer instanceof L.Polyline && layer !== ruta) {
+      map.removeLayer(layer);
+    }
+  });
   
   // Clear markers
   Object.values(markers).forEach(marker => {
@@ -445,6 +415,8 @@ function reiniciarRuta() {
     }
   });
   markers = { 0: null, 1: null };
+  
+  liveRoute = null;
   
   // Completely reset liveCoords to prevent redrawing previous paths
   liveCoords = [];
@@ -809,9 +781,6 @@ function substractArrayEvenly(arr, maxLength) {
     // Detener tiempo real
     stopRealTime();
     
-    // Clean up all polylines first
-    limpiarTodasLasRutas();
-    
     slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
@@ -824,16 +793,23 @@ function substractArrayEvenly(arr, maxLength) {
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
+    }
+    
+    // Si hay una ruta histórica guardada, la volvemos a mostrar
+    if (ruta) {
+      if (!map.hasLayer(ruta)) {
+        map.addLayer(ruta);
+        // Si la ruta tiene bounds válidos, ajustamos la vista
+        if (ruta.getBounds && ruta.getBounds().isValid()) {
+          map.fitBounds(ruta.getBounds());
+        }
+      }
     }
   });
 
   buscadorBtn.addEventListener('click', () => {
     // Detener tiempo real
     stopRealTime();
-    
-    // Clean up all polylines first
-    limpiarTodasLasRutas();
 
     slidermap.classList.remove('hidden');
     tiemporealControls.classList.add('hidden');
@@ -844,7 +820,11 @@ function substractArrayEvenly(arr, maxLength) {
 
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
-    // Restaurar el marcador seleccionado si existe
+    // Ocultamos la ruta histórica
+    if (ruta) {
+      map.removeLayer(ruta);
+    }
+      // Restaurar el marcador seleccionado si existe
     if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
       map.addLayer(marcadorSeleccionado);
       // Si el marcador tiene un popup, lo abrimos nuevamente
@@ -861,19 +841,20 @@ function substractArrayEvenly(arr, maxLength) {
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
-    // Clean up all polylines first
-    limpiarTodasLasRutas();
-    
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     toggleTiempoReal();
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
+    // Ocultamos la ruta histórica
+    if (ruta) {
+      map.removeLayer(ruta);
+    }
+
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-      marcadorSeleccionado = null;
     }
 
     // Activamos la ruta en tiempo real
@@ -886,113 +867,67 @@ function substractArrayEvenly(arr, maxLength) {
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-
+  
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-    
-    // Clean up all polylines first
-    limpiarTodasLasRutas();
-
+  
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-
+  
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
+  
+    // Eliminamos solo la ruta histórica anterior
+    if (ruta) map.removeLayer(ruta);
     
     // Get the selected vehicle filter
     const filtroHistorico = document.getElementById('filtroHistorico').value;
-
+  
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value),
       filtroHistorico // Pass the vehicle filter to the function
     );
-
+  
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-
+  
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
-
-    // Si mostrar ambos vehículos (todos)
-    if (filtroHistorico === "todos") {
-      // Separamos las coordenadas por vehículo
-      const coordsVehiculo1 = historico.filter(coord => coord.vehiculo === 0);
-      const coordsVehiculo2 = historico.filter(coord => coord.vehiculo === 1);
-      
-      // Creamos y mostramos ruta para vehículo 1 si hay suficientes coordenadas
-      if (coordsVehiculo1.length >= 2) {
-        const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-        const rutaPlacement1 = await solicitarRuta(rutaVehiculo1);
-        
-        if (rutaPlacement1 && rutaPlacement1.length >= 2) {
-          // Creamos la nueva ruta para vehículo 1 (azul)
-          const rutaV1 = new L.polyline(rutaPlacement1, { color: 'blue', weight: 4 }).addTo(map);
-          
-          // Guardamos la referencia solo si no hay una ruta para vehículo 2
-          if (!coordsVehiculo2.length) {
-            ruta = rutaV1;
-          }
-        }
+  
+    const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+    const rutaPlacement = await solicitarRuta(rutaCoords);
+  
+    if (rutaPlacement) {
+      // Si ya teníamos una ruta, la removemos primero
+      if (ruta) {
+        map.removeLayer(ruta);
       }
       
-      // Creamos y mostramos ruta para vehículo 2 si hay suficientes coordenadas
-      if (coordsVehiculo2.length >= 2) {
-        const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-        const rutaPlacement2 = await solicitarRuta(rutaVehiculo2);
-        
-        if (rutaPlacement2 && rutaPlacement2.length >= 2) {
-          // Creamos la nueva ruta para vehículo 2 (verde)
-          const rutaV2 = new L.polyline(rutaPlacement2, { color: 'green', weight: 4 }).addTo(map);
-          
-          // Guardamos la referencia solo si no hay una ruta para vehículo 1
-          if (!coordsVehiculo1.length) {
-            ruta = rutaV2;
-          }
-        }
+      // Color selection based on vehicle filter
+      let color = 'red'; // Default for "todos"
+      if (filtroHistorico === "vehiculo1") {
+        color = 'blue';
+      } else if (filtroHistorico === "vehiculo2") {
+        color = 'green';
       }
       
-      // Ajustamos la vista del mapa para mostrar ambas rutas
-      // Creamos bounds que contengan todos los puntos
-      const bounds = L.latLngBounds([]);
-      historico.forEach(coord => {
-        bounds.extend([parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-      });
-      
-      if (bounds.isValid()) {
-        map.fitBounds(bounds);
-      }
-    } else {
-      // Para un solo vehículo, mantenemos el comportamiento original
-      const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-      const rutaPlacement = await solicitarRuta(rutaCoords);
-    
-      if (rutaPlacement) {
-        // Color selection based on vehicle filter
-        let color = 'red'; // Default for "todos"
-        if (filtroHistorico === "vehiculo1") {
-          color = 'blue';
-        } else if (filtroHistorico === "vehiculo2") {
-          color = 'green';
-        }
-        
-        // Creamos la nueva ruta
-        ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
-        map.fitBounds(ruta.getBounds());
-      }
+      // Creamos la nueva ruta
+      ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
+      map.fitBounds(ruta.getBounds());
     }
   });
   
@@ -1006,9 +941,6 @@ function substractArrayEvenly(arr, maxLength) {
 
   document.getElementById("filtro").addEventListener("change", function () {
     vehiculoFiltro = this.value;
-    
-    // Clean up all polylines first
-    limpiarTodasLasRutas();
     
     // Update marker visibility based on the selected filter
     if (markers[0]) {
@@ -1028,9 +960,20 @@ function substractArrayEvenly(arr, maxLength) {
     }
     
     // Si estamos en tiempo real, actualizamos la vista inmediatamente
-    if (currentIntervalId && liveCoords && liveCoords.length >= 2) {
+    if (currentIntervalId) {
+      // Clear ALL polylines (not just liveRoute)
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.Polyline && layer !== ruta) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      liveRoute = null;
+      
       // Redibujamos la ruta con el nuevo filtro
-      dibujarRutaFiltrada(liveCoords);
+      if (liveCoords && liveCoords.length >= 2) {
+        dibujarRutaFiltrada(liveCoords);
+      }
     }
   });
 
@@ -1073,9 +1016,6 @@ function substractArrayEvenly(arr, maxLength) {
 
   // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
-    // Clean up all polylines first - but especially search route polylines
-    limpiarTodasLasRutas();
-    
     if (!lastSearchLatLng) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -1140,85 +1080,6 @@ function mostrarResultadosBusqueda(resultados) {
   // Limpiamos marcadores anteriores por si acaso
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
-
-  if (searchRoutePolyline && map.hasLayer(searchRoutePolyline)) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-  }
-
-  Object.values(searchRoutePolylines).forEach(polyline => {
-    if (polyline && map.hasLayer(polyline)) {
-      map.removeLayer(polyline);
-    }
-  });
-  searchRoutePolylines = { 0: null, 1: null };
-  
-  // Create polylines for the search results if we have results
-  if (resultados.length >= 2) {
-    // Sort results chronologically to create a proper route
-    resultados.sort((a, b) => {
-      // Compare dates first
-      const dateA = new Date(a.fecha + 'T' + a.hora);
-      const dateB = new Date(b.fecha + 'T' + b.hora);
-      return dateA - dateB;
-    });
-    
-    // Group coordinates by vehicle
-    const vehicleResults = {
-      0: [], // Vehicle 1
-      1: []  // Vehicle 2
-    };
-    
-    // Separate results by vehicle
-    resultados.forEach(result => {
-      const vehiculo = result.vehiculo;
-      if (vehiculo === 0 || vehiculo === 1) {
-        vehicleResults[vehiculo].push(result);
-      }
-    });
-    
-    // Process each vehicle's results
-    Object.keys(vehicleResults).forEach(vehiculo => {
-      const vehicleData = vehicleResults[vehiculo];
-      
-      // Only create a polyline if there are at least 2 points
-      if (vehicleData.length >= 2) {
-        // Extract coordinates for the polyline
-        const routeCoords = vehicleData.map(coord => [
-          parseFloat(coord.latitud), 
-          parseFloat(coord.longitud)
-        ]);
-        
-        // Define color based on vehicle
-        const color = vehiculo == 0 ? 'blue' : 'green';
-        
-        // Create polyline with appropriate styling - no dashes for continuous lines
-        searchRoutePolylines[vehiculo] = L.polyline(routeCoords, {
-          color: color,
-          weight: 4,
-          opacity: 0.8,
-          smoothFactor: 1 // Lower values create smoother line (more segments)
-        }).addTo(map);
-      }
-    });
-    
-    // Get bounds of all polylines to fit the view
-    const bounds = [];
-    Object.values(searchRoutePolylines).forEach(polyline => {
-      if (polyline && polyline.getBounds().isValid()) {
-        bounds.push(polyline.getBounds());
-      }
-    });
-    
-    // If we have valid bounds, fit the map to show all routes
-    if (bounds.length > 0) {
-      // Create a bounds object that includes all our polylines
-      const combinedBounds = L.latLngBounds(bounds.map(b => b.getSouthWest()));
-      bounds.forEach(b => combinedBounds.extend(b.getNorthEast()));
-      
-      map.fitBounds(combinedBounds);
-    }
-  }
   
   // No creamos marcadores, solo el panel de resultados
   crearPanelResultados(resultados);
