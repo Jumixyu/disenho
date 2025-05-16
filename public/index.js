@@ -796,6 +796,11 @@ function substractArrayEvenly(arr, maxLength) {
   switchHistoricoBtn.addEventListener('click', () => {
     // Detener tiempo real
     stopRealTime();
+
+    Object.values(searchRoutePolylines).forEach(poly => {
+    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
+    });
+    searchRoutePolylines = { 0: null, 1: null };
     
     slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
@@ -832,6 +837,11 @@ function substractArrayEvenly(arr, maxLength) {
     // Detener tiempo real
     stopRealTime();
 
+    Object.values(searchRoutePolylines).forEach(poly => {
+    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
+    });
+    searchRoutePolylines = { 0: null, 1: null };
+
     slidermap.classList.remove('hidden');
     tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
@@ -867,6 +877,11 @@ function substractArrayEvenly(arr, maxLength) {
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
+
+    Object.values(searchRoutePolylines).forEach(poly => {
+    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
+    });
+    searchRoutePolylines = { 0: null, 1: null };
 
     // Ocultamos la ruta histórica
     if (ruta) {
