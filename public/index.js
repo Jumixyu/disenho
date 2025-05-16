@@ -934,26 +934,83 @@ function substractArrayEvenly(arr, maxLength) {
       marcadorSeleccionado = null;
     }
   
-    const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-    const rutaPlacement = await solicitarRuta(rutaCoords);
-  
-    if (rutaPlacement) {
-      // Si ya teníamos una ruta, la removemos primero
-      if (ruta) {
-        map.removeLayer(ruta);
+    // Si mostrar ambos vehículos (todos)
+    if (filtroHistorico === "todos") {
+      // Separamos las coordenadas por vehículo
+      const coordsVehiculo1 = historico.filter(coord => coord.vehiculo === 0);
+      const coordsVehiculo2 = historico.filter(coord => coord.vehiculo === 1);
+      
+      // Creamos y mostramos ruta para vehículo 1 si hay suficientes coordenadas
+      if (coordsVehiculo1.length >= 2) {
+        const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        const rutaPlacement1 = await solicitarRuta(rutaVehiculo1);
+        
+        if (rutaPlacement1 && rutaPlacement1.length >= 2) {
+          // Si ya teníamos una ruta, la removemos primero
+          if (ruta) {
+            map.removeLayer(ruta);
+            ruta = null;
+          }
+          
+          // Creamos la nueva ruta para vehículo 1 (azul)
+          const rutaV1 = new L.polyline(rutaPlacement1, { color: 'blue', weight: 4 }).addTo(map);
+          
+          // Guardamos la referencia solo si no hay una ruta para vehículo 2
+          if (!coordsVehiculo2.length) {
+            ruta = rutaV1;
+          }
+        }
       }
       
-      // Color selection based on vehicle filter
-      let color = 'red'; // Default for "todos"
-      if (filtroHistorico === "vehiculo1") {
-        color = 'blue';
-      } else if (filtroHistorico === "vehiculo2") {
-        color = 'green';
+      // Creamos y mostramos ruta para vehículo 2 si hay suficientes coordenadas
+      if (coordsVehiculo2.length >= 2) {
+        const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        const rutaPlacement2 = await solicitarRuta(rutaVehiculo2);
+        
+        if (rutaPlacement2 && rutaPlacement2.length >= 2) {
+          // Creamos la nueva ruta para vehículo 2 (verde)
+          const rutaV2 = new L.polyline(rutaPlacement2, { color: 'green', weight: 4 }).addTo(map);
+          
+          // Guardamos la referencia solo si no hay una ruta para vehículo 1
+          if (!coordsVehiculo1.length) {
+            ruta = rutaV2;
+          }
+        }
       }
       
-      // Creamos la nueva ruta
-      ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
-      map.fitBounds(ruta.getBounds());
+      // Ajustamos la vista del mapa para mostrar ambas rutas
+      // Creamos bounds que contengan todos los puntos
+      const bounds = L.latLngBounds([]);
+      historico.forEach(coord => {
+        bounds.extend([parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      });
+      
+      if (bounds.isValid()) {
+        map.fitBounds(bounds);
+      }
+    } else {
+      // Para un solo vehículo, mantenemos el comportamiento original
+      const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      const rutaPlacement = await solicitarRuta(rutaCoords);
+    
+      if (rutaPlacement) {
+        // Si ya teníamos una ruta, la removemos primero
+        if (ruta) {
+          map.removeLayer(ruta);
+        }
+        
+        // Color selection based on vehicle filter
+        let color = 'red'; // Default for "todos"
+        if (filtroHistorico === "vehiculo1") {
+          color = 'blue';
+        } else if (filtroHistorico === "vehiculo2") {
+          color = 'green';
+        }
+        
+        // Creamos la nueva ruta
+        ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
+        map.fitBounds(ruta.getBounds());
+      }
     }
   });
   
