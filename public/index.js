@@ -387,30 +387,56 @@ function stopRealTime() {
   }
 }
 
+function limpiarTodasLasRutas() {
+  console.log('🧹 Limpiando todas las rutas...');
+  
+  // Remove historic route if it exists
+  if (ruta && map.hasLayer(ruta)) {
+    map.removeLayer(ruta);
+    ruta = null;
+  }
+  
+  // Remove live route if it exists
+  if (liveRoute && map.hasLayer(liveRoute)) {
+    map.removeLayer(liveRoute);
+    liveRoute = null;
+  }
+  
+  // Remove search route polyline if it exists
+  if (searchRoutePolyline && map.hasLayer(searchRoutePolyline)) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+  }
+  
+  // Remove all individual vehicle route polylines
+  Object.values(searchRoutePolylines).forEach(polyline => {
+    if (polyline && map.hasLayer(polyline)) {
+      map.removeLayer(polyline);
+    }
+  });
+  searchRoutePolylines = { 0: null, 1: null };
+  
+  // Find and remove ALL polylines from the map (catch-all)
+  map.eachLayer(function(layer) {
+    if (layer instanceof L.Polyline && layer !== circleConnector) {
+      map.removeLayer(layer);
+    }
+  });
+}
+
 function reiniciarRuta() {
   console.log('🔄 Reiniciando recorrido...');
 
+  // Call our polyline cleanup function
+  limpiarTodasLasRutas();
+  
   // Verificar en qué pestaña estamos actualmente
   const estaEnHistorico = switchHistoricoBtn.classList.contains('active');
   const estaEnBuscador = buscadorBtn.classList.contains('active');
   const estaEnTiempoReal = tiempoRealBtn.classList.contains('active');
-
-  // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
-  if (ruta && !estaEnHistorico) {
-    map.removeLayer(ruta);
-  } else if (ruta && estaEnHistorico) {
-    // Si se esta en historico y hay ruta, solo se reinicia si se presiona el boton de reiniciar
-    map.removeLayer(ruta);
-    ruta = null;
-    coordenadas = [];
-  }
-
-  // Eliminar todas las rutas en tiempo real (pueden ser múltiples por vehículo)
-  map.eachLayer(function(layer) {
-    if (layer instanceof L.Polyline && layer !== ruta) {
-      map.removeLayer(layer);
-    }
-  });
+  
+  // Reset route arrays
+  coordenadas = [];
   
   // Clear markers
   Object.values(markers).forEach(marker => {
@@ -419,8 +445,6 @@ function reiniciarRuta() {
     }
   });
   markers = { 0: null, 1: null };
-  
-  liveRoute = null;
   
   // Completely reset liveCoords to prevent redrawing previous paths
   liveCoords = [];
@@ -438,18 +462,6 @@ function reiniciarRuta() {
     map.removeLayer(marcadorSeleccionado);
     marcadorSeleccionado = null;
   }
-
-  if (searchRoutePolyline) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-  }
-
-  Object.values(searchRoutePolylines).forEach(polyline => {
-    if (polyline && map.hasLayer(polyline)) {
-      map.removeLayer(polyline);
-    }
-  });
-  searchRoutePolylines = { 0: null, 1: null };
   
   // Si estamos en tiempo real, necesitamos obtener la última coordenada
   // para iniciar un nuevo trazado desde el punto actual
@@ -796,11 +808,9 @@ function substractArrayEvenly(arr, maxLength) {
   switchHistoricoBtn.addEventListener('click', () => {
     // Detener tiempo real
     stopRealTime();
-
-    Object.values(searchRoutePolylines).forEach(poly => {
-    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
-    });
-    searchRoutePolylines = { 0: null, 1: null };
+    
+    // Clean up all polylines first
+    limpiarTodasLasRutas();
     
     slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
@@ -814,33 +824,16 @@ function substractArrayEvenly(arr, maxLength) {
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-    }
-
-    if (searchRoutePolyline) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-    }
-    
-    // Si hay una ruta histórica guardada, la volvemos a mostrar
-    if (ruta) {
-      if (!map.hasLayer(ruta)) {
-        map.addLayer(ruta);
-        // Si la ruta tiene bounds válidos, ajustamos la vista
-        if (ruta.getBounds && ruta.getBounds().isValid()) {
-          map.fitBounds(ruta.getBounds());
-        }
-      }
+      marcadorSeleccionado = null;
     }
   });
 
   buscadorBtn.addEventListener('click', () => {
     // Detener tiempo real
     stopRealTime();
-
-    Object.values(searchRoutePolylines).forEach(poly => {
-    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
-    });
-    searchRoutePolylines = { 0: null, 1: null };
+    
+    // Clean up all polylines first
+    limpiarTodasLasRutas();
 
     slidermap.classList.remove('hidden');
     tiemporealControls.classList.add('hidden');
@@ -851,11 +844,7 @@ function substractArrayEvenly(arr, maxLength) {
 
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
-    // Ocultamos la ruta histórica
-    if (ruta) {
-      map.removeLayer(ruta);
-    }
-      // Restaurar el marcador seleccionado si existe
+    // Restaurar el marcador seleccionado si existe
     if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
       map.addLayer(marcadorSeleccionado);
       // Si el marcador tiene un popup, lo abrimos nuevamente
@@ -872,30 +861,19 @@ function substractArrayEvenly(arr, maxLength) {
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
+    // Clean up all polylines first
+    limpiarTodasLasRutas();
+    
     resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
     toggleTiempoReal();
     messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
-    Object.values(searchRoutePolylines).forEach(poly => {
-    if (poly && map.hasLayer(poly)) map.removeLayer(poly);
-    });
-    searchRoutePolylines = { 0: null, 1: null };
-
-    // Ocultamos la ruta histórica
-    if (ruta) {
-      map.removeLayer(ruta);
-    }
-
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
-    }
-
-    if (searchRoutePolyline) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
+      marcadorSeleccionado = null;
     }
 
     // Activamos la ruta en tiempo real
@@ -908,47 +886,47 @@ function substractArrayEvenly(arr, maxLength) {
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-  
+
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-  
+    
+    // Clean up all polylines first
+    limpiarTodasLasRutas();
+
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-  
+
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-  
-    // Eliminamos solo la ruta histórica anterior
-    if (ruta) map.removeLayer(ruta);
     
     // Get the selected vehicle filter
     const filtroHistorico = document.getElementById('filtroHistorico').value;
-  
+
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value),
       filtroHistorico // Pass the vehicle filter to the function
     );
-  
+
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-  
+
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
-  
+
     // Si mostrar ambos vehículos (todos)
     if (filtroHistorico === "todos") {
       // Separamos las coordenadas por vehículo
@@ -961,12 +939,6 @@ function substractArrayEvenly(arr, maxLength) {
         const rutaPlacement1 = await solicitarRuta(rutaVehiculo1);
         
         if (rutaPlacement1 && rutaPlacement1.length >= 2) {
-          // Si ya teníamos una ruta, la removemos primero
-          if (ruta) {
-            map.removeLayer(ruta);
-            ruta = null;
-          }
-          
           // Creamos la nueva ruta para vehículo 1 (azul)
           const rutaV1 = new L.polyline(rutaPlacement1, { color: 'blue', weight: 4 }).addTo(map);
           
@@ -1009,11 +981,6 @@ function substractArrayEvenly(arr, maxLength) {
       const rutaPlacement = await solicitarRuta(rutaCoords);
     
       if (rutaPlacement) {
-        // Si ya teníamos una ruta, la removemos primero
-        if (ruta) {
-          map.removeLayer(ruta);
-        }
-        
         // Color selection based on vehicle filter
         let color = 'red'; // Default for "todos"
         if (filtroHistorico === "vehiculo1") {
@@ -1040,6 +1007,9 @@ function substractArrayEvenly(arr, maxLength) {
   document.getElementById("filtro").addEventListener("change", function () {
     vehiculoFiltro = this.value;
     
+    // Clean up all polylines first
+    limpiarTodasLasRutas();
+    
     // Update marker visibility based on the selected filter
     if (markers[0]) {
       if (vehiculoFiltro === "todos" || vehiculoFiltro === "vehiculo1") {
@@ -1058,20 +1028,9 @@ function substractArrayEvenly(arr, maxLength) {
     }
     
     // Si estamos en tiempo real, actualizamos la vista inmediatamente
-    if (currentIntervalId) {
-      // Clear ALL polylines (not just liveRoute)
-      map.eachLayer(function(layer) {
-        if (layer instanceof L.Polyline && layer !== ruta) {
-          map.removeLayer(layer);
-        }
-      });
-      
-      liveRoute = null;
-      
+    if (currentIntervalId && liveCoords && liveCoords.length >= 2) {
       // Redibujamos la ruta con el nuevo filtro
-      if (liveCoords && liveCoords.length >= 2) {
-        dibujarRutaFiltrada(liveCoords);
-      }
+      dibujarRutaFiltrada(liveCoords);
     }
   });
 
@@ -1114,70 +1073,65 @@ function substractArrayEvenly(arr, maxLength) {
 
   // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
-  // Remove existing polylines
-  Object.values(searchRoutePolylines).forEach(polyline => {
-    if (polyline && map.hasLayer(polyline)) {
-      map.removeLayer(polyline);
-    }
-  });
-  searchRoutePolylines = { 0: null, 1: null };
-  
-  if (!lastSearchLatLng) {
-    messageEl.classList.remove('hidden');
-    messageEl.classList.add('error');
-    messageEl.textContent = 'Primero haz clic en el mapa para definir un área de búsqueda';
-    return;
-  }
-  
-  const inicioSearch = document.getElementById('inicioSearch').value;
-  const finSearch = document.getElementById('finSearch').value;
-  
-  if (!inicioSearch || !finSearch) {
-    messageEl.classList.remove('hidden');
-    messageEl.classList.add('error');
-    messageEl.textContent = 'Debe llenar los campos de inicio y fin para la búsqueda';
-    return;
-  }
-  
-  // Ocultamos mensaje si hay
-  messageEl.classList.add('hidden');
-  
-  // Limpiamos marcadores anteriores
-  searchResultsMarkers.forEach(m => map.removeLayer(m));
-  searchResultsMarkers = [];
-  
-  const { lat, lng } = lastSearchLatLng;
-  const radio = parseInt(radioSlider.value, 10);
-  
-  // Get the selected vehicle filter
-  const filtroBuscador = document.getElementById('filtroBuscador').value;
-  
-  try {
-    const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
-    let searchResults = await response.json();
+    // Clean up all polylines first - but especially search route polylines
+    limpiarTodasLasRutas();
     
-    // Filter results based on selected vehicle
-    if (filtroBuscador !== "todos") {
-      const vehiculoNumero = filtroBuscador === "vehiculo1" ? 0 : 1;
-      searchResults = searchResults.filter(resultado => resultado.vehiculo === vehiculoNumero);
-    }
-    
-    if (!searchResults || searchResults.length === 0) {
+    if (!lastSearchLatLng) {
       messageEl.classList.remove('hidden');
-      messageEl.textContent = 'No se encontraron ubicaciones en esta área y período de tiempo';
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Primero haz clic en el mapa para definir un área de búsqueda';
       return;
     }
     
-    // Mostrar resultados en el mapa
-    mostrarResultadosBusqueda(searchResults);
+    const inicioSearch = document.getElementById('inicioSearch').value;
+    const finSearch = document.getElementById('finSearch').value;
     
-  } catch (error) {
-    console.error('Error al buscar por área:', error);
-    messageEl.classList.remove('hidden');
-    messageEl.classList.add('error');
-    messageEl.textContent = 'Error al realizar la búsqueda';
-  }
-});
+    if (!inicioSearch || !finSearch) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Debe llenar los campos de inicio y fin para la búsqueda';
+      return;
+    }
+    
+    // Ocultamos mensaje si hay
+    messageEl.classList.add('hidden');
+    
+    // Limpiamos marcadores anteriores
+    searchResultsMarkers.forEach(m => map.removeLayer(m));
+    searchResultsMarkers = [];
+    
+    const { lat, lng } = lastSearchLatLng;
+    const radio = parseInt(radioSlider.value, 10);
+    
+    // Get the selected vehicle filter
+    const filtroBuscador = document.getElementById('filtroBuscador').value;
+    
+    try {
+      const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
+      let searchResults = await response.json();
+      
+      // Filter results based on selected vehicle
+      if (filtroBuscador !== "todos") {
+        const vehiculoNumero = filtroBuscador === "vehiculo1" ? 0 : 1;
+        searchResults = searchResults.filter(resultado => resultado.vehiculo === vehiculoNumero);
+      }
+      
+      if (!searchResults || searchResults.length === 0) {
+        messageEl.classList.remove('hidden');
+        messageEl.textContent = 'No se encontraron ubicaciones en esta área y período de tiempo';
+        return;
+      }
+      
+      // Mostrar resultados en el mapa
+      mostrarResultadosBusqueda(searchResults);
+      
+    } catch (error) {
+      console.error('Error al buscar por área:', error);
+      messageEl.classList.remove('hidden');
+      messageEl.classList.add('error');
+      messageEl.textContent = 'Error al realizar la búsqueda';
+    }
+  });
 
 //-------------------------------------- PANEL LATERAL Y SLIDER ----------------------------------------------------------
 
@@ -1187,7 +1141,11 @@ function mostrarResultadosBusqueda(resultados) {
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
 
-  // Remove previous search route polylines if they exist
+  if (searchRoutePolyline && map.hasLayer(searchRoutePolyline)) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+  }
+
   Object.values(searchRoutePolylines).forEach(polyline => {
     if (polyline && map.hasLayer(polyline)) {
       map.removeLayer(polyline);
