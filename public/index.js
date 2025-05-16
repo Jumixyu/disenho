@@ -23,6 +23,7 @@ let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
+let searchRoutePolyline = null; // Polyline that represents the search results route
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -434,6 +435,11 @@ function reiniciarRuta() {
     map.removeLayer(marcadorSeleccionado);
     marcadorSeleccionado = null;
   }
+
+  if (searchRoutePolyline) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+  }
   
   // Si estamos en tiempo real, necesitamos obtener la última coordenada
   // para iniciar un nuevo trazado desde el punto actual
@@ -794,6 +800,11 @@ function substractArrayEvenly(arr, maxLength) {
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
     }
+
+    if (searchRoutePolyline) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+    }
     
     // Si hay una ruta histórica guardada, la volvemos a mostrar
     if (ruta) {
@@ -855,6 +866,11 @@ function substractArrayEvenly(arr, maxLength) {
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
+    }
+
+    if (searchRoutePolyline) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
     }
 
     // Activamos la ruta en tiempo real
@@ -1016,6 +1032,11 @@ function substractArrayEvenly(arr, maxLength) {
 
   // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
+    if (searchRoutePolyline) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+    }
+    
     if (!lastSearchLatLng) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -1080,6 +1101,42 @@ function mostrarResultadosBusqueda(resultados) {
   // Limpiamos marcadores anteriores por si acaso
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
+
+  // Remove previous search route polyline if it exists
+  if (searchRoutePolyline) {
+    map.removeLayer(searchRoutePolyline);
+    searchRoutePolyline = null;
+  }
+  
+  // Create polyline for the search results if we have results
+  if (resultados.length >= 2) {
+    // Sort results chronologically to create a proper route
+    resultados.sort((a, b) => {
+      // Compare dates first
+      const dateA = new Date(a.fecha + 'T' + a.hora);
+      const dateB = new Date(b.fecha + 'T' + b.hora);
+      return dateA - dateB;
+    });
+    
+    // Extract coordinates for the polyline
+    const searchRouteCoords = resultados.map(coord => [
+      parseFloat(coord.latitud), 
+      parseFloat(coord.longitud)
+    ]);
+    
+    // Create polyline with a distinctive style (purple)
+    searchRoutePolyline = L.polyline(searchRouteCoords, {
+      color: 'purple',
+      weight: 3,
+      opacity: 0.8,
+      dashArray: '5, 10' // Creates a dashed line for better distinction
+    }).addTo(map);
+    
+    // Fit map bounds to show the entire route
+    if (searchRoutePolyline.getBounds().isValid()) {
+      map.fitBounds(searchRoutePolyline.getBounds());
+    }
+  }
   
   // No creamos marcadores, solo el panel de resultados
   crearPanelResultados(resultados);
