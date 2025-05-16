@@ -23,7 +23,10 @@ let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
-let searchRoutePolyline = null; // Polyline that represents the search results route
+let searchRoutePolylines = {
+  0: null, // Vehicle 1 polyline (blue)
+  1: null  // Vehicle 2 polyline (green)
+};
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -440,6 +443,13 @@ function reiniciarRuta() {
     map.removeLayer(searchRoutePolyline);
     searchRoutePolyline = null;
   }
+
+  Object.values(searchRoutePolylines).forEach(polyline => {
+    if (polyline && map.hasLayer(polyline)) {
+      map.removeLayer(polyline);
+    }
+  });
+  searchRoutePolylines = { 0: null, 1: null };
   
   // Si estamos en tiempo real, necesitamos obtener la última coordenada
   // para iniciar un nuevo trazado desde el punto actual
@@ -1032,67 +1042,70 @@ function substractArrayEvenly(arr, maxLength) {
 
   // Buscar ubicaciones en el área del círculo
   document.getElementById('busqueda-btn').addEventListener('click', async () => {
-    if (searchRoutePolyline) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-    }
-    
-    if (!lastSearchLatLng) {
-      messageEl.classList.remove('hidden');
-      messageEl.classList.add('error');
-      messageEl.textContent = 'Primero haz clic en el mapa para definir un área de búsqueda';
-      return;
-    }
-    
-    const inicioSearch = document.getElementById('inicioSearch').value;
-    const finSearch = document.getElementById('finSearch').value;
-    
-    if (!inicioSearch || !finSearch) {
-      messageEl.classList.remove('hidden');
-      messageEl.classList.add('error');
-      messageEl.textContent = 'Debe llenar los campos de inicio y fin para la búsqueda';
-      return;
-    }
-    
-    // Ocultamos mensaje si hay
-    messageEl.classList.add('hidden');
-    
-    // Limpiamos marcadores anteriores
-    searchResultsMarkers.forEach(m => map.removeLayer(m));
-    searchResultsMarkers = [];
-    
-    const { lat, lng } = lastSearchLatLng;
-    const radio = parseInt(radioSlider.value, 10);
-    
-    // Get the selected vehicle filter
-    const filtroBuscador = document.getElementById('filtroBuscador').value;
-    
-    try {
-      const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
-      let searchResults = await response.json();
-      
-      // Filter results based on selected vehicle
-      if (filtroBuscador !== "todos") {
-        const vehiculoNumero = filtroBuscador === "vehiculo1" ? 0 : 1;
-        searchResults = searchResults.filter(resultado => resultado.vehiculo === vehiculoNumero);
-      }
-      
-      if (!searchResults || searchResults.length === 0) {
-        messageEl.classList.remove('hidden');
-        messageEl.textContent = 'No se encontraron ubicaciones en esta área y período de tiempo';
-        return;
-      }
-      
-      // Mostrar resultados en el mapa
-      mostrarResultadosBusqueda(searchResults);
-      
-    } catch (error) {
-      console.error('Error al buscar por área:', error);
-      messageEl.classList.remove('hidden');
-      messageEl.classList.add('error');
-      messageEl.textContent = 'Error al realizar la búsqueda';
+  // Remove existing polylines
+  Object.values(searchRoutePolylines).forEach(polyline => {
+    if (polyline && map.hasLayer(polyline)) {
+      map.removeLayer(polyline);
     }
   });
+  searchRoutePolylines = { 0: null, 1: null };
+  
+  if (!lastSearchLatLng) {
+    messageEl.classList.remove('hidden');
+    messageEl.classList.add('error');
+    messageEl.textContent = 'Primero haz clic en el mapa para definir un área de búsqueda';
+    return;
+  }
+  
+  const inicioSearch = document.getElementById('inicioSearch').value;
+  const finSearch = document.getElementById('finSearch').value;
+  
+  if (!inicioSearch || !finSearch) {
+    messageEl.classList.remove('hidden');
+    messageEl.classList.add('error');
+    messageEl.textContent = 'Debe llenar los campos de inicio y fin para la búsqueda';
+    return;
+  }
+  
+  // Ocultamos mensaje si hay
+  messageEl.classList.add('hidden');
+  
+  // Limpiamos marcadores anteriores
+  searchResultsMarkers.forEach(m => map.removeLayer(m));
+  searchResultsMarkers = [];
+  
+  const { lat, lng } = lastSearchLatLng;
+  const radio = parseInt(radioSlider.value, 10);
+  
+  // Get the selected vehicle filter
+  const filtroBuscador = document.getElementById('filtroBuscador').value;
+  
+  try {
+    const response = await fetch(`/buscar-por-area?lat=${lat}&lng=${lng}&radio=${radio}&inicio=${formatearFecha(false, inicioSearch)}&fin=${formatearFecha(false, finSearch)}`);
+    let searchResults = await response.json();
+    
+    // Filter results based on selected vehicle
+    if (filtroBuscador !== "todos") {
+      const vehiculoNumero = filtroBuscador === "vehiculo1" ? 0 : 1;
+      searchResults = searchResults.filter(resultado => resultado.vehiculo === vehiculoNumero);
+    }
+    
+    if (!searchResults || searchResults.length === 0) {
+      messageEl.classList.remove('hidden');
+      messageEl.textContent = 'No se encontraron ubicaciones en esta área y período de tiempo';
+      return;
+    }
+    
+    // Mostrar resultados en el mapa
+    mostrarResultadosBusqueda(searchResults);
+    
+  } catch (error) {
+    console.error('Error al buscar por área:', error);
+    messageEl.classList.remove('hidden');
+    messageEl.classList.add('error');
+    messageEl.textContent = 'Error al realizar la búsqueda';
+  }
+});
 
 //-------------------------------------- PANEL LATERAL Y SLIDER ----------------------------------------------------------
 
@@ -1102,13 +1115,15 @@ function mostrarResultadosBusqueda(resultados) {
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
 
-  // Remove previous search route polyline if it exists
-  if (searchRoutePolyline) {
-    map.removeLayer(searchRoutePolyline);
-    searchRoutePolyline = null;
-  }
+  // Remove previous search route polylines if they exist
+  Object.values(searchRoutePolylines).forEach(polyline => {
+    if (polyline && map.hasLayer(polyline)) {
+      map.removeLayer(polyline);
+    }
+  });
+  searchRoutePolylines = { 0: null, 1: null };
   
-  // Create polyline for the search results if we have results
+  // Create polylines for the search results if we have results
   if (resultados.length >= 2) {
     // Sort results chronologically to create a proper route
     resultados.sort((a, b) => {
@@ -1118,23 +1133,60 @@ function mostrarResultadosBusqueda(resultados) {
       return dateA - dateB;
     });
     
-    // Extract coordinates for the polyline
-    const searchRouteCoords = resultados.map(coord => [
-      parseFloat(coord.latitud), 
-      parseFloat(coord.longitud)
-    ]);
+    // Group coordinates by vehicle
+    const vehicleResults = {
+      0: [], // Vehicle 1
+      1: []  // Vehicle 2
+    };
     
-    // Create polyline with a distinctive style (purple)
-    searchRoutePolyline = L.polyline(searchRouteCoords, {
-      color: 'purple',
-      weight: 3,
-      opacity: 0.8,
-      dashArray: '5, 10' // Creates a dashed line for better distinction
-    }).addTo(map);
+    // Separate results by vehicle
+    resultados.forEach(result => {
+      const vehiculo = result.vehiculo;
+      if (vehiculo === 0 || vehiculo === 1) {
+        vehicleResults[vehiculo].push(result);
+      }
+    });
     
-    // Fit map bounds to show the entire route
-    if (searchRoutePolyline.getBounds().isValid()) {
-      map.fitBounds(searchRoutePolyline.getBounds());
+    // Process each vehicle's results
+    Object.keys(vehicleResults).forEach(vehiculo => {
+      const vehicleData = vehicleResults[vehiculo];
+      
+      // Only create a polyline if there are at least 2 points
+      if (vehicleData.length >= 2) {
+        // Extract coordinates for the polyline
+        const routeCoords = vehicleData.map(coord => [
+          parseFloat(coord.latitud), 
+          parseFloat(coord.longitud)
+        ]);
+        
+        // Define color based on vehicle
+        const color = vehiculo == 0 ? 'blue' : 'green';
+        
+        // Create polyline with appropriate styling - no dashes for continuous lines
+        searchRoutePolylines[vehiculo] = L.polyline(routeCoords, {
+          color: color,
+          weight: 4,
+          opacity: 0.8,
+          smoothFactor: 1 // Lower values create smoother line (more segments)
+        }).addTo(map);
+      }
+    });
+    
+    // Get bounds of all polylines to fit the view
+    const bounds = [];
+    Object.values(searchRoutePolylines).forEach(polyline => {
+      if (polyline && polyline.getBounds().isValid()) {
+        bounds.push(polyline.getBounds());
+      }
+    });
+    
+    // If we have valid bounds, fit the map to show all routes
+    if (bounds.length > 0) {
+      // Create a bounds object that includes all our polylines
+      const combinedBounds = L.latLngBounds(bounds.map(b => b.getSouthWest()));
+      bounds.forEach(b => combinedBounds.extend(b.getNorthEast()));
+      
+      map.fitBounds(combinedBounds);
     }
   }
   
