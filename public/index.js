@@ -224,15 +224,16 @@ function obtenerFechaHoraActual() {
   const mes = String(ahora.getMonth() + 1).padStart(2, '0');
   const dia = String(ahora.getDate()).padStart(2, '0');
 
-  // Formato para el campo datetime-local
+  // Formato para el campo datetime-local (sin segundos)
   const fechaHoy = `${año}-${mes}-${dia}`;
   const inicioDefecto = `${fechaHoy}T00:00`;
 
-  // Obtener la hora actual en formato HH:MM
+  // Obtener la hora actual en formato HH:MM (sin segundos)
   const hora = String(ahora.getHours()).padStart(2, '0');
   const minutos = String(ahora.getMinutes()).padStart(2, '0');
   const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
 
+  // Establecer valores iniciales sin segundos
   document.getElementById('inicio').value = inicioDefecto;
   document.getElementById('fin').value = finDefecto;
   document.getElementById('inicioSearch').value = inicioDefecto;
@@ -543,6 +544,41 @@ function substractArrayEvenly(arr, maxLength) {
   return result;
 }
 
+// Funcion para sincronizar calendarios
+function setupCalendarSync() {
+  // Sync de historico a buscador
+  document.getElementById('inicio').addEventListener('change', function() {
+    document.getElementById('inicioSearch').value = this.value;
+  });
+
+  document.getElementById('fin').addEventListener('change', function() {
+    document.getElementById('finSearch').value = this.value;  
+  });
+
+  // Sync de buscador a historico
+  document.getElementById('inicioSearch').addEventListener('change', function() {
+    document.getElementById('inicio').value = this.value;
+  });
+
+  document.getElementById('finSearch').addEventListener('change', function() {
+    document.getElementById('fin').value = this.value;
+  });
+}
+
+// funcion para quitar los segundos del calendario
+function updateHTMLInputs() {
+  const dateTimeInputs = document.querySelectorAll('.datetime-input');
+  dateTimeInputs.forEach(input => {
+    input.setAttribute('step', '60');
+  });
+}
+
+// funcion para iniciar la sincronizacion
+function initializeCalendarSync() {
+  updateHTMLInputs();
+  setupCalendarSync();
+}
+
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
 (async () => {
@@ -550,6 +586,8 @@ function substractArrayEvenly(arr, maxLength) {
 
 
   resaltarBotonActivo(tiempoRealBtn);
+
+  initializeCalendarSync();
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
