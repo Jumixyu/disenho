@@ -544,33 +544,6 @@ function substractArrayEvenly(arr, maxLength) {
   return result;
 }
 
-// Funcion para sincronizar calendarios
-function setupCalendarSync() {
-  const inicioHistorico = document.getElementById('inicio');
-  const finHistorico = document.getElementById('fin');
-  const inicioBuscador = document.getElementById('inicioSearch');
-  const finBuscador = document.getElementById('finSearch');
-
-  // Sync from historico to buscador
-  inicioHistorico.addEventListener('change', function() {
-    inicioBuscador.value = this.value;
-  });
-
-  finHistorico.addEventListener('change', function() {
-    finBuscador.value = this.value;  
-  });
-
-  // Sync from buscador to historico
-  inicioBuscador.addEventListener('change', function() {
-    inicioHistorico.value = this.value;
-  });
-
-  finBuscador.addEventListener('change', function() {
-    finHistorico.value = this.value;
-  });
-}
-
-
 // funcion para quitar los segundos del calendario
 function updateHTMLInputs() {
   const dateTimeInputs = document.querySelectorAll('.datetime-input');
@@ -579,15 +552,6 @@ function updateHTMLInputs() {
   });
 }
 
-// funcion para iniciar la sincronizacion
-function initializeCalendarSync() {
-  updateHTMLInputs();
-  setupCalendarSync();
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  initializeCalendarSync();
-});
 
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
@@ -597,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   resaltarBotonActivo(tiempoRealBtn);
 
-  initializeCalendarSync();
+  updateHTMLInputs();
 
   // Iniciamos el modo tiempo real cuando carga la página
   await iniciarTiempoReal();
