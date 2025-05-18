@@ -546,24 +546,30 @@ function substractArrayEvenly(arr, maxLength) {
 
 // Funcion para sincronizar calendarios
 function setupCalendarSync() {
-  // Sync de historico a buscador
-  document.getElementById('inicio').addEventListener('change', function() {
-    document.getElementById('inicioSearch').value = this.value;
+  const inicioHistorico = document.getElementById('inicio');
+  const finHistorico = document.getElementById('fin');
+  const inicioBuscador = document.getElementById('inicioSearch');
+  const finBuscador = document.getElementById('finSearch');
+
+  // Sync from historico to buscador
+  inicioHistorico.addEventListener('change', function() {
+    inicioBuscador.value = this.value;
   });
 
-  document.getElementById('fin').addEventListener('change', function() {
-    document.getElementById('finSearch').value = this.value;  
+  finHistorico.addEventListener('change', function() {
+    finBuscador.value = this.value;  
   });
 
-  // Sync de buscador a historico
-  document.getElementById('inicioSearch').addEventListener('change', function() {
-    document.getElementById('inicio').value = this.value;
+  // Sync from buscador to historico
+  inicioBuscador.addEventListener('change', function() {
+    inicioHistorico.value = this.value;
   });
 
-  document.getElementById('finSearch').addEventListener('change', function() {
-    document.getElementById('fin').value = this.value;
+  finBuscador.addEventListener('change', function() {
+    finHistorico.value = this.value;
   });
 }
+
 
 // funcion para quitar los segundos del calendario
 function updateHTMLInputs() {
@@ -578,6 +584,10 @@ function initializeCalendarSync() {
   updateHTMLInputs();
   setupCalendarSync();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  initializeCalendarSync();
+});
 
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
