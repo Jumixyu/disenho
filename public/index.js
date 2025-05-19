@@ -63,19 +63,6 @@ obtenerFechaHoraActual();
 
 // --------------------- FUCNIONES PARA FILTRAR VEHICULOS Y DIBUJAR LINEAS -------------------------------------
 
-function filtrarCoordenadasPorVehiculo(coordsData) {
-  // Si mostramos ambos vehículos, devolvemos todas las coordenadas
-  if (vehiculoFiltro === "todos") {
-    return coordsData;
-  }
-  
-  // Determinamos el valor numérico del vehículo a filtrar (0 para vehículo 1, 1 para vehículo 2)
-  const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
-  
-  // Filtramos las coordenadas que corresponden al vehículo seleccionado
-  return coordsData.filter(coord => coord.vehiculo === vehiculoNumero);
-}
-
 // Update this function to properly clear all existing routes before drawing new ones
 function dibujarRutaFiltrada(coords) {
   // Remove ALL existing polylines first
@@ -184,7 +171,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
 
-// Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
+// Función para resaltar el botón activo 
 function resaltarBotonActivo(btn) {
   // Quitar la clase active de todos los botones
   const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
@@ -238,7 +225,7 @@ function obtenerFechaHoraActual() {
   document.getElementById('fin').value = finDefecto;
   document.getElementById('inicioSearch').value = inicioDefecto;
   document.getElementById('finSearch').value = finDefecto;
-  
+   
   // Set initial modification timestamps to current time
   trackModification(document.getElementById('inicio'));
   trackModification(document.getElementById('fin'));
@@ -285,18 +272,6 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
-// SELECTOR VEHICULO
-
-function mostrarDatosFiltrados(grupo) {
-  console.log("Filtrando por:", grupo);
-  // aquí haces tu consulta o filtrado de datos
-}
-
-function mostrarTodosLosDatos() {
-  console.log("Mostrando todos los datos");
-  // aquí muestras todos
-}
-
 // Función para guardar las coordenadas en localStorage
 function saveLiveCoords() {
   try {
@@ -306,6 +281,22 @@ function saveLiveCoords() {
     console.error('Error al guardar coordenadas:', e);
   }
 }
+
+//funcion dibujar polilineas dobles  
+function mostrarRecorridos(data) {
+  // Borra polilíneas anteriores si existen
+  if (window.ruta1) window.map.removeLayer(window.ruta1);
+  if (window.ruta2) window.map.removeLayer(window.ruta2);
+
+  if (data.vehiculo1) {
+    window.ruta1 = L.polyline(data.vehiculo1, { color: 'blue' }).addTo(map);
+  }
+
+  if (data.vehiculo2) {
+    window.ruta2 = L.polyline(data.vehiculo2, { color: 'red' }).addTo(map);
+  }
+}
+
 
 // Función para obtener recorrido histórico
 async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
@@ -324,7 +315,7 @@ async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
       const vehiculoNumero = vehiculo === "vehiculo1" ? 0 : 1;
       return data.filter(coord => coord.vehiculo === vehiculoNumero);
     }
-    
+
     return data;
   } catch (e) {
     console.error('❌ Error al obtener recorrido histórico:', e);
@@ -590,7 +581,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
 
   resaltarBotonActivo(tiempoRealBtn);
-
+  
   updateHTMLInputs();
 
   // Iniciamos el modo tiempo real cuando carga la página
@@ -844,10 +835,10 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    
+        
     // Sync calendars when switching to histórico tab
     syncCalendars();
-    
+
     ocultarCirculoBuscador(); // <- Ocultar círculo
 
     // Eliminar el marcadorSeleccionado si existe
@@ -876,6 +867,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
+    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
     
     // Sync calendars when switching to buscador tab
     syncCalendars();
@@ -886,7 +878,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     if (ruta) {
       map.removeLayer(ruta);
     }
-    // Restaurar el marcador seleccionado si existe
+      // Restaurar el marcador seleccionado si existe
     if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
       map.addLayer(marcadorSeleccionado);
       // Si el marcador tiene un popup, lo abrimos nuevamente
@@ -929,10 +921,9 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
-  
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
-  
+
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -950,7 +941,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     
     // Get the selected vehicle filter
     const filtroHistorico = document.getElementById('filtroHistorico').value;
-  
+
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value),
@@ -974,21 +965,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     const rutaPlacement = await solicitarRuta(rutaCoords);
   
     if (rutaPlacement) {
-      // Si ya teníamos una ruta, la removemos primero
-      if (ruta) {
-        map.removeLayer(ruta);
-      }
-      
-      // Color selection based on vehicle filter
-      let color = 'red'; // Default for "todos"
-      if (filtroHistorico === "vehiculo1") {
-        color = 'blue';
-      } else if (filtroHistorico === "vehiculo2") {
-        color = 'green';
-      }
-      
-      // Creamos la nueva ruta
-      ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
+      mostrarRecorridos(data);
       map.fitBounds(ruta.getBounds());
     }
   });
