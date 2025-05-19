@@ -233,11 +233,17 @@ function obtenerFechaHoraActual() {
   const minutos = String(ahora.getMinutes()).padStart(2, '0');
   const finDefecto = `${fechaHoy}T${hora}:${minutos}`;
 
-  // Establecer valores iniciales sin segundos
+  // Establecer valores iniciales sin segundos para ambos calendarios
   document.getElementById('inicio').value = inicioDefecto;
   document.getElementById('fin').value = finDefecto;
   document.getElementById('inicioSearch').value = inicioDefecto;
   document.getElementById('finSearch').value = finDefecto;
+  
+  // Set initial modification timestamps to current time
+  trackModification(document.getElementById('inicio'));
+  trackModification(document.getElementById('fin'));
+  trackModification(document.getElementById('inicioSearch'));
+  trackModification(document.getElementById('finSearch'));
 }
 
 
@@ -786,8 +792,48 @@ function updateHTMLInputs() {
     }
   }
   
+  function syncCalendars() {
+    const historicoModified = new Date(inicioInput.dataset.lastModified || 0);
+    const buscadorModified = new Date(document.getElementById('inicioSearch').dataset.lastModified || 0);
+    
+    if (historicoModified > buscadorModified) {
+      // histórico a buscador
+      document.getElementById('inicioSearch').value = inicioInput.value;
+      document.getElementById('finSearch').value = finInput.value;
+    } else {
+      // buscador a histórico
+      inicioInput.value = document.getElementById('inicioSearch').value;
+      finInput.value = document.getElementById('finSearch').value;
+    }
+  }
+
+  function trackModification(element) {
+    element.dataset.lastModified = new Date().getTime();
+  }
+
+  inicioInput.addEventListener('change', function() { trackModification(this); });
+  finInput.addEventListener('change', function() { trackModification(this); });
+  document.getElementById('inicioSearch').addEventListener('change', function() { trackModification(this); });
+  document.getElementById('finSearch').addEventListener('change', function() { trackModification(this); });
 
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
+
+  inicioInput.addEventListener('change', function() {
+    document.getElementById('inicioSearch').value = this.value;
+  });
+
+  finInput.addEventListener('change', function() {
+    document.getElementById('finSearch').value = this.value;
+  });
+
+  // Synchronize buscador -> histórico
+  document.getElementById('inicioSearch').addEventListener('change', function() {
+    inicioInput.value = this.value;
+  });
+
+  document.getElementById('finSearch').addEventListener('change', function() {
+    finInput.value = this.value;
+  });
 
   switchHistoricoBtn.addEventListener('click', () => {
     // Detener tiempo real
@@ -798,8 +844,10 @@ function updateHTMLInputs() {
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
     toggleHistorico();
-    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
-
+    
+    // Sync calendars when switching to histórico tab
+    syncCalendars();
+    
     ocultarCirculoBuscador(); // <- Ocultar círculo
 
     // Eliminar el marcadorSeleccionado si existe
@@ -828,7 +876,9 @@ function updateHTMLInputs() {
     historicoControlsInput.classList.add('hidden');
     resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
     toggleBuscador();                // ✅ Muestra el panel de fechas
-    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+    
+    // Sync calendars when switching to buscador tab
+    syncCalendars();
 
     mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
 
@@ -836,7 +886,7 @@ function updateHTMLInputs() {
     if (ruta) {
       map.removeLayer(ruta);
     }
-      // Restaurar el marcador seleccionado si existe
+    // Restaurar el marcador seleccionado si existe
     if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
       map.addLayer(marcadorSeleccionado);
       // Si el marcador tiene un popup, lo abrimos nuevamente
