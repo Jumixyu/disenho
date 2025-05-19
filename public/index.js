@@ -558,6 +558,30 @@ function updateHTMLInputs() {
   });
 }
 
+function syncCalendars() {
+  const historicoModified = new Date(inicioInput.dataset.lastModified || 0);
+  const buscadorModified = new Date(document.getElementById('inicioSearch').dataset.lastModified || 0);
+  
+  if (historicoModified > buscadorModified) {
+    // histórico a buscador
+    document.getElementById('inicioSearch').value = inicioInput.value;
+    document.getElementById('finSearch').value = finInput.value;
+  } else {
+    // buscador a histórico
+    inicioInput.value = document.getElementById('inicioSearch').value;
+    finInput.value = document.getElementById('finSearch').value;
+  }
+}
+
+function trackModification(element) {
+  element.dataset.lastModified = new Date().getTime();
+}
+
+inicioInput.addEventListener('change', function() { trackModification(this); });
+finInput.addEventListener('change', function() { trackModification(this); });
+document.getElementById('inicioSearch').addEventListener('change', function() { trackModification(this); });
+document.getElementById('finSearch').addEventListener('change', function() { trackModification(this); });
+
 
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
@@ -791,30 +815,6 @@ function updateHTMLInputs() {
       console.error("❌ Error en actualizarMapa:", error);
     }
   }
-  
-  function syncCalendars() {
-    const historicoModified = new Date(inicioInput.dataset.lastModified || 0);
-    const buscadorModified = new Date(document.getElementById('inicioSearch').dataset.lastModified || 0);
-    
-    if (historicoModified > buscadorModified) {
-      // histórico a buscador
-      document.getElementById('inicioSearch').value = inicioInput.value;
-      document.getElementById('finSearch').value = finInput.value;
-    } else {
-      // buscador a histórico
-      inicioInput.value = document.getElementById('inicioSearch').value;
-      finInput.value = document.getElementById('finSearch').value;
-    }
-  }
-
-  function trackModification(element) {
-    element.dataset.lastModified = new Date().getTime();
-  }
-
-  inicioInput.addEventListener('change', function() { trackModification(this); });
-  finInput.addEventListener('change', function() { trackModification(this); });
-  document.getElementById('inicioSearch').addEventListener('change', function() { trackModification(this); });
-  document.getElementById('finSearch').addEventListener('change', function() { trackModification(this); });
 
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
