@@ -965,9 +965,10 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     const rutaPlacement = await solicitarRuta(rutaCoords);
   
     if (rutaPlacement) {
-      mostrarRecorridos(data);
+      mostrarRecorridos(rutaPlacement);
       map.fitBounds(ruta.getBounds());
     }
+
   });
   
   infoBtn.addEventListener('click', () => {
