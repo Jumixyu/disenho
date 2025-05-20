@@ -47,6 +47,7 @@ const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
 const slidermap = document.getElementById('slider-map');
 
+
 // Vista inicial del mapa
 
 const map = L.map('map');
@@ -62,6 +63,18 @@ fetch('/config')
 })
 .catch(error => console.error('Error al obtener el nombre:', error));
 obtenerFechaHoraActual();
+
+// FUNCIONES PARA GUIA DE NAVEGACIÓN
+
+function openModal() {
+  modal.style.display = 'flex';
+  document.body.classList.add('info-modal-open');
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+  document.body.classList.remove('info-modal-open');
+}
 
 // --------------------- FUCNIONES PARA FILTRAR VEHICULOS Y DIBUJAR LINEAS -------------------------------------
 
@@ -887,6 +900,19 @@ function limpiarRutasBusqueda() {
   }
 
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
+
+  infoBtn.addEventListener('click', openModal);
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+
+  infoModal.addEventListener('click', function(event) {
+    if (event.target === infoModal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    openModal();
+  });
 
   inicioInput.addEventListener('change', function() {
     document.getElementById('inicioSearch').value = this.value;
