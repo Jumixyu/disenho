@@ -592,6 +592,16 @@ finInput.addEventListener('change', function() { trackModification(this); });
 document.getElementById('inicioSearch').addEventListener('change', function() { trackModification(this); });
 document.getElementById('finSearch').addEventListener('change', function() { trackModification(this); });
 
+function limpiarRutasBusqueda() {
+  if (searchRoutes && searchRoutes.length > 0) {
+    searchRoutes.forEach(route => {
+      if (map.hasLayer(route)) {
+        map.removeLayer(route);
+      }
+    });
+    searchRoutes = [];
+  }
+}
 
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
@@ -916,14 +926,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
 
     //limpiar rutas
-    if (searchRoutes && searchRoutes.length > 0) {
-      searchRoutes.forEach(route => {
-        if (map.hasLayer(route)) {
-          map.removeLayer(route);
-        }
-      });
-      searchRoutes = [];
-    }
+    limpiarRutasBusqueda();
     
     // si hay rutas de historico mostrarlas otra vez
     rutasHistoricas.forEach(rutaItem => {
@@ -947,12 +950,13 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     resaltarBotonActivo(buscadorBtn);
     toggleBuscador();
     
-    // Sync calendars when switching to buscador tab
+    limpiarRutasBusqueda();
+
+    // Sincronizar calendarios
     syncCalendars();
 
     mostrarCirculoBuscador();
 
-    // Remove ALL historical routes when switching to search
     rutasHistoricas.forEach(rutaItem => {
       if (map.hasLayer(rutaItem)) {
         map.removeLayer(rutaItem);
@@ -971,6 +975,23 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
+    
+    if (searchCircle && lastSearchLatLng) {
+      const newRadius = parseInt(radioSlider.value, 10);
+      
+      map.removeLayer(searchCircle);
+      
+      searchCircle = L.circle([lastSearchLatLng.lat, lastSearchLatLng.lng], {
+        color: '#007bff',
+        fillColor: '#cce5ff',
+        fillOpacity: 0.4,
+        radius: newRadius
+      }).addTo(map);
+      
+      limpiarRutasBusqueda();
+      
+      lastSearchRadius = newRadius;
+    }
   });
   
   reiniciarBtn.addEventListener('click', reiniciarRuta);
@@ -990,14 +1011,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     });
 
     // esto tambien es para limpiar rutas
-    if (searchRoutes && searchRoutes.length > 0) {
-      searchRoutes.forEach(route => {
-        if (map.hasLayer(route)) {
-          map.removeLayer(route);
-        }
-      });
-      searchRoutes = [];
-    }
+    limpiarRutasBusqueda();
 
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
@@ -1186,6 +1200,8 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     if (searchCircle) {
       map.removeLayer(searchCircle);
     }
+
+    limpiarRutasBusqueda();
   
     // Crear nuevo círculo
     searchCircle = L.circle([lat, lng], {
@@ -1227,14 +1243,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     searchResultsMarkers = [];
     
     // Limpiar rutas de búsqueda anteriores
-    if (searchRoutes && searchRoutes.length > 0) {
-      searchRoutes.forEach(route => {
-        if (map.hasLayer(route)) {
-          map.removeLayer(route);
-        }
-      });
-      searchRoutes = [];
-    }
+    limpiarRutasBusqueda();
     
     const { lat, lng } = lastSearchLatLng;
     const radio = parseInt(radioSlider.value, 10);
@@ -1269,6 +1278,16 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
   });
 
+  document.getElementById("filtroBuscador").addEventListener("change", function() {
+    limpiarRutasBusqueda();
+    
+    if (lastSearchLatLng && resultadosGlobales && resultadosGlobales.length > 0) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.remove('error');
+      messageEl.textContent = 'Cambie el filtro de vehículo. Haga clic en "Buscar" para actualizar los resultados.';
+    }
+  });
+
 //-------------------------------------- PANEL LATERAL Y SLIDER ----------------------------------------------------------
 
 /// Función para mostrar los resultados de búsqueda solo en el panel lateral
@@ -1278,14 +1297,7 @@ function mostrarResultadosBusqueda(resultados) {
   searchResultsMarkers = [];
   
   // Limpiar rutas de búsqueda anteriores
-  if (searchRoutes && searchRoutes.length > 0) {
-    searchRoutes.forEach(route => {
-      if (map.hasLayer(route)) {
-        map.removeLayer(route);
-      }
-    });
-  }
-  searchRoutes = [];
+  limpiarRutasBusqueda();
   
   // Crear panel de resultados
   crearPanelResultados(resultados);
