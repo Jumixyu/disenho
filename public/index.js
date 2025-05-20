@@ -825,6 +825,13 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
   }
 
+  function updateSliderText(index) {
+    const resultado = resultadosGlobales[index];
+    if (!resultado) return;
+    
+    valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
+  }
+
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   inicioInput.addEventListener('change', function() {
@@ -1293,6 +1300,13 @@ function crearPanelResultados(resultados) {
     sliderInput.max = resultadosGlobales.length;
     sliderInput.value = 1;
 
+    // inicia el texto del slider enseguida
+    const initialIndex = 0; 
+    const initialResult = resultadosGlobales[initialIndex];
+    if (initialResult) {
+      valorVelocidad.textContent = `#1 - ${initialResult.fecha.split('T')[0]} ${initialResult.hora}`;
+    }
+
     slidermap.classList.remove('hidden');
 }
 
@@ -1305,19 +1319,15 @@ sliderInput.addEventListener('input', () => {
 
   if (!resultado) return;
 
-  // Mover el mapa manteniendo el nivel de zoom actual
   const currentZoomLevel = map.getZoom();
   map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
 
-  // Quitar el marcador anterior
   if (marcadorSeleccionado) {
     map.removeLayer(marcadorSeleccionado);
   }
 
-  // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
   
-  // Crear contenido del popup
   const fecha = resultado.fecha.split('T')[0];
   const popupContent = `
     <div style="font-family: Arial, sans-serif; font-size: 12px;">
@@ -1328,8 +1338,10 @@ sliderInput.addEventListener('input', () => {
     </div>
   `;
   
-  // Añadir y abrir el popup
   marcadorSeleccionado.bindPopup(popupContent).openPopup();
+  
+  // funcion para update el texto
+  updateSliderText(index);
 });
 
 // Actualizar el texto debajo del slider
