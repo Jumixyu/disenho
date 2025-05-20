@@ -478,6 +478,11 @@ input[type="range"]::-moz-range-track {
     visibility: hidden;
 }
 
+.info-modal-open .leaflet-control-zoom,
+.info-modal-open .leaflet-geosearch-bar {
+    visibility: hidden;
+}
+
 /* ocultar panel de resultados*/
 
 #search-results-panel {
