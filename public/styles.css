@@ -388,10 +388,10 @@ input[type="range"]::-moz-range-track {
 /* BTN DE INFO */
 
 .contenedor2 > button {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    background-color: #309c46; /* Suave, no muy brillante */
+    position: fixed; 
+    right: 20px; 
+    bottom: 20px; 
+    background-color: #309c46; 
     color: #f0f0f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
@@ -404,6 +404,7 @@ input[type="range"]::-moz-range-track {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 900; 
 }
 
 /* Modal background */
