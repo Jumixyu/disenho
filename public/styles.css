@@ -120,10 +120,6 @@ button.active {
     background-color: #2c2f4a;
 }
 
-.leaflet-control-zoom {
-    z-index: 800 !important; 
-}
-
 .leaflet-geosearch-bar {
     position: relative;
     display: block;
@@ -132,7 +128,7 @@ button.active {
     max-width: calc(100% - 120px);
     margin: 10px auto 0;
     cursor: auto;
-    z-index: 800 !important;
+    z-index: 1000;
 }
 
 .leaflet-touch .leaflet-control-geosearch button.reset {
@@ -162,10 +158,6 @@ button.active {
     overflow: hidden;
     text-overflow: ellipsis;
     color: black;
-}
-
-.leaflet-control-geosearch .results {
-    z-index: 800 !important;
 }
 
 .search-results-panel {
@@ -472,15 +464,6 @@ input[type="range"]::-moz-range-track {
     color: #f0f0f0;
     resize: none;
     font-size: 1rem;
-}
-
-.info-modal-open .leaflet-control-geosearch .results {
-    visibility: hidden;
-}
-
-.info-modal-open .leaflet-control-zoom,
-.info-modal-open .leaflet-geosearch-bar {
-    visibility: hidden;
 }
 
 /* ocultar panel de resultados*/
