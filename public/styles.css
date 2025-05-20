@@ -391,7 +391,7 @@ input[type="range"]::-moz-range-track {
     position: fixed; 
     right: 20px; 
     bottom: 20px;
-    background-color: #309c46;
+    background-color: #FF0000;
     color: #f0f0f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
