@@ -1269,6 +1269,42 @@ function limpiarRutasBusqueda() {
       
       // Mostrar resultados en el mapa
       mostrarResultadosBusqueda(searchResults);
+
+      if (searchResults.length > 0) {
+        // Si hay resultados, muestra el primero
+        const primerResultado = searchResults[0];
+        
+        // Eliminar marcador anterior si existe
+        if (marcadorSeleccionado) {
+          map.removeLayer(marcadorSeleccionado);
+        }
+        
+        // Crear y agregar el nuevo marcador para el primer resultado
+        marcadorSeleccionado = L.marker([primerResultado.latitud, primerResultado.longitud]).addTo(map);
+        
+        // Crear contenido del popup
+        const fecha = primerResultado.fecha.split('T')[0];
+        const popupContent = `
+          <div style="font-family: Arial, sans-serif; font-size: 12px;">
+            <div><strong>Última ubicación:</strong></div>
+            <div>📍 Lat: ${primerResultado.latitud}, Long: ${primerResultado.longitud}</div>
+            <div>📅 ${fecha} ${primerResultado.hora}</div>
+            <div>🚗 Vehiculo: ${primerResultado.vehiculo + 1}</div>
+          </div>
+        `;
+        
+        // Añadir popup al marcador y abrirlo
+        marcadorSeleccionado.bindPopup(popupContent).openPopup();
+        
+        // Centrar mapa en el marcador
+        map.setView([primerResultado.latitud, primerResultado.longitud], map.getZoom() || 15);
+        
+        // Actualizar el slider a la posición 1
+        document.getElementById('velocidad-slider').value = 1;
+        
+        // Actualizar el texto del slider con el primer resultado
+        valorVelocidad.textContent = `#1 - ${fecha} ${primerResultado.hora}`;
+      }
       
     } catch (error) {
       console.error('Error al buscar por área:', error);
