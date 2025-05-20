@@ -816,7 +816,6 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
   }
 
-  // funcion para que salga el resultado en el slider enseguida
   function updateSliderText(index) {
     const resultado = resultadosGlobales[index];
     if (!resultado) return;
@@ -1247,7 +1246,7 @@ function crearPanelResultados(resultados) {
     sliderInput.max = resultadosGlobales.length;
     sliderInput.value = 1;
 
-    // iniciar de inmediate el texto del slider
+    // inicia el texto del slider enseguida
     const initialIndex = 0; 
     const initialResult = resultadosGlobales[initialIndex];
     if (initialResult) {
@@ -1266,7 +1265,7 @@ sliderInput.addEventListener('input', () => {
 
   if (!resultado) return;
 
-  // Existing map and marker code...
+  // Mover el mapa manteniendo el nivel de zoom actual
   const currentZoomLevel = map.getZoom();
   map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
 
@@ -1288,7 +1287,7 @@ sliderInput.addEventListener('input', () => {
   
   marcadorSeleccionado.bindPopup(popupContent).openPopup();
   
-  // Use the new function to update text
+  // funcion para update el texto
   updateSliderText(index);
 });
 
