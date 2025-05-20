@@ -24,6 +24,7 @@ let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
 let rutasHistoricas = []; // Array para guardar varias rutas historicas
+let searchRoutes = [];  // Array para guardar la polilinea de buscador
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -832,6 +833,49 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
   }
 
+  // Función para dibujar la ruta de búsqueda
+  async function dibujarRutaBusqueda(resultados, color, vehiculoNum) {
+    try {
+      // Ordenar los resultados cronológicamente
+      resultados.sort((a, b) => {
+        const dateA = new Date(`${a.fecha}T${a.hora}`);
+        const dateB = new Date(`${b.fecha}T${b.hora}`);
+        return dateA - dateB;
+      });
+      
+      // Extraer coordenadas
+      const rutaCoords = resultados.map(r => [parseFloat(r.latitud), parseFloat(r.longitud)]);
+      
+      // Solicitar la ruta optimizada si hay más de 2 puntos
+      if (rutaCoords.length > 1) {
+        // Si tienes una función para optimizar la ruta, úsala
+        const rutaOptimizada = await solicitarRuta(rutaCoords);
+        
+        // Si no hay optimización disponible, usar las coordenadas directas
+        const coordsToUse = rutaOptimizada || rutaCoords;
+        
+        // Crear la polilínea con el color correspondiente
+        const searchRoute = new L.polyline(coordsToUse, {
+          color: color,
+          weight: 4,
+          opacity: 0.7,
+          dashArray: '10, 5', // Línea punteada para diferenciarla de otras rutas
+        }).addTo(map);
+        
+        // Añadir tooltip para identificar la ruta
+        searchRoute.bindTooltip(`Ruta Vehículo ${vehiculoNum}`);
+        
+        // Guardar la ruta para poder eliminarla después
+        searchRoutes.push(searchRoute);
+        
+        // Ajustar la vista del mapa para ver toda la ruta
+        map.fitBounds(searchRoute.getBounds());
+      }
+    } catch (error) {
+      console.error(`Error al dibujar ruta de búsqueda para vehículo ${vehiculoNum}:`, error);
+    }
+  }
+
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   inicioInput.addEventListener('change', function() {
@@ -861,7 +905,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     resaltarBotonActivo(switchHistoricoBtn);
     toggleHistorico();
     
-    // Sync calendars when switching to histórico tab
+    // Syncronizar calendarios
     syncCalendars();
     
     ocultarCirculoBuscador();
@@ -870,15 +914,24 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
     }
+
+    //limpiar rutas
+    if (searchRoutes && searchRoutes.length > 0) {
+      searchRoutes.forEach(route => {
+        if (map.hasLayer(route)) {
+          map.removeLayer(route);
+        }
+      });
+      searchRoutes = [];
+    }
     
-    // If there are historical routes, show them again
+    // si hay rutas de historico mostrarlas otra vez
     rutasHistoricas.forEach(rutaItem => {
       if (!map.hasLayer(rutaItem)) {
         map.addLayer(rutaItem);
       }
     });
     
-    // If there's a main route with bounds, fit to it
     if (ruta && ruta.getBounds && ruta.getBounds().isValid()) {
       map.fitBounds(ruta.getBounds());
     }
@@ -929,12 +982,22 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
-    // Remove ALL historical routes when switching to real-time
+    // quitar rutas historicas al pasar a tiempo real
     rutasHistoricas.forEach(rutaItem => {
       if (map.hasLayer(rutaItem)) {
         map.removeLayer(rutaItem);
       }
     });
+
+    // esto tambien es para limpiar rutas
+    if (searchRoutes && searchRoutes.length > 0) {
+      searchRoutes.forEach(route => {
+        if (map.hasLayer(route)) {
+          map.removeLayer(route);
+        }
+      });
+      searchRoutes = [];
+    }
 
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
@@ -1163,6 +1226,16 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     searchResultsMarkers.forEach(m => map.removeLayer(m));
     searchResultsMarkers = [];
     
+    // Limpiar rutas de búsqueda anteriores
+    if (searchRoutes && searchRoutes.length > 0) {
+      searchRoutes.forEach(route => {
+        if (map.hasLayer(route)) {
+          map.removeLayer(route);
+        }
+      });
+      searchRoutes = [];
+    }
+    
     const { lat, lng } = lastSearchLatLng;
     const radio = parseInt(radioSlider.value, 10);
     
@@ -1200,20 +1273,45 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
 /// Función para mostrar los resultados de búsqueda solo en el panel lateral
 function mostrarResultadosBusqueda(resultados) {
-  // Limpiamos marcadores anteriores por si acaso
+  // Limpiamos marcadores anteriores
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
   
-  // No creamos marcadores, solo el panel de resultados
+  // Limpiar rutas de búsqueda anteriores
+  if (searchRoutes && searchRoutes.length > 0) {
+    searchRoutes.forEach(route => {
+      if (map.hasLayer(route)) {
+        map.removeLayer(route);
+      }
+    });
+  }
+  searchRoutes = [];
+  
+  // Crear panel de resultados
   crearPanelResultados(resultados);
   
-  // Add this to display which filter is active
+  // Verificar si hay suficientes resultados para dibujar rutas
+  if (resultados.length >= 2) {
+    // Separar los resultados por vehículo
+    const resultadosVehiculo1 = resultados.filter(r => r.vehiculo === 0);
+    const resultadosVehiculo2 = resultados.filter(r => r.vehiculo === 1);
+    
+    // Dibujar ruta para vehículo 1 si hay suficientes puntos
+    if (resultadosVehiculo1.length >= 2) {
+      dibujarRutaBusqueda(resultadosVehiculo1, 'blue', 1);
+    }
+    
+    // Dibujar ruta para vehículo 2 si hay suficientes puntos
+    if (resultadosVehiculo2.length >= 2) {
+      dibujarRutaBusqueda(resultadosVehiculo2, 'green', 2);
+    }
+  }
+  
   const filtroBuscador = document.getElementById('filtroBuscador').value;
   let filterText = "Ambos vehículos";
   if (filtroBuscador === "vehiculo1") filterText = "Vehículo 1";
   if (filtroBuscador === "vehiculo2") filterText = "Vehículo 2";
   
-  // You can show the active filter in the results panel title if you want
   const resultsPanel = document.getElementById('search-results-panel');
   if (resultsPanel) {
     resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length}) - ${filterText}`;
