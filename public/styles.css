@@ -390,21 +390,22 @@ input[type="range"]::-moz-range-track {
 .contenedor2 > button {
     position: fixed; 
     right: 20px; 
-    bottom: 20px; 
-    background-color: #309c46; 
+    bottom: 20px;
+    background-color: #309c46;
     color: #f0f0f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    font-size: 30px;
+    width: 45px; 
+    height: 45px;
+    font-size: 36px; 
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 900; 
+    z-index: 1500; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); 
 }
 
 /* Modal background */
