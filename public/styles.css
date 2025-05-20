@@ -418,8 +418,8 @@ input[type="range"]::-moz-range-track {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(3px);
-    justify-content: flex-end;
-    align-items: flex-end;
+    justify-content: center;
+    align-items: center;
 }
   
 /* Modal box */
@@ -430,12 +430,11 @@ input[type="range"]::-moz-range-track {
     border-radius: 12px;
     width: 380px; 
     max-height: 70vh; 
-    overflow-y: auto; 
+    overflow-y: auto; /* esto permite el scroll */
     font-size: 0.9rem;
     position: relative;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    margin-right: 20px;
-    margin-bottom: 20px;
+    margin: 0;
 }
   
 /* Close button */
