@@ -160,7 +160,6 @@ button.active {
     color: black;
 }
 
-
 .search-results-panel {
     position: absolute;
     top: 10px;
@@ -388,22 +387,24 @@ input[type="range"]::-moz-range-track {
 /* BTN DE INFO */
 
 .contenedor2 > button {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    background-color: #309c46; /* Suave, no muy brillante */
+    position: fixed; 
+    right: 20px; 
+    bottom: 20px;
+    background-color: #FF0000;
     color: #f0f0f0;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    font-size: 30px;
+    width: 45px; 
+    height: 45px;
+    font-size: 36px; 
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1500; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); 
 }
 
 /* Modal background */
@@ -427,9 +428,13 @@ input[type="range"]::-moz-range-track {
     color: #f0f0f0;
     padding: 1.5rem;
     border-radius: 12px;
-    width: 480px;
+    width: 380px; 
+    max-height: 70vh; 
+    overflow-y: auto; /* esto permite el scroll */
+    font-size: 0.9rem;
     position: relative;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    margin: 0;
 }
   
 /* Close button */
