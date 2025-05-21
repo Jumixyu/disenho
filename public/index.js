@@ -915,10 +915,10 @@ function limpiarRutasBusqueda() {
     tiemporealControls.classList.add('hidden');
     resaltarBotonActivo(switchHistoricoBtn);
     toggleHistorico();
-        
+    
     // Syncronizar calendarios
     syncCalendars();
-
+    
     ocultarCirculoBuscador();
 
     // Eliminar el marcadorSeleccionado si existe
@@ -1033,7 +1033,6 @@ function limpiarRutasBusqueda() {
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
 
-
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
@@ -1130,13 +1129,6 @@ function limpiarRutasBusqueda() {
         rutasHistoricas.push(ruta); 
         map.fitBounds(ruta.getBounds());
       }
-  
-    const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
-    const rutaPlacement = await solicitarRuta(rutaCoords);
-  
-    if (rutaPlacement) {
-      mostrarRecorridos(rutaPlacement);
-      map.fitBounds(ruta.getBounds());
     }
   });
   
