@@ -23,6 +23,8 @@ let vehiculoreal;
 let resultadosGlobales = []; // se llena desde crearPanelResultados
 
 let vehiculoFiltro = "todos"; // Por defecto muestra ambos vehículos
+let rutasHistoricas = []; // Array para guardar varias rutas historicas
+let searchRoutes = [];  // Array para guardar la polilinea de buscador
 
 const tiempoRealBtn = document.getElementById('tiempo-real-btn');
 const tiemporealControls = document.getElementById('tiempo-real-controls');
@@ -45,6 +47,7 @@ const checkbox = document.getElementById("toggleUbicacion");
 const messageEl = document.getElementById('message');
 const slidermap = document.getElementById('slider-map');
 
+
 // Vista inicial del mapa
 
 const map = L.map('map');
@@ -62,6 +65,19 @@ fetch('/config')
 obtenerFechaHoraActual();
 
 // --------------------- FUCNIONES PARA FILTRAR VEHICULOS Y DIBUJAR LINEAS -------------------------------------
+
+function filtrarCoordenadasPorVehiculo(coordsData) {
+  // Si mostramos ambos vehículos, devolvemos todas las coordenadas
+  if (vehiculoFiltro === "todos") {
+    return coordsData;
+  }
+  
+  // Determinamos el valor numérico del vehículo a filtrar (0 para vehículo 1, 1 para vehículo 2)
+  const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
+  
+  // Filtramos las coordenadas que corresponden al vehículo seleccionado
+  return coordsData.filter(coord => coord.vehiculo === vehiculoNumero);
+}
 
 // Update this function to properly clear all existing routes before drawing new ones
 function dibujarRutaFiltrada(coords) {
@@ -171,7 +187,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
 //------------------------------------------BOTONES-------------------------------------------------------------------------
 
-// Función para resaltar el botón activo 
+// Función para resaltar el botón activo y cambiar a rojo cuando es Tiempo Real o Histórico
 function resaltarBotonActivo(btn) {
   // Quitar la clase active de todos los botones
   const botones = document.querySelectorAll('#tiempo-real-btn, #switch-historico-btn, #buscador-btn');
@@ -225,7 +241,7 @@ function obtenerFechaHoraActual() {
   document.getElementById('fin').value = finDefecto;
   document.getElementById('inicioSearch').value = inicioDefecto;
   document.getElementById('finSearch').value = finDefecto;
-   
+  
   // Set initial modification timestamps to current time
   trackModification(document.getElementById('inicio'));
   trackModification(document.getElementById('fin'));
@@ -272,6 +288,18 @@ function toggleTiempoReal() {
   tiempoRealContainer.classList.toggle('hidden');
 }
 
+// SELECTOR VEHICULO
+
+function mostrarDatosFiltrados(grupo) {
+  console.log("Filtrando por:", grupo);
+  // aquí haces tu consulta o filtrado de datos
+}
+
+function mostrarTodosLosDatos() {
+  console.log("Mostrando todos los datos");
+  // aquí muestras todos
+}
+
 // Función para guardar las coordenadas en localStorage
 function saveLiveCoords() {
   try {
@@ -281,22 +309,6 @@ function saveLiveCoords() {
     console.error('Error al guardar coordenadas:', e);
   }
 }
-
-//funcion dibujar polilineas dobles  
-function mostrarRecorridos(data) {
-  // Borra polilíneas anteriores si existen
-  if (window.ruta1) window.map.removeLayer(window.ruta1);
-  if (window.ruta2) window.map.removeLayer(window.ruta2);
-
-  if (data.vehiculo1) {
-    window.ruta1 = L.polyline(data.vehiculo1, { color: 'blue' }).addTo(map);
-  }
-
-  if (data.vehiculo2) {
-    window.ruta2 = L.polyline(data.vehiculo2, { color: 'red' }).addTo(map);
-  }
-}
-
 
 // Función para obtener recorrido histórico
 async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
@@ -315,7 +327,7 @@ async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
       const vehiculoNumero = vehiculo === "vehiculo1" ? 0 : 1;
       return data.filter(coord => coord.vehiculo === vehiculoNumero);
     }
-
+    
     return data;
   } catch (e) {
     console.error('❌ Error al obtener recorrido histórico:', e);
@@ -389,13 +401,21 @@ function reiniciarRuta() {
   const estaEnBuscador = buscadorBtn.classList.contains('active');
   const estaEnTiempoReal = tiempoRealBtn.classList.contains('active');
 
+  // Remove ALL historical routes
+  rutasHistoricas.forEach(rutaItem => {
+    if (map.hasLayer(rutaItem)) {
+      map.removeLayer(rutaItem);
+    }
+  });
+  rutasHistoricas = [];
+  ruta = null;
+
   // Solo eliminamos la ruta histórica si NO estamos en la pestaña histórico
-  if (ruta && !estaEnHistorico) {
-    map.removeLayer(ruta);
-  } else if (ruta && estaEnHistorico) {
+  if (!estaEnHistorico) {
+    // Routes already removed above
+    coordenadas = [];
+  } else if (estaEnHistorico) {
     // Si se esta en historico y hay ruta, solo se reinicia si se presiona el boton de reiniciar
-    map.removeLayer(ruta);
-    ruta = null;
     coordenadas = [];
   }
 
@@ -573,6 +593,16 @@ finInput.addEventListener('change', function() { trackModification(this); });
 document.getElementById('inicioSearch').addEventListener('change', function() { trackModification(this); });
 document.getElementById('finSearch').addEventListener('change', function() { trackModification(this); });
 
+function limpiarRutasBusqueda() {
+  if (searchRoutes && searchRoutes.length > 0) {
+    searchRoutes.forEach(route => {
+      if (map.hasLayer(route)) {
+        map.removeLayer(route);
+      }
+    });
+    searchRoutes = [];
+  }
+}
 
 //---------------------------------------------------- MAINFUNTION ---------------------------------------------------
 
@@ -581,7 +611,7 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
 
   resaltarBotonActivo(tiempoRealBtn);
-  
+
   updateHTMLInputs();
 
   // Iniciamos el modo tiempo real cuando carga la página
@@ -807,6 +837,56 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
   }
 
+  function updateSliderText(index) {
+    const resultado = resultadosGlobales[index];
+    if (!resultado) return;
+    
+    valorVelocidad.textContent = `#${index + 1} - ${resultado.fecha.split('T')[0]} ${resultado.hora}`;
+  }
+
+  // Función para dibujar la ruta de búsqueda
+  async function dibujarRutaBusqueda(resultados, color, vehiculoNum) {
+    try {
+      // Ordenar los resultados cronológicamente
+      resultados.sort((a, b) => {
+        const dateA = new Date(`${a.fecha}T${a.hora}`);
+        const dateB = new Date(`${b.fecha}T${b.hora}`);
+        return dateA - dateB;
+      });
+      
+      // Extraer coordenadas
+      const rutaCoords = resultados.map(r => [parseFloat(r.latitud), parseFloat(r.longitud)]);
+      
+      // Solicitar la ruta optimizada si hay más de 2 puntos
+      if (rutaCoords.length > 1) {
+        // Si tienes una función para optimizar la ruta, úsala
+        const rutaOptimizada = await solicitarRuta(rutaCoords);
+        
+        // Si no hay optimización disponible, usar las coordenadas directas
+        const coordsToUse = rutaOptimizada || rutaCoords;
+        
+        // Crear la polilínea con el color correspondiente
+        const searchRoute = new L.polyline(coordsToUse, {
+          color: color,
+          weight: 4,
+          opacity: 0.7,
+          dashArray: '10, 5', // Línea punteada para diferenciarla de otras rutas
+        }).addTo(map);
+        
+        // Añadir tooltip para identificar la ruta
+        searchRoute.bindTooltip(`Ruta Vehículo ${vehiculoNum}`);
+        
+        // Guardar la ruta para poder eliminarla después
+        searchRoutes.push(searchRoute);
+        
+        // Ajustar la vista del mapa para ver toda la ruta
+        map.fitBounds(searchRoute.getBounds());
+      }
+    } catch (error) {
+      console.error(`Error al dibujar ruta de búsqueda para vehículo ${vehiculoNum}:`, error);
+    }
+  }
+
   // ----------------------------------------------- EVENT LISTENERS --------------------------------------------
 
   inicioInput.addEventListener('change', function() {
@@ -833,28 +913,31 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     slidermap.classList.add('hidden')
     buscadorControls.classList.add('hidden');
     tiemporealControls.classList.add('hidden');
-    resaltarBotonActivo(switchHistoricoBtn); // Resalta el botón de Historial
+    resaltarBotonActivo(switchHistoricoBtn);
     toggleHistorico();
         
-    // Sync calendars when switching to histórico tab
+    // Syncronizar calendarios
     syncCalendars();
 
-    ocultarCirculoBuscador(); // <- Ocultar círculo
+    ocultarCirculoBuscador();
 
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
     }
+
+    //limpiar rutas
+    limpiarRutasBusqueda();
     
-    // Si hay una ruta histórica guardada, la volvemos a mostrar
-    if (ruta) {
-      if (!map.hasLayer(ruta)) {
-        map.addLayer(ruta);
-        // Si la ruta tiene bounds válidos, ajustamos la vista
-        if (ruta.getBounds && ruta.getBounds().isValid()) {
-          map.fitBounds(ruta.getBounds());
-        }
+    // si hay rutas de historico mostrarlas otra vez
+    rutasHistoricas.forEach(rutaItem => {
+      if (!map.hasLayer(rutaItem)) {
+        map.addLayer(rutaItem);
       }
+    });
+    
+    if (ruta && ruta.getBounds && ruta.getBounds().isValid()) {
+      map.fitBounds(ruta.getBounds());
     }
   });
 
@@ -865,20 +948,23 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     slidermap.classList.remove('hidden');
     tiemporealControls.classList.add('hidden');
     historicoControlsInput.classList.add('hidden');
-    resaltarBotonActivo(buscadorBtn); // ✅ Resalta el botón de Buscador
-    toggleBuscador();                // ✅ Muestra el panel de fechas
-    obtenerFechaHoraActual();        // ✅ Llenar fechas por defecto
+    resaltarBotonActivo(buscadorBtn);
+    toggleBuscador();
     
-    // Sync calendars when switching to buscador tab
+    limpiarRutasBusqueda();
+
+    // Sincronizar calendarios
     syncCalendars();
 
-    mostrarCirculoBuscador(); // <- Mostrar círculo si hay uno guardado
+    mostrarCirculoBuscador();
 
-    // Ocultamos la ruta histórica
-    if (ruta) {
-      map.removeLayer(ruta);
-    }
-      // Restaurar el marcador seleccionado si existe
+    rutasHistoricas.forEach(rutaItem => {
+      if (map.hasLayer(rutaItem)) {
+        map.removeLayer(rutaItem);
+      }
+    });
+    
+    // Restaurar el marcador seleccionado si existe
     if (marcadorSeleccionado && !map.hasLayer(marcadorSeleccionado)) {
       map.addLayer(marcadorSeleccionado);
       // Si el marcador tiene un popup, lo abrimos nuevamente
@@ -890,21 +976,43 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
   radioSlider.addEventListener('input', () => {
     radioValor.textContent = radioSlider.value;
+    
+    if (searchCircle && lastSearchLatLng) {
+      const newRadius = parseInt(radioSlider.value, 10);
+      
+      map.removeLayer(searchCircle);
+      
+      searchCircle = L.circle([lastSearchLatLng.lat, lastSearchLatLng.lng], {
+        color: '#007bff',
+        fillColor: '#cce5ff',
+        fillOpacity: 0.4,
+        radius: newRadius
+      }).addTo(map);
+      
+      limpiarRutasBusqueda();
+      
+      lastSearchRadius = newRadius;
+    }
   });
   
   reiniciarBtn.addEventListener('click', reiniciarRuta);
 
   tiempoRealBtn.addEventListener('click', async () => {
-    resaltarBotonActivo(tiempoRealBtn); // Resalta el botón de Tiempo Real
+    resaltarBotonActivo(tiempoRealBtn);
     toggleTiempoReal();
-    messageEl.classList.add('hidden'); // ✅ Oculta el mensaje al cambiar a Tiempo Real
+    messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
 
-    // Ocultamos la ruta histórica
-    if (ruta) {
-      map.removeLayer(ruta);
-    }
+    // quitar rutas historicas al pasar a tiempo real
+    rutasHistoricas.forEach(rutaItem => {
+      if (map.hasLayer(rutaItem)) {
+        map.removeLayer(rutaItem);
+      }
+    });
+
+    // esto tambien es para limpiar rutas
+    limpiarRutasBusqueda();
 
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
@@ -916,13 +1024,15 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
 
     slidermap.classList.add('hidden');
     buscadorControls.classList.add('hidden');
-    ocultarCirculoBuscador(); // <- Ocultar círculo
+    ocultarCirculoBuscador();
   });
 
   historicoBtn.addEventListener('click', async () => {
     resaltarBotonActuador(historicoBtn);
+
     // Asegurarse de que tiempo real esté detenido
     stopRealTime();
+
 
     if (!inicioInput.value || !finInput.value) {
       messageEl.classList.remove('hidden');
@@ -930,14 +1040,20 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
       messageEl.textContent = 'Debe llenar los campos de inicio y fin';
       return;
     }
-  
+
     // ✅ Aquí ocultamos el mensaje si los valores son correctos
     messageEl.classList.add('hidden');
     messageEl.classList.remove('error');
     messageEl.textContent = '';
-  
-    // Eliminamos solo la ruta histórica anterior
-    if (ruta) map.removeLayer(ruta);
+
+    // Remove ALL historical routes
+    rutasHistoricas.forEach(ruta => {
+      if (map.hasLayer(ruta)) {
+        map.removeLayer(ruta);
+      }
+    });
+    rutasHistoricas = []; // Clear the array
+    ruta = null; // Reset the main ruta reference
     
     // Get the selected vehicle filter
     const filtroHistorico = document.getElementById('filtroHistorico').value;
@@ -945,21 +1061,75 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     const historico = await obtenerRecorridoHistorico(
       formatearFecha(false, inicioInput.value),
       formatearFecha(false, finInput.value),
-      filtroHistorico // Pass the vehicle filter to the function
+      filtroHistorico
     );
-  
+
     if (!historico || historico.length === 0) {
       messageEl.classList.remove('hidden');
       messageEl.classList.add('error');
       messageEl.textContent = 'No hay datos para este rango';
       return;
     }
-  
+
     // Eliminar el marcadorSeleccionado si existe
     if (marcadorSeleccionado) {
       map.removeLayer(marcadorSeleccionado);
       marcadorSeleccionado = null;
     }
+
+    // Check if we're showing both vehicles
+    if (filtroHistorico === "todos") {
+      // Separate coordinates by vehicle
+      const coordsVehiculo1 = historico.filter(coord => coord.vehiculo === 0);
+      const coordsVehiculo2 = historico.filter(coord => coord.vehiculo === 1);
+      
+      // Draw route for vehicle 1 if enough coordinates
+      if (coordsVehiculo1.length >= 2) {
+        const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        const rutaPlacement1 = await solicitarRuta(rutaVehiculo1);
+        
+        if (rutaPlacement1) {
+          const ruta1 = new L.polyline(rutaPlacement1, { color: 'blue', weight: 4 }).addTo(map);
+          rutasHistoricas.push(ruta1); // Add to array
+          if (!ruta) ruta = ruta1; // Store first route for bounds calculation
+        }
+      }
+      
+      // Draw route for vehicle 2 if enough coordinates
+      if (coordsVehiculo2.length >= 2) {
+        const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+        const rutaPlacement2 = await solicitarRuta(rutaVehiculo2);
+        
+        if (rutaPlacement2) {
+          const ruta2 = new L.polyline(rutaPlacement2, { color: 'green', weight: 4 }).addTo(map);
+          rutasHistoricas.push(ruta2); // Add to array
+          if (!ruta) ruta = ruta2;
+        }
+      }
+      
+      // Fit bounds to show all routes
+      if (ruta) {
+        map.fitBounds(ruta.getBounds());
+      }
+    } else {
+      // Single vehicle - existing logic
+      const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
+      const rutaPlacement = await solicitarRuta(rutaCoords);
+
+      if (rutaPlacement) {
+        // Color selection based on vehicle filter
+        let color = 'red'; // Default fallback
+        if (filtroHistorico === "vehiculo1") {
+          color = 'blue';
+        } else if (filtroHistorico === "vehiculo2") {
+          color = 'green';
+        }
+        
+        // Create the new route
+        ruta = new L.polyline(rutaPlacement, { color: color, weight: 4 }).addTo(map);
+        rutasHistoricas.push(ruta); 
+        map.fitBounds(ruta.getBounds());
+      }
   
     const rutaCoords = historico.map((coord) => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
     const rutaPlacement = await solicitarRuta(rutaCoords);
@@ -968,7 +1138,6 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
       mostrarRecorridos(rutaPlacement);
       map.fitBounds(ruta.getBounds());
     }
-
   });
   
   infoBtn.addEventListener('click', () => {
@@ -1040,6 +1209,8 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     if (searchCircle) {
       map.removeLayer(searchCircle);
     }
+
+    limpiarRutasBusqueda();
   
     // Crear nuevo círculo
     searchCircle = L.circle([lat, lng], {
@@ -1080,6 +1251,9 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     searchResultsMarkers.forEach(m => map.removeLayer(m));
     searchResultsMarkers = [];
     
+    // Limpiar rutas de búsqueda anteriores
+    limpiarRutasBusqueda();
+    
     const { lat, lng } = lastSearchLatLng;
     const radio = parseInt(radioSlider.value, 10);
     
@@ -1104,6 +1278,42 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
       
       // Mostrar resultados en el mapa
       mostrarResultadosBusqueda(searchResults);
+
+      if (searchResults.length > 0) {
+        // Si hay resultados, muestra el primero
+        const primerResultado = searchResults[0];
+        
+        // Eliminar marcador anterior si existe
+        if (marcadorSeleccionado) {
+          map.removeLayer(marcadorSeleccionado);
+        }
+        
+        // Crear y agregar el nuevo marcador para el primer resultado
+        marcadorSeleccionado = L.marker([primerResultado.latitud, primerResultado.longitud]).addTo(map);
+        
+        // Crear contenido del popup
+        const fecha = primerResultado.fecha.split('T')[0];
+        const popupContent = `
+          <div style="font-family: Arial, sans-serif; font-size: 12px;">
+            <div><strong>Última ubicación:</strong></div>
+            <div>📍 Lat: ${primerResultado.latitud}, Long: ${primerResultado.longitud}</div>
+            <div>📅 ${fecha} ${primerResultado.hora}</div>
+            <div>🚗 Vehiculo: ${primerResultado.vehiculo + 1}</div>
+          </div>
+        `;
+        
+        // Añadir popup al marcador y abrirlo
+        marcadorSeleccionado.bindPopup(popupContent).openPopup();
+        
+        // Centrar mapa en el marcador
+        map.setView([primerResultado.latitud, primerResultado.longitud], map.getZoom() || 15);
+        
+        // Actualizar el slider a la posición 1
+        document.getElementById('velocidad-slider').value = 1;
+        
+        // Actualizar el texto del slider con el primer resultado
+        valorVelocidad.textContent = `#1 - ${fecha} ${primerResultado.hora}`;
+      }
       
     } catch (error) {
       console.error('Error al buscar por área:', error);
@@ -1113,24 +1323,52 @@ document.getElementById('finSearch').addEventListener('change', function() { tra
     }
   });
 
+  document.getElementById("filtroBuscador").addEventListener("change", function() {
+    limpiarRutasBusqueda();
+    
+    if (lastSearchLatLng && resultadosGlobales && resultadosGlobales.length > 0) {
+      messageEl.classList.remove('hidden');
+      messageEl.classList.remove('error');
+      messageEl.textContent = 'Cambie el filtro de vehículo. Haga clic en "Buscar" para actualizar los resultados.';
+    }
+  });
+
 //-------------------------------------- PANEL LATERAL Y SLIDER ----------------------------------------------------------
 
 /// Función para mostrar los resultados de búsqueda solo en el panel lateral
 function mostrarResultadosBusqueda(resultados) {
-  // Limpiamos marcadores anteriores por si acaso
+  // Limpiamos marcadores anteriores
   searchResultsMarkers.forEach(m => map.removeLayer(m));
   searchResultsMarkers = [];
   
-  // No creamos marcadores, solo el panel de resultados
+  // Limpiar rutas de búsqueda anteriores
+  limpiarRutasBusqueda();
+  
+  // Crear panel de resultados
   crearPanelResultados(resultados);
   
-  // Add this to display which filter is active
+  // Verificar si hay suficientes resultados para dibujar rutas
+  if (resultados.length >= 2) {
+    // Separar los resultados por vehículo
+    const resultadosVehiculo1 = resultados.filter(r => r.vehiculo === 0);
+    const resultadosVehiculo2 = resultados.filter(r => r.vehiculo === 1);
+    
+    // Dibujar ruta para vehículo 1 si hay suficientes puntos
+    if (resultadosVehiculo1.length >= 2) {
+      dibujarRutaBusqueda(resultadosVehiculo1, 'blue', 1);
+    }
+    
+    // Dibujar ruta para vehículo 2 si hay suficientes puntos
+    if (resultadosVehiculo2.length >= 2) {
+      dibujarRutaBusqueda(resultadosVehiculo2, 'green', 2);
+    }
+  }
+  
   const filtroBuscador = document.getElementById('filtroBuscador').value;
   let filterText = "Ambos vehículos";
   if (filtroBuscador === "vehiculo1") filterText = "Vehículo 1";
   if (filtroBuscador === "vehiculo2") filterText = "Vehículo 2";
   
-  // You can show the active filter in the results panel title if you want
   const resultsPanel = document.getElementById('search-results-panel');
   if (resultsPanel) {
     resultsPanel.querySelector('h3').textContent = `Resultados (${resultados.length}) - ${filterText}`;
@@ -1217,6 +1455,13 @@ function crearPanelResultados(resultados) {
     sliderInput.max = resultadosGlobales.length;
     sliderInput.value = 1;
 
+    // inicia el texto del slider enseguida
+    const initialIndex = 0; 
+    const initialResult = resultadosGlobales[initialIndex];
+    if (initialResult) {
+      valorVelocidad.textContent = `#1 - ${initialResult.fecha.split('T')[0]} ${initialResult.hora}`;
+    }
+
     slidermap.classList.remove('hidden');
 }
 
@@ -1229,19 +1474,15 @@ sliderInput.addEventListener('input', () => {
 
   if (!resultado) return;
 
-  // Mover el mapa manteniendo el nivel de zoom actual
   const currentZoomLevel = map.getZoom();
   map.setView([resultado.latitud, resultado.longitud], currentZoomLevel);
 
-  // Quitar el marcador anterior
   if (marcadorSeleccionado) {
     map.removeLayer(marcadorSeleccionado);
   }
 
-  // Agregar nuevo marcador
   marcadorSeleccionado = L.marker([resultado.latitud, resultado.longitud]).addTo(map);
   
-  // Crear contenido del popup
   const fecha = resultado.fecha.split('T')[0];
   const popupContent = `
     <div style="font-family: Arial, sans-serif; font-size: 12px;">
@@ -1252,8 +1493,10 @@ sliderInput.addEventListener('input', () => {
     </div>
   `;
   
-  // Añadir y abrir el popup
   marcadorSeleccionado.bindPopup(popupContent).openPopup();
+  
+  // funcion para update el texto
+  updateSliderText(index);
 });
 
 // Actualizar el texto debajo del slider
