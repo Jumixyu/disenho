@@ -373,8 +373,7 @@ function stopRealTime() {
     });
     
     markers = { 0: null, 1: null };
-    
-    // Remove ALL polylines that aren't the historical route (ruta)
+
     map.eachLayer(function(layer) {
       if (layer instanceof L.Polyline && layer !== ruta) {
         map.removeLayer(layer);
