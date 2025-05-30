@@ -380,7 +380,6 @@ function stopRealTime() {
       }
     });
     
-    // Reset liveRoute reference
     liveRoute = null;
     
     return true;
