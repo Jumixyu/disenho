@@ -79,31 +79,26 @@ function filtrarCoordenadasPorVehiculo(coordsData) {
   return coordsData.filter(coord => coord.vehiculo === vehiculoNumero);
 }
 
-// Update this function to properly clear all existing routes before drawing new ones
 function dibujarRutaFiltrada(coords) {
-  // Remove ALL existing polylines first
   map.eachLayer(function(layer) {
     if (layer instanceof L.Polyline && layer !== ruta) {
       map.removeLayer(layer);
     }
   });
   
-  // Reset liveRoute
   liveRoute = null;
 
-  // If no coordinates or insufficient, don't proceed
   if (!coords || coords.length < 2) {
     console.warn('⚠ No hay suficientes coordenadas para trazar ruta.');
     return;
   }
   
-  // If showing both vehicles
   if (vehiculoFiltro === "todos") {
     // Separamos las coordenadas por vehículo
     const coordsVehiculo1 = coords.filter(coord => coord.vehiculo === 0);
     const coordsVehiculo2 = coords.filter(coord => coord.vehiculo === 1);
     
-    // Draw route for vehicle 1 if enough coordinates
+    // ruta para vehiculo 1
     if (coordsVehiculo1.length >= 2) {
       const rutaVehiculo1 = coordsVehiculo1.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
       const rutaPlacement1 = solicitarRuta(rutaVehiculo1);
@@ -117,7 +112,7 @@ function dibujarRutaFiltrada(coords) {
       }
     }
     
-    // Draw route for vehicle 2 if enough coordinates
+    // ruta para vehiculo 2
     if (coordsVehiculo2.length >= 2) {
       const rutaVehiculo2 = coordsVehiculo2.map(coord => [parseFloat(coord.latitud), parseFloat(coord.longitud)]);
       const rutaPlacement2 = solicitarRuta(rutaVehiculo2);
@@ -131,7 +126,6 @@ function dibujarRutaFiltrada(coords) {
       }
     }
   } else {
-    // If showing only one vehicle
     const vehiculoNumero = vehiculoFiltro === "vehiculo1" ? 0 : 1;
     const coordsVehiculo = coords.filter(coord => coord.vehiculo === vehiculoNumero);
     
@@ -160,7 +154,7 @@ function updateMarker(lat, lon, fecha, hora, rpm, vehiculo) {
 
   lastPopupContent = `📍 Lat: ${lat}, Long: ${lon}<br>📅 ${fecha} ${hora} <br>🚗 RPM: ${rpm},    Vehiculo: ${vehiculoreal}`;
 
-  // Create or update the marker for this specific vehicle
+  // marker para vehiculo
   if (!markers[vehiculo]) {
     const iconColor = vehiculo === 0 ? 'blue' : 'green';
     const vehicleIcon = L.divIcon({
