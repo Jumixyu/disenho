@@ -322,7 +322,6 @@ async function obtenerRecorridoHistorico(inicio, fin, vehiculo = "todos") {
 
     if (!data.length) return;
     
-    // Filter data if a specific vehicle is requested
     if (vehiculo !== "todos") {
       const vehiculoNumero = vehiculo === "vehiculo1" ? 0 : 1;
       return data.filter(coord => coord.vehiculo === vehiculoNumero);
